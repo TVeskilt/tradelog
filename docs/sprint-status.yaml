@@ -87,14 +87,15 @@ stories:
     epic: EPIC-001
     sprint: 1
     points: 5
-    status: not_started
+    status: in_progress
     priority: critical
-    started_date: null
+    started_date: '2026-01-02 19:19:37'
     completed_date: null
     assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
-    notes: null
+    story_document: 'docs/stories/STORY-002.md'
+    notes: 'Story document created with 21 acceptance criteria covering Docker Compose setup, PostgreSQL 15, Node 24 Alpine, health checks, and seed script. Implementation started 2026-01-02 19:19:37.'
 
   - id: STORY-003
     name: 'Prisma ORM Setup & Database Schema'
