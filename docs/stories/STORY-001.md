@@ -21,7 +21,9 @@ So that **I can develop the React frontend and NestJS backend in a single reposi
 ## Description
 
 ### Background
+
 TradeLog is a custom options trading portfolio manager that requires both a React frontend (web) and NestJS backend (api). A monorepo structure enables:
+
 - Shared TypeScript types and utilities between frontend and backend
 - Consistent tooling (ESLint, Prettier, TypeScript config)
 - Atomic commits across frontend and backend
@@ -33,6 +35,7 @@ This story establishes the foundational project structure that all subsequent de
 ### Scope
 
 **In scope:**
+
 - pnpm workspace configuration with three packages:
   - `web/` - React frontend at project root
   - `api/` - NestJS backend at project root
@@ -44,6 +47,7 @@ This story establishes the foundational project structure that all subsequent de
 - Basic README with setup instructions
 
 **Out of scope:**
+
 - Docker configuration (STORY-002)
 - Application code or components
 - Database setup (STORY-003)
@@ -51,6 +55,7 @@ This story establishes the foundational project structure that all subsequent de
 - Production deployment configuration
 
 ### Developer Flow
+
 1. Developer clones repository
 2. Developer runs `pnpm install` at root (installs all workspace dependencies)
 3. Developer runs `pnpm dev` to start both frontend and backend concurrently
@@ -64,12 +69,14 @@ This story establishes the foundational project structure that all subsequent de
 ## Acceptance Criteria
 
 ### Workspace Configuration
+
 - [ ] pnpm-workspace.yaml exists at project root
-- [ ] pnpm-workspace.yaml includes: web, api, packages/*
+- [ ] pnpm-workspace.yaml includes: web, api, packages/\*
 - [ ] Root package.json exists with workspace scripts
 - [ ] pnpm version 9+ documented as requirement
 
 ### Package Structure
+
 - [ ] web/ directory created at project root
 - [ ] api/ directory created at project root
 - [ ] packages/shared/ directory created
@@ -77,6 +84,7 @@ This story establishes the foundational project structure that all subsequent de
 - [ ] Workspace names follow convention: @tradelog/web, @tradelog/api, @tradelog/shared
 
 ### TypeScript Configuration
+
 - [ ] Root tsconfig.json with strict mode enabled
 - [ ] web/tsconfig.json extends root config, configured for React
 - [ ] api/tsconfig.json extends root config, configured for NestJS
@@ -84,6 +92,7 @@ This story establishes the foundational project structure that all subsequent de
 - [ ] All configs use strict: true, noImplicitAny: true, strictNullChecks: true
 
 ### Code Quality Tools
+
 - [ ] ESLint configured at root with TypeScript support
 - [ ] ESLint extends recommended configs (@typescript-eslint, react for web)
 - [ ] Prettier configured at root with consistent rules
@@ -91,6 +100,7 @@ This story establishes the foundational project structure that all subsequent de
 - [ ] All packages pass linting with zero errors/warnings
 
 ### Scripts & Automation
+
 - [ ] Root package.json has `dev` script (runs web + api concurrently)
 - [ ] Root package.json has `build` script (builds all workspaces)
 - [ ] Root package.json has `lint` script (lints all workspaces)
@@ -98,6 +108,7 @@ This story establishes the foundational project structure that all subsequent de
 - [ ] Scripts use workspace filtering where appropriate
 
 ### Validation
+
 - [ ] `pnpm install` completes successfully from fresh clone
 - [ ] `pnpm lint` passes with zero errors
 - [ ] `pnpm format` runs without errors
@@ -105,6 +116,7 @@ This story establishes the foundational project structure that all subsequent de
 - [ ] No conflicting dependencies between workspaces
 
 ### Documentation
+
 - [ ] README.md with setup instructions
 - [ ] Prerequisites documented (Node 24 LTS, pnpm 9+)
 - [ ] Available scripts documented
@@ -115,6 +127,7 @@ This story establishes the foundational project structure that all subsequent de
 ## Technical Notes
 
 ### Project Structure
+
 ```
 tradelog/
 ├── web/                          # React frontend
@@ -143,6 +156,7 @@ tradelog/
 ### pnpm Workspace Configuration
 
 **pnpm-workspace.yaml:**
+
 ```yaml
 packages:
   - 'web'
@@ -151,6 +165,7 @@ packages:
 ```
 
 **Root package.json (key sections):**
+
 ```json
 {
   "name": "tradelog",
@@ -176,6 +191,7 @@ packages:
 ### TypeScript Configuration
 
 **Root tsconfig.json:**
+
 ```json
 {
   "compilerOptions": {
@@ -205,6 +221,7 @@ packages:
 ```
 
 **web/tsconfig.json (React-specific):**
+
 ```json
 {
   "extends": "../tsconfig.json",
@@ -218,6 +235,7 @@ packages:
 ```
 
 **api/tsconfig.json (NestJS-specific):**
+
 ```json
 {
   "extends": "../tsconfig.json",
@@ -240,18 +258,21 @@ packages:
 ### ESLint Configuration
 
 **.eslintrc.js:**
+
 ```javascript
 module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: ['./tsconfig.json', './web/tsconfig.json', './api/tsconfig.json', './packages/*/tsconfig.json'],
+    project: [
+      './tsconfig.json',
+      './web/tsconfig.json',
+      './api/tsconfig.json',
+      './packages/*/tsconfig.json',
+    ],
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-  ],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
   root: true,
   env: {
     node: true,
@@ -269,6 +290,7 @@ module.exports = {
 ### Prettier Configuration
 
 **.prettierrc:**
+
 ```json
 {
   "semi": true,
@@ -285,6 +307,7 @@ module.exports = {
 ### Workspace Dependencies
 
 **packages/shared/package.json:**
+
 ```json
 {
   "name": "@tradelog/shared",
@@ -304,6 +327,7 @@ module.exports = {
 ```
 
 **Example usage in web/package.json:**
+
 ```json
 {
   "dependencies": {
@@ -315,6 +339,7 @@ module.exports = {
 ### Barrel Exports Setup
 
 **packages/shared/src/index.ts:**
+
 ```typescript
 // Example barrel export structure (will be populated in later stories)
 export * from './types';
@@ -368,6 +393,7 @@ coverage/
 ### Implementation Steps
 
 1. **Initialize root workspace:**
+
    ```bash
    pnpm init
    ```
@@ -375,11 +401,13 @@ coverage/
 2. **Create pnpm-workspace.yaml** with workspace packages
 
 3. **Create directory structure:**
+
    ```bash
    mkdir -p web api packages/shared
    ```
 
 4. **Initialize each workspace:**
+
    ```bash
    cd web && pnpm init
    cd ../api && pnpm init
@@ -391,6 +419,7 @@ coverage/
 6. **Create TypeScript configs** (root + per-workspace)
 
 7. **Install shared dev dependencies** at root:
+
    ```bash
    pnpm add -D -w typescript eslint prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin
    ```
@@ -402,6 +431,7 @@ coverage/
 10. **Create .gitignore and .prettierignore**
 
 11. **Test installation and scripts:**
+
     ```bash
     pnpm install
     pnpm lint
@@ -430,10 +460,13 @@ coverage/
 ## Dependencies
 
 ### Prerequisite Stories
+
 **None** - This is the first story in the project (no blockers)
 
 ### Blocks Stories
+
 **All other stories** - The entire project depends on this monorepo setup:
+
 - STORY-002: Docker Compose Development Environment
 - STORY-003: Prisma ORM Setup & Database Schema
 - STORY-004: Trade CRUD API Endpoints
@@ -447,11 +480,13 @@ coverage/
 - STORY-012: P&L Calculation & Status Display
 
 ### External Dependencies
+
 - **Node.js 24 LTS**: Must be installed on developer machine
 - **pnpm 9+**: Must be installed globally (`npm install -g pnpm`)
 - **Git**: For version control
 
 ### Technical Dependencies
+
 None - this story has no technical dependencies within the project.
 
 ---
@@ -459,6 +494,7 @@ None - this story has no technical dependencies within the project.
 ## Definition of Done
 
 ### Code Quality
+
 - [ ] All TypeScript files pass type checking with strict mode
 - [ ] ESLint runs with zero errors and zero warnings
 - [ ] Prettier formatting applied to all files
@@ -466,6 +502,7 @@ None - this story has no technical dependencies within the project.
 - [ ] All workspace scripts execute successfully
 
 ### Functionality
+
 - [ ] Fresh clone + `pnpm install` completes without errors
 - [ ] `pnpm dev` script defined (will be functional after STORY-002, STORY-003)
 - [ ] `pnpm build` builds all workspaces successfully (may be empty builds initially)
@@ -474,6 +511,7 @@ None - this story has no technical dependencies within the project.
 - [ ] Workspaces can import from @tradelog/shared using workspace protocol
 
 ### Documentation
+
 - [ ] README.md created with:
   - [ ] Prerequisites (Node 24, pnpm 9+)
   - [ ] Installation steps
@@ -484,19 +522,23 @@ None - this story has no technical dependencies within the project.
 - [ ] .gitignore includes all necessary patterns
 
 ### Testing
+
 - [ ] Manual validation: Clone repo, run `pnpm install`, verify no errors
 - [ ] Manual validation: Run `pnpm lint`, verify zero errors
 - [ ] Manual validation: Run `pnpm format`, verify files formatted
 - [ ] Manual validation: Create test file in shared/, import in web and api, verify workspace protocol works
 
 ### Integration
+
 - [ ] Code committed to git with descriptive message
 - [ ] .gitignore prevents node_modules, dist, .env from being committed
 - [ ] All configuration files (tsconfig, eslint, prettier) committed
 - [ ] README committed
 
 ### Verification Checklist
+
 Run these commands to verify completion:
+
 ```bash
 # Clean install test
 rm -rf node_modules web/node_modules api/node_modules packages/*/node_modules
@@ -522,6 +564,7 @@ pnpm type-check
 ## Story Points Breakdown
 
 **Complexity Analysis:**
+
 - **Configuration Setup**: 1 point
   - Create workspace files (pnpm-workspace.yaml, package.json)
   - Configure TypeScript (4 tsconfig files)
@@ -537,6 +580,7 @@ pnpm type-check
 **Total: 3 points**
 
 **Rationale:**
+
 - Straightforward configuration work
 - Well-documented patterns (pnpm workspaces, TypeScript, ESLint)
 - No complex logic or algorithms
@@ -548,12 +592,14 @@ pnpm type-check
 ## Additional Notes
 
 ### Why pnpm over npm/yarn?
+
 - **Speed**: 2x faster than npm, faster than yarn
 - **Disk efficiency**: Content-addressable storage (shared cache)
 - **Strict**: Better handling of peer dependencies
 - **Monorepo support**: First-class workspace support with filtering
 
 ### Why strict TypeScript mode?
+
 - Catch bugs at compile time
 - Better IDE autocomplete and refactoring
 - Self-documenting code (types as documentation)
@@ -561,12 +607,14 @@ pnpm type-check
 - Aligns with project NFR-004 (Code Quality)
 
 ### Why consistent tooling?
+
 - Prevents "works on my machine" issues
 - Automated formatting reduces code review overhead
 - Enforces code quality standards (no `any`, unused vars, etc.)
 - Enables confident refactoring
 
 ### Future Enhancements (Post-MVP)
+
 - Husky pre-commit hooks for lint/format
 - Commitlint for conventional commits
 - lint-staged for faster pre-commit linting
@@ -578,6 +626,7 @@ pnpm type-check
 ## Progress Tracking
 
 **Status History:**
+
 - 2025-01-02: Story created and documented
 - TBD: Story started
 - TBD: Code review

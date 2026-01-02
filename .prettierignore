@@ -1,0 +1,7 @@
+dist
+node_modules
+build
+pnpm-lock.yaml
+.git
+.idea
+.vscode

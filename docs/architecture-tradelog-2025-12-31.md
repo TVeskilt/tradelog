@@ -13,6 +13,7 @@
 **Status:** Approved
 **Author:** System Architect (BMAD Method v6)
 **Related Documents:**
+
 - Product Brief: `docs/product-brief-tradelog-2025-12-31.md`
 - PRD: `docs/prd-tradelog-2025-12-31.md`
 
@@ -44,6 +45,7 @@
 TradeLog is a custom options trading portfolio management application designed to replace Interactive Brokers' confusing interface. The system enables unlimited leg grouping for complex multi-leg strategies (calendar spreads, ratio spreads) and provides clear portfolio visualization for rapid Friday trading workflow execution (1-2 minute overview target).
 
 **Key Capabilities:**
+
 - Manage individual options trades (Buy/Sell, Call/Put)
 - Group trades into multi-leg strategies (2+ trades per group)
 - Automatic P&L calculation and group status derivation
@@ -57,6 +59,7 @@ TradeLog is a custom options trading portfolio management application designed t
 **Deployment:** Docker Compose (localhost single-user MVP)
 
 **Key Architectural Decisions:**
+
 1. Single "Trades" domain with Groups as aggregates
 2. Derive all group metrics on-demand (never store calculated fields)
 3. UUID primary keys for security and future-proofing
@@ -66,13 +69,13 @@ TradeLog is a custom options trading portfolio management application designed t
 
 ### Technology Stack Summary
 
-| Layer | Technology | Rationale |
-|-------|-----------|-----------|
-| **Frontend** | React 18, TypeScript, Vite, shadcn/ui | Modern SPA, type-safe, fast HMR |
-| **Backend** | NestJS, TypeScript, Prisma ORM | DDD-friendly, type-safe, ACID transactions |
-| **Database** | PostgreSQL 15 | ACID compliance, relational integrity |
-| **Infrastructure** | Docker Compose, Node 24 Alpine | Single-command setup, environment parity |
-| **API Docs** | Swagger/OpenAPI, openapi-typescript | Contract-first, auto-generated types |
+| Layer              | Technology                            | Rationale                                  |
+| ------------------ | ------------------------------------- | ------------------------------------------ |
+| **Frontend**       | React 18, TypeScript, Vite, shadcn/ui | Modern SPA, type-safe, fast HMR            |
+| **Backend**        | NestJS, TypeScript, Prisma ORM        | DDD-friendly, type-safe, ACID transactions |
+| **Database**       | PostgreSQL 15                         | ACID compliance, relational integrity      |
+| **Infrastructure** | Docker Compose, Node 24 Alpine        | Single-command setup, environment parity   |
+| **API Docs**       | Swagger/OpenAPI, openapi-typescript   | Contract-first, auto-generated types       |
 
 ### Performance Targets
 
@@ -95,25 +98,30 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 ### Primary Drivers (High Impact on Architecture)
 
 **1. NFR-001: Performance Requirements**
+
 - Dashboard load < 2 seconds
 - Trade list render < 1 second
 - Form submission response < 500ms
 - **Architectural Impact:** Requires efficient database queries, proper indexing, optimized API responses, caching strategy
 
 **2. NFR-004: Data Integrity**
+
 - Transactional operations for trade/group management
 - Group status automatically derived from child trades
 - **Architectural Impact:** Requires transaction management, referential integrity, business logic layer for derivation
 
 **3. NFR-006: Scalability**
+
 - Support 500+ trades, 100+ groups
 - **Architectural Impact:** Requires pagination strategy, database indexing, efficient query design
 
 **4. NFR-007: Local Development Reliability**
+
 - Docker Compose single-command startup
 - **Architectural Impact:** Containerization architecture, environment configuration management
 
 **5. NFR-005: Code Quality & Documentation**
+
 - TypeScript strict mode
 - Swagger/OpenAPI with type generation
 - **Architectural Impact:** API-first development, shared type package, contract-driven design
@@ -121,10 +129,12 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 ### Secondary Drivers (Moderate Impact)
 
 **6. NFR-003: Responsive Design**
+
 - Desktop, tablet, mobile viewports
 - **Architectural Impact:** Frontend component architecture, CSS strategy
 
 **7. NFR-008: Security**
+
 - Minimal for localhost MVP
 - **Architectural Impact:** Basic input validation only, defer auth/encryption
 
@@ -137,6 +147,7 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 **Layered Monolith with API-First Design**
 
 **Rationale:**
+
 - Level 2 project suits a simple, proven architecture
 - Monorepo structure naturally aligns with layered approach
 - API-first via Swagger enables contract-driven development
@@ -215,41 +226,49 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 ## Part 3: Technology Stack
 
 ### General Requirement
+
 ✅ Use **latest LTS versions** for all packages and technologies
 
 ### Frontend Stack
 
 **React 18+**
+
 - Component-based architecture
 - Large ecosystem for trading UI components
 - Addresses: NFR-002 (usability), NFR-003 (responsive design)
 
 **TypeScript (strict mode)**
+
 - End-to-end type safety with backend
 - Compile-time error detection
 - Addresses: NFR-005 (code quality)
 
 **Vite**
+
 - Fast HMR and optimized builds
 - Better DX than Create React App
 - Addresses: NFR-007 (development reliability)
 
 **shadcn/ui**
+
 - Accessible, customizable components
 - TypeScript-first, no runtime dependency
 - Addresses: NFR-002 (intuitive UI), NFR-003 (responsive)
 
 **React Hook Form**
+
 - Minimal re-renders for better performance
 - Great TypeScript integration
 - Addresses: NFR-001 (performance)
 
 **Zod**
+
 - Runtime validation with type inference
 - Integrates with React Hook Form
 - Addresses: NFR-004 (data integrity), NFR-005 (type safety)
 
 **TanStack Query (React Query)**
+
 - Built-in caching, automatic refetching
 - Optimistic updates support
 - Addresses: NFR-001 (performance via caching)
@@ -257,16 +276,19 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 ### Backend Stack
 
 **NestJS**
+
 - DDD-friendly module structure
 - Built-in dependency injection
 - Excellent TypeScript support
 - Addresses: NFR-005 (code quality), NFR-006 (scalability)
 
 **TypeScript (strict mode)**
+
 - End-to-end type safety
 - Addresses: NFR-005 (code quality)
 
 **Prisma ORM**
+
 - Type-safe queries - generates types from schema
 - **Enums as source of truth** - defined in schema.prisma, used everywhere
 - Migration management
@@ -274,18 +296,21 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 - Addresses: NFR-004 (data integrity), NFR-005 (type safety), NFR-006 (performance)
 
 **class-validator + class-transformer**
+
 - DTO validation in NestJS
 - Decorator-based, clean API
 - Enables `@Expose()` pattern for response serialization
 - Addresses: NFR-004 (data integrity), NFR-008 (security - prevents data leaks)
 
 **@nestjs/swagger**
+
 - Auto-generates OpenAPI spec
 - Provides Swagger UI at `/api/docs`
 - **Generates TypeScript types for frontend** via `openapi-typescript`
 - Addresses: NFR-005 (API documentation), FR-000 (Swagger requirement)
 
 **compression**
+
 - Gzip/deflate response compression
 - Reduces payload size for better performance
 - Addresses: NFR-001 (performance)
@@ -293,6 +318,7 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 ### Database
 
 **PostgreSQL 15+**
+
 - ACID compliance for transactions
 - Excellent relational data support
 - Proven reliability
@@ -301,12 +327,14 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 ### Infrastructure
 
 **Docker + Docker Compose**
+
 - Environment parity
 - Single-command startup
 - Isolated dependencies
 - Addresses: NFR-007 (local development reliability)
 
 **Node 24 Alpine**
+
 - Latest LTS version
 - Lightweight (~120MB vs 900MB)
 - Secure, minimal attack surface
@@ -315,22 +343,26 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 ### Development Tools
 
 **pnpm 9+**
+
 - Efficient monorepo support
 - Faster than npm, disk space efficient
 - Workspace management
 - Addresses: NFR-007 (development efficiency)
 
 **ESLint + Prettier**
+
 - Consistent code style
 - Catch common errors
 - Addresses: NFR-005 (code quality)
 
 **TypeScript Compiler (tsc)**
+
 - Strict mode enforcement
 - Build-time type checking
 - Addresses: NFR-005 (code quality)
 
 **openapi-typescript**
+
 - Generate frontend types from Swagger spec
 - Single source of truth (backend schema)
 - Auto-sync on build
@@ -363,6 +395,7 @@ React components + TanStack Query
 **Purpose:** User interface for portfolio and trade management
 
 **Responsibilities:**
+
 - Render responsive UI (desktop, tablet, mobile viewports)
 - Handle user input via forms (React Hook Form + Zod)
 - Consume backend REST API (v1 versioned endpoints)
@@ -371,6 +404,7 @@ React components + TanStack Query
 - Manage client-side routing
 
 **Internal Structure:**
+
 ```
 web/src/
 ├── pages/                      # Route components
@@ -403,18 +437,22 @@ web/src/
 ```
 
 **Interfaces:**
+
 - Consumes: `GET/POST/PATCH/DELETE /v1/trades`, `/v1/groups`
 - Receives: `DataResponseDto<T>` wrapped responses
 - Uses types from: `types/api.types.ts` (Swagger-generated)
 
 **Dependencies:**
+
 - Backend API (http://localhost:3000/v1)
 - Swagger-generated types
 
 **Technologies:**
+
 - React 18, TypeScript, Vite, shadcn/ui, React Hook Form, Zod, TanStack Query
 
 **Addresses:**
+
 - All FRs (UI layer for all features)
 - NFR-001 (performance via caching)
 - NFR-002 (intuitive UI)
@@ -427,6 +465,7 @@ web/src/
 **Purpose:** Business logic, data access, and API gateway
 
 **Responsibilities:**
+
 - Expose REST API endpoints (versioned `/v1`)
 - Validate requests via DTOs (class-validator)
 - Execute business logic (group status derivation, P&L calculation)
@@ -436,6 +475,7 @@ web/src/
 - Apply global interceptors and pipes
 
 **Internal Structure:**
+
 ```
 api/src/
 ├── trades/                          # Trading Domain (DDD module)
@@ -479,25 +519,30 @@ api/src/
 ```
 
 **Interfaces:**
+
 - Exposes: REST API at `http://localhost:3000/v1`
 - Swagger UI: `http://localhost:3000/api/docs`
 - OpenAPI spec: `http://localhost:3000/api/docs-json`
 - Database: PostgreSQL via Prisma
 
 **Key Patterns:**
+
 - **Global ValidationPipe:** Auto-transform and whitelist incoming requests
 - **Global ClassSerializerInterceptor:** Only expose `@Expose()` decorated fields
 - **plainToInstance:** Explicit Prisma entity → Response DTO transformation
 - **DataResponseDto<T>:** Consistent response wrapper
 
 **Dependencies:**
+
 - PostgreSQL database (port 5432)
 - Prisma Client (generated from schema.prisma)
 
 **Technologies:**
+
 - NestJS, TypeScript, Prisma, class-validator, class-transformer, @nestjs/swagger, compression
 
 **Addresses:**
+
 - All FRs (API implementation)
 - NFR-004 (data integrity via transactions)
 - NFR-005 (code quality via DDD structure, Swagger docs)
@@ -510,6 +555,7 @@ api/src/
 **Purpose:** Persistent data storage with ACID guarantees
 
 **Responsibilities:**
+
 - Store trades and groups with relational integrity
 - Enforce foreign key constraints
 - Support transactions for atomic operations
@@ -517,6 +563,7 @@ api/src/
 - Handle concurrent access safely
 
 **Schema (managed by Prisma):**
+
 ```
 ┌──────────────────────┐
 │ groups               │
@@ -555,22 +602,28 @@ api/src/
 ```
 
 **Indexes:**
+
 - trades: `groupUuid`, `expiryDate`, `status`, `symbol`
 - groups: `strategyType`
 
 **Enums (defined in Prisma):**
+
 - TradeType, OptionType, TradeStatus, StrategyType
 
 **Interfaces:**
+
 - Prisma Client connection (port 5432 internal to Docker network)
 
 **Dependencies:**
+
 - None (standalone)
 
 **Technologies:**
+
 - PostgreSQL 15+ (Alpine Docker image)
 
 **Addresses:**
+
 - NFR-004 (data integrity via ACID)
 - NFR-006 (scalability via indexes)
 
@@ -581,6 +634,7 @@ api/src/
 **Purpose:** Containerized development environment
 
 **Responsibilities:**
+
 - Containerize all services (web, api, database)
 - Orchestrate multi-container startup via Docker Compose
 - Provide single-command setup (`docker-compose up`)
@@ -590,6 +644,7 @@ api/src/
 **Services:**
 
 **web:**
+
 - Image: Node 24 Alpine
 - Command: `pnpm dev` (Vite dev server)
 - Port: 5173:5173
@@ -597,6 +652,7 @@ api/src/
 - Environment: `VITE_API_URL=http://localhost:3000/v1`
 
 **api:**
+
 - Image: Node 24 Alpine
 - Command: `pnpm start:dev` (NestJS watch mode)
 - Port: 3000:3000
@@ -605,22 +661,27 @@ api/src/
 - Depends on: postgres
 
 **postgres:**
+
 - Image: PostgreSQL 15 Alpine
 - Port: 5432:5432 (exposed for local DB tools)
 - Volume: `postgres-data:/var/lib/postgresql/data` (persistence)
 - Environment: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
 
 **Network:**
+
 - Bridge network connecting all services
 
 **Dependencies:**
+
 - Docker Engine
 - Docker Compose
 
 **Technologies:**
+
 - Docker, Docker Compose, Node 24 Alpine, PostgreSQL 15 Alpine
 
 **Addresses:**
+
 - NFR-007 (local development reliability)
 - FR-000 (project setup)
 
@@ -631,12 +692,14 @@ api/src/
 **Purpose:** Maintain type safety across frontend and backend
 
 **Responsibilities:**
+
 - Generate Prisma Client from schema.prisma
 - Generate OpenAPI spec from NestJS decorators
 - Generate frontend types from OpenAPI spec
 - Ensure single source of truth
 
 **Flow:**
+
 ```
 1. prisma/schema.prisma (Source of Truth)
    ↓ pnpm prisma generate
@@ -650,6 +713,7 @@ api/src/
 ```
 
 **Build Scripts:**
+
 ```json
 {
   "api:generate": "prisma generate && nest build",
@@ -659,12 +723,15 @@ api/src/
 ```
 
 **Dependencies:**
+
 - Backend must be running for frontend type generation
 
 **Technologies:**
+
 - Prisma CLI, @nestjs/swagger, openapi-typescript
 
 **Addresses:**
+
 - NFR-005 (code quality via end-to-end type safety)
 
 ---
@@ -678,6 +745,7 @@ api/src/
 **Purpose:** Represents a single options position.
 
 **Stored Attributes:**
+
 - `uuid` - UUID (primary key)
 - `symbol` - String - Stock ticker (e.g., "AAPL", "TSLA", "SPY")
 - `strikePrice` - Decimal(10,2) - Strike price in dollars
@@ -698,6 +766,7 @@ api/src/
 **Purpose:** Represents a multi-leg strategy composed of related trades.
 
 **Stored Attributes:**
+
 - `uuid` - UUID (primary key)
 - `name` - String - User-defined or suggested name (e.g., "Calendar Spread Feb-15-2026")
 - `strategyType` - Enum (CALENDAR_SPREAD, RATIO_CALENDAR_SPREAD, CUSTOM)
@@ -706,6 +775,7 @@ api/src/
 - `updatedAt` - Timestamp
 
 **Derived Attributes (Calculated on-demand, NOT stored):**
+
 - `closingExpiry` - Date - **MIN(trade.expiryDate)** of all child trades
 - `status` - TradeStatus - Derived from child trade statuses
 - `totalCostBasis` - Decimal - **SUM(trade.costBasis)** of children
@@ -725,6 +795,7 @@ Group (1) ──────< (many) Trade
 ```
 
 **Business Rules:**
+
 - Groups must have 2+ trades (enforced in GroupsService)
 - If group has <2 trades after deletion, auto-ungroup remaining trade(s)
 - Group derived fields recalculated on every read
@@ -813,11 +884,13 @@ model Trade {
 ### Normalization & Data Integrity
 
 **Normalization Level:** 3NF (Third Normal Form)
+
 - No redundant data storage
 - All derived values calculated on-demand
 - Single source of truth for all data points
 
 **Key Decision: Why NOT store `closingExpiry` in groups table?**
+
 - ❌ **Denormalization risk:** Creates duplicate data (already in trades.expiryDate)
 - ❌ **Consistency risk:** Must update whenever child trades change
 - ❌ **Complexity:** Requires triggers or application logic to maintain
@@ -825,6 +898,7 @@ model Trade {
 - ✅ **Single source of truth:** Trade expiry dates are authoritative
 
 **Constraint Strategy:**
+
 - Primary keys: UUIDs (globally unique, no enumeration)
 - Foreign key: `trades.groupUuid → groups.uuid` with `ON DELETE SET NULL`
 - NOT NULL constraints on required fields
@@ -836,6 +910,7 @@ model Trade {
 **Performance Considerations (addresses NFR-001, NFR-006):**
 
 **trades table:**
+
 - `uuid` (UUID, primary key) - Clustered index
 - `groupUuid` - Non-clustered - For joins and "trades in group" queries
 - `expiryDate` - Non-clustered - For sorting/filtering by expiry, "closing soon" queries
@@ -843,10 +918,12 @@ model Trade {
 - `symbol` - Non-clustered - For filtering by stock ticker
 
 **groups table:**
+
 - `uuid` (UUID, primary key) - Clustered index
 - `strategyType` - Non-clustered - For filtering by strategy type
 
 **Query Optimization:**
+
 - Dashboard query: Fetch all groups with child trades (eager loading via Prisma `include`)
 - Trade list: Fetch trades with optional group info (left join)
 - Pagination: Deferred until >1,000 trades (architecture supports `LIMIT/OFFSET`)
@@ -854,6 +931,7 @@ model Trade {
 ### Data Flow Patterns
 
 **Create Trade:**
+
 ```
 Frontend form → Validation (Zod)
               → POST /v1/trades
@@ -868,6 +946,7 @@ Frontend form → Validation (Zod)
 ```
 
 **Create Group:**
+
 ```
 Frontend (select trades + name) → Validation
                                 → POST /v1/groups
@@ -884,6 +963,7 @@ Frontend (select trades + name) → Validation
 ```
 
 **Fetch Group with Metrics (Read Path):**
+
 ```
 GET /v1/groups/:uuid
   ↓
@@ -904,6 +984,7 @@ Return DataResponseDto<GroupResponseDto>
 ```
 
 **Derived Status Algorithm:**
+
 ```typescript
 // GroupsService.deriveGroupStatus()
 deriveGroupStatus(trades: Trade[]): TradeStatus {
@@ -922,6 +1003,7 @@ deriveGroupStatus(trades: Trade[]): TradeStatus {
 All multi-table operations use Prisma transactions (addresses NFR-004):
 
 **Transaction Scope 1: Create Group**
+
 ```typescript
 await prisma.$transaction([
   prisma.group.create({ data: { ... } }),
@@ -933,6 +1015,7 @@ await prisma.$transaction([
 ```
 
 **Transaction Scope 2: Delete Group**
+
 ```typescript
 // ON DELETE SET NULL handles this automatically
 await prisma.group.delete({ where: { uuid } });
@@ -940,20 +1023,21 @@ await prisma.group.delete({ where: { uuid } });
 ```
 
 **Transaction Scope 3: Delete Trade (with group integrity check)**
+
 ```typescript
 await prisma.$transaction(async (tx) => {
   const trade = await tx.trade.delete({ where: { uuid } });
 
   if (trade.groupUuid) {
     const remainingTrades = await tx.trade.count({
-      where: { groupUuid: trade.groupUuid }
+      where: { groupUuid: trade.groupUuid },
     });
 
     if (remainingTrades < 2) {
       // Ungroup remaining trades
       await tx.trade.updateMany({
         where: { groupUuid: trade.groupUuid },
-        data: { groupUuid: null }
+        data: { groupUuid: null },
       });
       await tx.group.delete({ where: { uuid: trade.groupUuid } });
     }
@@ -991,11 +1075,13 @@ await prisma.$transaction(async (tx) => {
 **Base URL:** `http://localhost:3000/v1`
 
 **Versioning Type:** URI-based (`VersioningType.URI`)
+
 - All endpoints prefixed with `/v1`
 - Future versions: `/v2`, `/v3`, etc.
 - Allows API evolution without breaking changes
 
 **Configuration:**
+
 ```typescript
 // main.ts
 app.enableVersioning({ type: VersioningType.URI });
@@ -1013,6 +1099,7 @@ export class DataResponseDto<T> {
 ```
 
 **Example Response:**
+
 ```json
 {
   "data": {
@@ -1025,6 +1112,7 @@ export class DataResponseDto<T> {
 ```
 
 **For lists:**
+
 ```json
 {
   "data": [
@@ -1040,16 +1128,17 @@ export class DataResponseDto<T> {
 
 **Base:** `/v1/trades`
 
-| Method | Endpoint | Description | Request Body | Response |
-|--------|----------|-------------|--------------|----------|
-| GET | `/v1/trades` | List ungrouped trades | - | `DataResponseDto<TradeResponseDto[]>` |
-| GET | `/v1/trades?include=groups` | List all portfolio items (mixed) | - | `DataResponseDto<PortfolioItemDto[]>` |
-| GET | `/v1/trades/:uuid` | Get single trade | - | `DataResponseDto<TradeResponseDto>` |
-| POST | `/v1/trades` | Create trade (status defaults to OPEN) | `CreateTradeDto` | `DataResponseDto<TradeResponseDto>` |
-| PATCH | `/v1/trades/:uuid` | Update trade | `UpdateTradeDto` | `DataResponseDto<TradeResponseDto>` |
-| DELETE | `/v1/trades/:uuid` | Delete trade | - | `DataResponseDto<void>` |
+| Method | Endpoint                    | Description                            | Request Body     | Response                              |
+| ------ | --------------------------- | -------------------------------------- | ---------------- | ------------------------------------- |
+| GET    | `/v1/trades`                | List ungrouped trades                  | -                | `DataResponseDto<TradeResponseDto[]>` |
+| GET    | `/v1/trades?include=groups` | List all portfolio items (mixed)       | -                | `DataResponseDto<PortfolioItemDto[]>` |
+| GET    | `/v1/trades/:uuid`          | Get single trade                       | -                | `DataResponseDto<TradeResponseDto>`   |
+| POST   | `/v1/trades`                | Create trade (status defaults to OPEN) | `CreateTradeDto` | `DataResponseDto<TradeResponseDto>`   |
+| PATCH  | `/v1/trades/:uuid`          | Update trade                           | `UpdateTradeDto` | `DataResponseDto<TradeResponseDto>`   |
+| DELETE | `/v1/trades/:uuid`          | Delete trade                           | -                | `DataResponseDto<void>`               |
 
 **Query Parameters (GET /v1/trades):**
+
 - `?include=groups` - Include groups in response (mixed portfolio items)
 - `?status=OPEN` - Filter by status
 - `?symbol=AAPL` - Filter by stock ticker
@@ -1057,6 +1146,7 @@ export class DataResponseDto<T> {
 - `?order=asc|desc` - Sort order
 
 **PortfolioItemDto (Discriminated Union):**
+
 ```typescript
 type PortfolioItemDto =
   | (GroupResponseDto & { readonly itemType: ItemType.GROUP })
@@ -1064,6 +1154,7 @@ type PortfolioItemDto =
 ```
 
 **ItemType Enum (TypeScript only, NOT in Prisma):**
+
 ```typescript
 // api/src/common/enums/item-type.enum.ts
 export enum ItemType {
@@ -1076,21 +1167,22 @@ export enum ItemType {
 
 **Base:** `/v1/groups`
 
-| Method | Endpoint | Description | Request Body | Response |
-|--------|----------|-------------|--------------|----------|
-| GET | `/v1/groups` | List all groups | - | `DataResponseDto<GroupResponseDto[]>` |
-| GET | `/v1/groups/:uuid` | Get single group | - | `DataResponseDto<GroupResponseDto>` |
-| POST | `/v1/groups` | Create group | `CreateGroupDto` | `DataResponseDto<GroupResponseDto>` |
-| PATCH | `/v1/groups/:uuid` | Update group | `UpdateGroupDto` | `DataResponseDto<GroupResponseDto>` |
-| DELETE | `/v1/groups/:uuid` | Delete group | - | `DataResponseDto<void>` |
-| POST | `/v1/groups/:uuid/trades` | Add trades to group | `{ tradeUuids: string[] }` | `DataResponseDto<GroupResponseDto>` |
-| DELETE | `/v1/groups/:uuid/trades/:tradeUuid` | Remove trade from group | - | `DataResponseDto<GroupResponseDto>` |
+| Method | Endpoint                             | Description             | Request Body               | Response                              |
+| ------ | ------------------------------------ | ----------------------- | -------------------------- | ------------------------------------- |
+| GET    | `/v1/groups`                         | List all groups         | -                          | `DataResponseDto<GroupResponseDto[]>` |
+| GET    | `/v1/groups/:uuid`                   | Get single group        | -                          | `DataResponseDto<GroupResponseDto>`   |
+| POST   | `/v1/groups`                         | Create group            | `CreateGroupDto`           | `DataResponseDto<GroupResponseDto>`   |
+| PATCH  | `/v1/groups/:uuid`                   | Update group            | `UpdateGroupDto`           | `DataResponseDto<GroupResponseDto>`   |
+| DELETE | `/v1/groups/:uuid`                   | Delete group            | -                          | `DataResponseDto<void>`               |
+| POST   | `/v1/groups/:uuid/trades`            | Add trades to group     | `{ tradeUuids: string[] }` | `DataResponseDto<GroupResponseDto>`   |
+| DELETE | `/v1/groups/:uuid/trades/:tradeUuid` | Remove trade from group | -                          | `DataResponseDto<GroupResponseDto>`   |
 
 ### DTO Definitions
 
 #### Request DTOs (Input Validation)
 
 **CreateTradeDto:**
+
 ```typescript
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEnum, IsNumber, IsDateString, IsOptional, Min } from 'class-validator';
@@ -1101,7 +1193,7 @@ export class CreateTradeDto {
   @IsString()
   readonly symbol!: string;
 
-  @ApiProperty({ example: 150.00 })
+  @ApiProperty({ example: 150.0 })
   @IsNumber()
   @Min(0)
   readonly strikePrice!: number;
@@ -1123,12 +1215,12 @@ export class CreateTradeDto {
   @Min(1)
   readonly quantity!: number;
 
-  @ApiProperty({ example: 1500.00 })
+  @ApiProperty({ example: 1500.0 })
   @IsNumber()
   @Min(0)
   readonly costBasis!: number;
 
-  @ApiProperty({ example: 1750.00 })
+  @ApiProperty({ example: 1750.0 })
   @IsNumber()
   @Min(0)
   readonly currentValue!: number;
@@ -1148,6 +1240,7 @@ export class CreateTradeDto {
 ```
 
 **CreateGroupDto:**
+
 ```typescript
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEnum, IsArray, ArrayMinSize, IsOptional } from 'class-validator';
@@ -1179,6 +1272,7 @@ export class CreateGroupDto {
 **Response DTOs use `@Expose()` decorator pattern with `excludeExtraneousValues: true`**
 
 **TradeResponseDto:**
+
 ```typescript
 import { Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
@@ -1239,6 +1333,7 @@ export class TradeResponseDto {
 ```
 
 **GroupResponseDto:**
+
 ```typescript
 import { Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
@@ -1319,9 +1414,8 @@ export class TradesController {
   @ApiQuery({ name: 'status', required: false, enum: TradeStatus })
   async findMany(
     @Query('include') include?: 'groups',
-    @Query('status') status?: TradeStatus,
+    @Query('status') status?: TradeStatus
   ): Promise<DataResponseDto<PortfolioItemDto[] | TradeResponseDto[]>> {
-
     if (include === 'groups') {
       // Return mixed groups + ungrouped trades
       const items = await this.tradesService.findManyPortfolioItems({ status });
@@ -1331,19 +1425,17 @@ export class TradesController {
     // Return only ungrouped trades
     const trades = await this.tradesService.findMany({ status });
     return {
-      data: trades.map(trade => ({
+      data: trades.map((trade) => ({
         itemType: ItemType.TRADE,
         ...plainToInstance(TradeResponseDto, trade),
-      }))
+      })),
     };
   }
 
   @Post()
   @ApiOperation({ summary: 'Create a new trade' })
   @ApiResponse({ status: 201 })
-  async create(
-    @Body() createTradeDto: CreateTradeDto,
-  ): Promise<DataResponseDto<TradeResponseDto>> {
+  async create(@Body() createTradeDto: CreateTradeDto): Promise<DataResponseDto<TradeResponseDto>> {
     const trade = await this.tradesService.create(createTradeDto);
 
     return {
@@ -1356,6 +1448,7 @@ export class TradesController {
 ```
 
 **Key Pattern:**
+
 1. Service returns Prisma entity (plain object)
 2. Controller transforms via `plainToInstance(ResponseDto, entity)`
 3. ClassSerializerInterceptor strips non-`@Expose()` fields
@@ -1363,13 +1456,13 @@ export class TradesController {
 
 ### HTTP Status Codes
 
-| Operation | Success Code | Error Codes |
-|-----------|--------------|-------------|
-| GET (list) | 200 OK | 500 Internal Server Error |
-| GET (single) | 200 OK | 404 Not Found, 500 |
-| POST (create) | 201 Created | 400 Bad Request, 500 |
-| PATCH (update) | 200 OK | 400 Bad Request, 404 Not Found, 500 |
-| DELETE | 200 OK | 404 Not Found, 500 |
+| Operation      | Success Code | Error Codes                         |
+| -------------- | ------------ | ----------------------------------- |
+| GET (list)     | 200 OK       | 500 Internal Server Error           |
+| GET (single)   | 200 OK       | 404 Not Found, 500                  |
+| POST (create)  | 201 Created  | 400 Bad Request, 500                |
+| PATCH (update) | 200 OK       | 400 Bad Request, 404 Not Found, 500 |
+| DELETE         | 200 OK       | 404 Not Found, 500                  |
 
 ### Error Response Format
 
@@ -1384,6 +1477,7 @@ export class TradesController {
 ```
 
 **404 Not Found:**
+
 ```json
 {
   "statusCode": 404,
@@ -1395,6 +1489,7 @@ export class TradesController {
 ### Swagger Documentation
 
 **Base Configuration:**
+
 ```typescript
 // main.ts
 const config = new DocumentBuilder()
@@ -1410,16 +1505,19 @@ SwaggerModule.setup('api/docs', app, document);
 ```
 
 **Endpoints:**
+
 - Swagger UI: `http://localhost:3000/api/docs`
 - OpenAPI JSON: `http://localhost:3000/api/docs-json`
 
 **Auto-generated from:**
+
 - `@ApiTags()` - Groups endpoints
 - `@ApiOperation()` - Endpoint descriptions
 - `@ApiProperty()` - DTO field documentation
 - `@ApiResponse()` - Response types
 
 **Frontend type generation:**
+
 ```bash
 pnpm web:generate
 # Runs: openapi-typescript http://localhost:3000/api/docs-json -o web/src/types/api.types.ts
@@ -1434,23 +1532,25 @@ This section maps each Non-Functional Requirement to architectural decisions.
 ### NFR-001: Performance Requirements
 
 **Requirements:**
+
 - Dashboard loads in <2 seconds
 - Trade list renders in <1 second
 - Form submissions respond in <500ms
 
 **Architectural Solutions:**
 
-| Decision | How It Addresses NFR-001 |
-|----------|--------------------------|
-| **PostgreSQL Indexes** | Indexes on `groupUuid`, `expiryDate`, `status`, `symbol` enable fast filtering and sorting |
-| **TanStack Query (React Query)** | Client-side caching reduces redundant API calls, optimistic updates improve perceived performance |
-| **Compression Middleware** | Gzip/deflate reduces payload size, faster network transfer for trade lists |
+| Decision                                | How It Addresses NFR-001                                                                                             |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **PostgreSQL Indexes**                  | Indexes on `groupUuid`, `expiryDate`, `status`, `symbol` enable fast filtering and sorting                           |
+| **TanStack Query (React Query)**        | Client-side caching reduces redundant API calls, optimistic updates improve perceived performance                    |
+| **Compression Middleware**              | Gzip/deflate reduces payload size, faster network transfer for trade lists                                           |
 | **Derived Fields Calculated On-Demand** | No stale data, always fresh; trade-off: slight calculation overhead (~50ms for 100 groups) acceptable for <2s budget |
-| **Efficient Prisma Queries** | Single query with `include: { trades: true }` for groups (no N+1 problem) |
-| **React Hook Form** | Minimal re-renders, uncontrolled inputs improve form responsiveness |
-| **Vite HMR** | Fast development feedback loop ensures performance testing is practical |
+| **Efficient Prisma Queries**            | Single query with `include: { trades: true }` for groups (no N+1 problem)                                            |
+| **React Hook Form**                     | Minimal re-renders, uncontrolled inputs improve form responsiveness                                                  |
+| **Vite HMR**                            | Fast development feedback loop ensures performance testing is practical                                              |
 
 **Performance Budget:**
+
 - Database query: ~200ms (indexed queries)
 - Business logic (derive status, calculate metrics): ~100ms
 - Network transfer (compressed): ~100ms
@@ -1460,56 +1560,60 @@ This section maps each Non-Functional Requirement to architectural decisions.
 ### NFR-002: Usability
 
 **Requirements:**
+
 - Intuitive interface
 - Minimal learning curve
 
 **Architectural Solutions:**
 
-| Decision | How It Addresses NFR-002 |
-|----------|--------------------------|
-| **shadcn/ui Components** | Accessible, well-documented components follow UX best practices |
-| **React Hook Form** | Clear error messages, inline validation improves user feedback |
-| **Consistent API Response Shape** | `DataResponseDto<T>` wrapper makes frontend consumption predictable |
-| **Suggested Group Names** | System suggests `"{Strategy} {Expiry}"` format reduces cognitive load |
-| **Unified Portfolio View** | Single endpoint (`GET /v1/trades?include=groups`) simplifies dashboard logic |
-| **ItemType Discriminator** | Clear type discrimination (group vs trade) for frontend rendering logic |
+| Decision                          | How It Addresses NFR-002                                                     |
+| --------------------------------- | ---------------------------------------------------------------------------- |
+| **shadcn/ui Components**          | Accessible, well-documented components follow UX best practices              |
+| **React Hook Form**               | Clear error messages, inline validation improves user feedback               |
+| **Consistent API Response Shape** | `DataResponseDto<T>` wrapper makes frontend consumption predictable          |
+| **Suggested Group Names**         | System suggests `"{Strategy} {Expiry}"` format reduces cognitive load        |
+| **Unified Portfolio View**        | Single endpoint (`GET /v1/trades?include=groups`) simplifies dashboard logic |
+| **ItemType Discriminator**        | Clear type discrimination (group vs trade) for frontend rendering logic      |
 
 ### NFR-003: Responsive Design
 
 **Requirements:**
+
 - Desktop (1920x1080+)
 - Tablet (768-1024px)
 - Mobile (375-768px)
 
 **Architectural Solutions:**
 
-| Decision | How It Addresses NFR-003 |
-|----------|--------------------------|
-| **shadcn/ui** | Built-in responsive variants, mobile-first design patterns |
-| **React Component Architecture** | Component-based UI allows viewport-specific rendering |
-| **Vite** | Fast builds enable rapid responsive testing across viewports |
+| Decision                         | How It Addresses NFR-003                                     |
+| -------------------------------- | ------------------------------------------------------------ |
+| **shadcn/ui**                    | Built-in responsive variants, mobile-first design patterns   |
+| **React Component Architecture** | Component-based UI allows viewport-specific rendering        |
+| **Vite**                         | Fast builds enable rapid responsive testing across viewports |
 
 ### NFR-004: Data Integrity
 
 **Requirements:**
+
 - Trade operations are transactional
 - Group status automatically derived from child trades
 - No inconsistent data states
 
 **Architectural Solutions:**
 
-| Decision | How It Addresses NFR-004 |
-|----------|--------------------------|
-| **Prisma Transactions** | All multi-table operations wrapped in `$transaction` (ACID guarantees) |
-| **Foreign Key Constraints** | `trades.groupUuid → groups.uuid ON DELETE SET NULL` enforces referential integrity at DB level |
-| **Derived Group Status** | Never stored, always calculated from child trades (single source of truth) |
-| **Validation Pipeline** | Frontend (Zod) → Backend (class-validator) → Database (constraints) triple validation |
-| **Business Logic in Service Layer** | Group integrity rules (2+ trades) enforced in `GroupsService` |
-| **ClassSerializerInterceptor** | `excludeExtraneousValues: true` prevents accidental data leaks |
+| Decision                            | How It Addresses NFR-004                                                                       |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **Prisma Transactions**             | All multi-table operations wrapped in `$transaction` (ACID guarantees)                         |
+| **Foreign Key Constraints**         | `trades.groupUuid → groups.uuid ON DELETE SET NULL` enforces referential integrity at DB level |
+| **Derived Group Status**            | Never stored, always calculated from child trades (single source of truth)                     |
+| **Validation Pipeline**             | Frontend (Zod) → Backend (class-validator) → Database (constraints) triple validation          |
+| **Business Logic in Service Layer** | Group integrity rules (2+ trades) enforced in `GroupsService`                                  |
+| **ClassSerializerInterceptor**      | `excludeExtraneousValues: true` prevents accidental data leaks                                 |
 
 ### NFR-005: Code Quality
 
 **Requirements:**
+
 - TypeScript strict mode
 - Swagger/OpenAPI documentation
 - Generated types for frontend
@@ -1517,58 +1621,61 @@ This section maps each Non-Functional Requirement to architectural decisions.
 
 **Architectural Solutions:**
 
-| Decision | How It Addresses NFR-005 |
-|----------|--------------------------|
-| **TypeScript Strict Mode** | Compile-time type checking, no implicit `any`, null safety |
-| **Prisma Schema as Source of Truth** | Database types → Generated TypeScript types (`@prisma/client`) |
-| **@nestjs/swagger** | Auto-generates OpenAPI spec from decorators, always in sync with code |
-| **openapi-typescript** | Generates frontend types from Swagger spec, end-to-end type safety |
-| **Barrel Exports (`index.ts`)** | Clean import paths, encapsulation, easier refactoring |
-| **Readonly Interfaces** | Immutability by default, prevents accidental mutations |
-| **No Entity Wrappers** | Use Prisma types directly, avoid duplication and drift |
-| **ESLint + Prettier** | Consistent code style, catch common errors |
-| **DDD Module Structure** | Clear domain boundaries (`trades/` module), organized codebase |
-| **plainToInstance Pattern** | Explicit transformation points, easy to debug |
+| Decision                             | How It Addresses NFR-005                                              |
+| ------------------------------------ | --------------------------------------------------------------------- |
+| **TypeScript Strict Mode**           | Compile-time type checking, no implicit `any`, null safety            |
+| **Prisma Schema as Source of Truth** | Database types → Generated TypeScript types (`@prisma/client`)        |
+| **@nestjs/swagger**                  | Auto-generates OpenAPI spec from decorators, always in sync with code |
+| **openapi-typescript**               | Generates frontend types from Swagger spec, end-to-end type safety    |
+| **Barrel Exports (`index.ts`)**      | Clean import paths, encapsulation, easier refactoring                 |
+| **Readonly Interfaces**              | Immutability by default, prevents accidental mutations                |
+| **No Entity Wrappers**               | Use Prisma types directly, avoid duplication and drift                |
+| **ESLint + Prettier**                | Consistent code style, catch common errors                            |
+| **DDD Module Structure**             | Clear domain boundaries (`trades/` module), organized codebase        |
+| **plainToInstance Pattern**          | Explicit transformation points, easy to debug                         |
 
 ### NFR-006: Scalability
 
 **Requirements:**
+
 - Handle 500+ trades
 - Handle 100+ groups
 - Maintain performance under load
 
 **Architectural Solutions:**
 
-| Decision | How It Addresses NFR-006 |
-|----------|--------------------------|
-| **Database Indexes** | O(log n) lookups instead of O(n) table scans |
-| **PostgreSQL** | Proven scalability, handles millions of rows efficiently |
-| **Efficient Queries** | Single query with joins (`include: { trades: true }`) avoids N+1 |
-| **Pagination Ready** | Architecture supports adding `?limit=50&offset=100` later |
-| **Stateless Backend** | NestJS services are stateless, easy to scale horizontally (future) |
-| **TanStack Query Caching** | Reduces backend load through intelligent client-side caching |
+| Decision                   | How It Addresses NFR-006                                           |
+| -------------------------- | ------------------------------------------------------------------ |
+| **Database Indexes**       | O(log n) lookups instead of O(n) table scans                       |
+| **PostgreSQL**             | Proven scalability, handles millions of rows efficiently           |
+| **Efficient Queries**      | Single query with joins (`include: { trades: true }`) avoids N+1   |
+| **Pagination Ready**       | Architecture supports adding `?limit=50&offset=100` later          |
+| **Stateless Backend**      | NestJS services are stateless, easy to scale horizontally (future) |
+| **TanStack Query Caching** | Reduces backend load through intelligent client-side caching       |
 
 ### NFR-007: Local Development Reliability
 
 **Requirements:**
+
 - Docker Compose single-command startup
 - Consistent environment across developers
 
 **Architectural Solutions:**
 
-| Decision | How It Addresses NFR-007 |
-|----------|--------------------------|
-| **Docker Compose** | `docker-compose up` starts all services (web, api, postgres) |
-| **Node 24 Alpine Images** | Lightweight (~120MB), fast builds, secure |
-| **Volume Mounts** | Hot reload for both web (Vite) and api (NestJS watch mode) |
-| **Environment Variables** | `.env` files for configuration, easily customizable |
-| **pnpm Workspaces** | Monorepo dependency management, single `pnpm install` |
-| **Prisma Migrations** | `prisma migrate dev` ensures DB schema always matches code |
-| **PostgreSQL Container** | Isolated database, no conflicts with other projects |
+| Decision                  | How It Addresses NFR-007                                     |
+| ------------------------- | ------------------------------------------------------------ |
+| **Docker Compose**        | `docker-compose up` starts all services (web, api, postgres) |
+| **Node 24 Alpine Images** | Lightweight (~120MB), fast builds, secure                    |
+| **Volume Mounts**         | Hot reload for both web (Vite) and api (NestJS watch mode)   |
+| **Environment Variables** | `.env` files for configuration, easily customizable          |
+| **pnpm Workspaces**       | Monorepo dependency management, single `pnpm install`        |
+| **Prisma Migrations**     | `prisma migrate dev` ensures DB schema always matches code   |
+| **PostgreSQL Container**  | Isolated database, no conflicts with other projects          |
 
 ### NFR-008: Security
 
 **Requirements:**
+
 - Input validation
 - No SQL injection
 - Basic security best practices
@@ -1576,14 +1683,14 @@ This section maps each Non-Functional Requirement to architectural decisions.
 
 **Architectural Solutions:**
 
-| Decision | How It Addresses NFR-008 |
-|----------|--------------------------|
-| **Prisma ORM** | Parameterized queries, prevents SQL injection by design |
-| **ValidationPipe (`whitelist: true`)** | Strips unexpected properties from requests, prevents parameter pollution |
-| **ClassSerializerInterceptor (`excludeExtraneousValues`)** | Only exposes `@Expose()` decorated fields, prevents data leaks |
-| **TypeScript Strict Mode** | Prevents common vulnerabilities (type coercion, null dereference) |
-| **CORS Configuration** | Restricts origins (only `localhost:5173` can call API) |
-| **UUID Primary Keys** | No ID enumeration attacks (vs. auto-increment integers) |
+| Decision                                                   | How It Addresses NFR-008                                                 |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------ |
+| **Prisma ORM**                                             | Parameterized queries, prevents SQL injection by design                  |
+| **ValidationPipe (`whitelist: true`)**                     | Strips unexpected properties from requests, prevents parameter pollution |
+| **ClassSerializerInterceptor (`excludeExtraneousValues`)** | Only exposes `@Expose()` decorated fields, prevents data leaks           |
+| **TypeScript Strict Mode**                                 | Prevents common vulnerabilities (type coercion, null dereference)        |
+| **CORS Configuration**                                     | Restricts origins (only `localhost:5173` can call API)                   |
+| **UUID Primary Keys**                                      | No ID enumeration attacks (vs. auto-increment integers)                  |
 
 ---
 
@@ -1594,6 +1701,7 @@ This section maps each Non-Functional Requirement to architectural decisions.
 ### Security Threat Model
 
 **In Scope (Addressed):**
+
 - ✅ SQL Injection
 - ✅ Parameter Pollution
 - ✅ Data Leakage (exposing internal fields)
@@ -1601,6 +1709,7 @@ This section maps each Non-Functional Requirement to architectural decisions.
 - ✅ Cross-Origin Requests (limited)
 
 **Out of Scope (Deferred Post-MVP):**
+
 - ❌ Authentication/Authorization (single user, trusted environment)
 - ❌ Encryption (HTTPS/TLS) - localhost only
 - ❌ Rate Limiting - single user
@@ -1613,15 +1722,18 @@ This section maps each Non-Functional Requirement to architectural decisions.
 **Three-Layer Validation (Defense in Depth):**
 
 **Layer 1: Frontend Validation (Zod)**
+
 - Purpose: User experience, immediate feedback
 - **NOT a security boundary** (client-side, can be bypassed)
 
 **Layer 2: Backend DTO Validation (class-validator)**
+
 - Purpose: Security, type safety
 - **Enforced by:** Global ValidationPipe in `main.ts`
 - **This is the security boundary**
 
 **Layer 3: Database Constraints (PostgreSQL)**
+
 - Purpose: Final enforcement, data integrity
 - **Cannot be bypassed** by application logic errors
 
@@ -1634,7 +1746,7 @@ All database queries are parameterized by design:
 ```typescript
 // ✅ SAFE - Prisma parameterizes automatically
 await prisma.trade.findMany({
-  where: { symbol: userInput }  // Parameterized, not string concatenation
+  where: { symbol: userInput }, // Parameterized, not string concatenation
 });
 
 // ✅ Even raw queries are parameterized with Prisma
@@ -1652,12 +1764,13 @@ await prisma.$queryRaw`SELECT * FROM trades WHERE symbol = ${userInput}`;
 // main.ts
 app.useGlobalInterceptors(
   new ClassSerializerInterceptor(app.get(Reflector), {
-    excludeExtraneousValues: true,  // 🔒 Only expose @Expose() fields
+    excludeExtraneousValues: true, // 🔒 Only expose @Expose() fields
   })
 );
 ```
 
 **Response DTOs whitelist fields:**
+
 - Only fields with `@Expose()` decorator are included in response
 - Prevents accidental exposure of Prisma internal fields
 - Prevents exposure of createdAt/updatedAt (removed per requirements)
@@ -1670,7 +1783,7 @@ app.useGlobalInterceptors(
 // main.ts
 app.useGlobalPipes(
   new ValidationPipe({
-    whitelist: true,           // 🔒 Strip properties not in DTO
+    whitelist: true, // 🔒 Strip properties not in DTO
     forbidNonWhitelisted: false,
     transform: true,
   })
@@ -1678,6 +1791,7 @@ app.useGlobalPipes(
 ```
 
 **Example - Parameter Pollution Prevention:**
+
 ```json
 // Request body
 {
@@ -1699,7 +1813,7 @@ app.useGlobalPipes(
 ```typescript
 // main.ts
 app.enableCors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',  // 🔒 Only frontend
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // 🔒 Only frontend
   credentials: false,
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
 });
@@ -1724,39 +1838,40 @@ id: 1, 2, 3, 4...
 
 #### Priority 1: Required for Production
 
-| Item | Description | Estimated Effort |
-|------|-------------|------------------|
-| **Authentication** | User login/registration (JWT with @nestjs/passport) | 2-3 stories |
-| **HTTPS/TLS** | nginx reverse proxy + Let's Encrypt | 1 story |
-| **Authorization** | Role-based access control (if multi-user) | 2 stories |
-| **Rate Limiting** | @nestjs/throttler, Redis-backed | 1 story |
-| **Security Headers** | Helmet.js integration | 0.5 story |
+| Item                 | Description                                         | Estimated Effort |
+| -------------------- | --------------------------------------------------- | ---------------- |
+| **Authentication**   | User login/registration (JWT with @nestjs/passport) | 2-3 stories      |
+| **HTTPS/TLS**        | nginx reverse proxy + Let's Encrypt                 | 1 story          |
+| **Authorization**    | Role-based access control (if multi-user)           | 2 stories        |
+| **Rate Limiting**    | @nestjs/throttler, Redis-backed                     | 1 story          |
+| **Security Headers** | Helmet.js integration                               | 0.5 story        |
 
 #### Priority 2: Recommended Enhancements
 
-| Item | Description | Estimated Effort |
-|------|-------------|------------------|
-| **CSRF Protection** | csurf middleware | 1 story |
-| **API Key Management** | Vault, AWS Secrets Manager | 1 story |
-| **Audit Logging** | Track all data modifications | 1-2 stories |
-| **Input Sanitization** | DOMPurify for notes fields | 0.5 story |
-| **Session Management** | Redis session store | 1 story |
+| Item                   | Description                  | Estimated Effort |
+| ---------------------- | ---------------------------- | ---------------- |
+| **CSRF Protection**    | csurf middleware             | 1 story          |
+| **API Key Management** | Vault, AWS Secrets Manager   | 1 story          |
+| **Audit Logging**      | Track all data modifications | 1-2 stories      |
+| **Input Sanitization** | DOMPurify for notes fields   | 0.5 story        |
+| **Session Management** | Redis session store          | 1 story          |
 
 #### Priority 3: Nice to Have
 
-| Item | Description | Estimated Effort |
-|------|-------------|------------------|
-| **2FA** | TOTP via speakeasy library | 2 stories |
-| **Encryption at Rest** | PostgreSQL pgcrypto | 1 story |
-| **Security Monitoring** | Sentry, CloudWatch | 1-2 stories |
-| **Penetration Testing** | Third-party audit | External |
-| **WAF** | Cloudflare, AWS WAF | 0.5 story (config) |
+| Item                    | Description                | Estimated Effort   |
+| ----------------------- | -------------------------- | ------------------ |
+| **2FA**                 | TOTP via speakeasy library | 2 stories          |
+| **Encryption at Rest**  | PostgreSQL pgcrypto        | 1 story            |
+| **Security Monitoring** | Sentry, CloudWatch         | 1-2 stories        |
+| **Penetration Testing** | Third-party audit          | External           |
+| **WAF**                 | Cloudflare, AWS WAF        | 0.5 story (config) |
 
 ---
 
 ## Part 9: Scalability & Performance
 
 **Target Requirements:**
+
 - Dashboard load: <2 seconds
 - Trade list render: <1 second
 - Form submission: <500ms
@@ -1767,6 +1882,7 @@ id: 1, 2, 3, 4...
 #### Index Strategy
 
 **Trades Table Indexes:**
+
 ```sql
 CREATE INDEX idx_trades_group_uuid ON trades(groupUuid);
 CREATE INDEX idx_trades_expiry_date ON trades(expiryDate);
@@ -1775,17 +1891,18 @@ CREATE INDEX idx_trades_symbol ON trades(symbol);
 ```
 
 **Groups Table Indexes:**
+
 ```sql
 CREATE INDEX idx_groups_strategy_type ON groups(strategyType);
 ```
 
 **Performance Impact:**
 
-| Query | Without Index | With Index | Improvement |
-|-------|--------------|------------|-------------|
-| Find all open trades | ~50ms | ~5ms | 10x |
-| Trades by group | ~30ms | ~2ms | 15x |
-| Sort by expiry | ~40ms | ~8ms | 5x |
+| Query                | Without Index | With Index | Improvement |
+| -------------------- | ------------- | ---------- | ----------- |
+| Find all open trades | ~50ms         | ~5ms       | 10x         |
+| Trades by group      | ~30ms         | ~2ms       | 15x         |
+| Sort by expiry       | ~40ms         | ~8ms       | 5x          |
 
 #### Query Optimization
 
@@ -1794,33 +1911,34 @@ CREATE INDEX idx_groups_strategy_type ON groups(strategyType);
 ```typescript
 // ✅ GOOD - Single query with join
 const groups = await prisma.group.findMany({
-  include: { trades: true }  // Single JOIN query
+  include: { trades: true }, // Single JOIN query
 });
 // Total: 1 query, ~50ms
 ```
 
 **Query Performance Benchmarks (500 trades, 100 groups):**
 
-| Operation | Query Time |
-|-----------|------------|
-| Get all groups with trades (eager) | ~80ms |
-| Get ungrouped trades | ~20ms |
-| Get single trade by UUID | ~2ms |
-| Create trade | ~10ms |
-| Update trade | ~8ms |
-| Delete trade with group check | ~25ms |
+| Operation                          | Query Time |
+| ---------------------------------- | ---------- |
+| Get all groups with trades (eager) | ~80ms      |
+| Get ungrouped trades               | ~20ms      |
+| Get single trade by UUID           | ~2ms       |
+| Create trade                       | ~10ms      |
+| Update trade                       | ~8ms       |
+| Delete trade with group check      | ~25ms      |
 
 ### Caching Strategy
 
 #### Client-Side Caching (TanStack Query)
 
 **Default Configuration:**
+
 ```typescript
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30000,        // Data fresh for 30s
-      cacheTime: 300000,       // Keep in cache for 5min
+      staleTime: 30000, // Data fresh for 30s
+      cacheTime: 300000, // Keep in cache for 5min
       refetchOnWindowFocus: true,
       retry: 1,
     },
@@ -1830,10 +1948,10 @@ export const queryClient = new QueryClient({
 
 **Cache Performance Impact:**
 
-| Scenario | Without Cache | With Cache | Improvement |
-|----------|--------------|------------|-------------|
-| Return to dashboard | 800ms | 50ms | 16x faster |
-| Navigate back/forward | 800ms | 0ms | Instant |
+| Scenario              | Without Cache | With Cache | Improvement |
+| --------------------- | ------------- | ---------- | ----------- |
+| Return to dashboard   | 800ms         | 50ms       | 16x faster  |
+| Navigate back/forward | 800ms         | 0ms        | Instant     |
 
 ### Backend Performance
 
@@ -1841,18 +1959,20 @@ export const queryClient = new QueryClient({
 
 ```typescript
 // main.ts
-app.use(compression({
-  threshold: 1024,
-  level: 6,
-}));
+app.use(
+  compression({
+    threshold: 1024,
+    level: 6,
+  })
+);
 ```
 
 **Compression Impact:**
 
-| Response Type | Uncompressed | Compressed | Reduction |
-|--------------|--------------|------------|-----------|
-| 100 trades list | 45KB | 12KB | 73% |
-| 50 groups with trades | 120KB | 28KB | 77% |
+| Response Type         | Uncompressed | Compressed | Reduction |
+| --------------------- | ------------ | ---------- | --------- |
+| 100 trades list       | 45KB         | 12KB       | 73%       |
+| 50 groups with trades | 120KB        | 28KB       | 77%       |
 
 ### Performance Budget Breakdown
 
@@ -1875,25 +1995,25 @@ BUFFER:                  1290ms (65%)
 
 **Current Architecture Supports:**
 
-| Resource | MVP Target | Comfortable Limit | Breaking Point |
-|----------|------------|------------------|----------------|
-| Trades | 500 | 2,000 | ~5,000 (need pagination) |
-| Groups | 100 | 500 | ~1,000 (need pagination) |
-| Concurrent Users | 1 | 10 | ~50 (need connection pooling) |
+| Resource         | MVP Target | Comfortable Limit | Breaking Point                |
+| ---------------- | ---------- | ----------------- | ----------------------------- |
+| Trades           | 500        | 2,000             | ~5,000 (need pagination)      |
+| Groups           | 100        | 500               | ~1,000 (need pagination)      |
+| Concurrent Users | 1          | 10                | ~50 (need connection pooling) |
 
 ### Performance & Scalability Backlog (Future Enhancements)
 
 #### Trigger-Based Implementation
 
-| Enhancement | Trigger Condition | Priority | Estimated Effort |
-|-------------|------------------|----------|------------------|
-| **Pagination** | >1,000 trades or >500 groups | High | 1 story |
-| **Virtual Scrolling** | List rendering >1s (>300 items) | High | 1 story |
-| **Database Connection Pooling** | >10 concurrent users | High | 0.5 story |
-| **Redis Caching Layer** | >50 concurrent users | Medium | 2 stories |
-| **Database Partitioning** | Database >1GB | Medium | 2-3 stories |
-| **CDN for Static Assets** | Production deployment | Medium | 0.5 story |
-| **Query Performance Monitoring** | Production deployment | Medium | 1 story |
+| Enhancement                      | Trigger Condition               | Priority | Estimated Effort |
+| -------------------------------- | ------------------------------- | -------- | ---------------- |
+| **Pagination**                   | >1,000 trades or >500 groups    | High     | 1 story          |
+| **Virtual Scrolling**            | List rendering >1s (>300 items) | High     | 1 story          |
+| **Database Connection Pooling**  | >10 concurrent users            | High     | 0.5 story        |
+| **Redis Caching Layer**          | >50 concurrent users            | Medium   | 2 stories        |
+| **Database Partitioning**        | Database >1GB                   | Medium   | 2-3 stories      |
+| **CDN for Static Assets**        | Production deployment           | Medium   | 0.5 story        |
+| **Query Performance Monitoring** | Production deployment           | Medium   | 1 story          |
 
 ---
 
@@ -1904,6 +2024,7 @@ BUFFER:                  1290ms (65%)
 ### Availability Targets
 
 **MVP (Localhost):**
+
 - Target Uptime: N/A (user controls start/stop)
 - Recovery Time Objective (RTO): `docker-compose up` (~30 seconds)
 - Recovery Point Objective (RPO): Last database commit (PostgreSQL ACID)
@@ -1920,6 +2041,7 @@ BUFFER:                  1290ms (65%)
 #### Data Persistence Strategy
 
 **Docker Volume Configuration:**
+
 - PostgreSQL data stored in named volume `postgres-data`
 - Survives `docker-compose down` (not `docker-compose down -v`)
 - Manual backup via scripts
@@ -1930,13 +2052,14 @@ BUFFER:                  1290ms (65%)
 
 **Prisma Error Handling:**
 
-| Prisma Error Code | Meaning | HTTP Status | Action |
-|-------------------|---------|-------------|--------|
-| P2002 | Unique constraint failed | 409 Conflict | Return conflict error |
-| P2003 | Foreign key constraint failed | 400 Bad Request | Validate input |
-| P2025 | Record not found | 404 Not Found | Return not found |
+| Prisma Error Code | Meaning                       | HTTP Status     | Action                |
+| ----------------- | ----------------------------- | --------------- | --------------------- |
+| P2002             | Unique constraint failed      | 409 Conflict    | Return conflict error |
+| P2003             | Foreign key constraint failed | 400 Bad Request | Validate input        |
+| P2025             | Record not found              | 404 Not Found   | Return not found      |
 
 **Frontend Error Handling:**
+
 - React Error Boundaries catch rendering errors
 - TanStack Query retry logic for network failures
 - Graceful degradation (show cached data if refetch fails)
@@ -1956,6 +2079,7 @@ BUFFER:                  1290ms (65%)
 ### Health Checks
 
 **Health Check Endpoint:**
+
 ```typescript
 @Get('/v1/health')
 @HealthCheck()
@@ -1968,22 +2092,22 @@ check() {
 
 ### Failure Scenarios & Recovery
 
-| Failure Scenario | Impact | Recovery |
-|------------------|--------|----------|
-| **Database crash** | Data loss since last commit | Restart container, data persists (WAL) |
-| **Backend crash** | API unavailable | `docker-compose restart api` (~5s) |
-| **Frontend crash** | UI unresponsive | Browser refresh |
-| **Docker volume deleted** | Total data loss | Restore from backup |
+| Failure Scenario          | Impact                      | Recovery                               |
+| ------------------------- | --------------------------- | -------------------------------------- |
+| **Database crash**        | Data loss since last commit | Restart container, data persists (WAL) |
+| **Backend crash**         | API unavailable             | `docker-compose restart api` (~5s)     |
+| **Frontend crash**        | UI unresponsive             | Browser refresh                        |
+| **Docker volume deleted** | Total data loss             | Restore from backup                    |
 
 ### Reliability & Availability Backlog (Future Enhancements)
 
-| Enhancement | Trigger | Priority | Estimated Effort |
-|-------------|---------|----------|------------------|
-| **Automated DB Backups** | Production deployment | Critical | 0.5 story |
-| **Database Replication** | Production deployment | High | 2 stories |
-| **Uptime Monitoring** | Production deployment | High | 0.5 story |
-| **Error Tracking (Sentry)** | Production deployment | High | 1 story |
-| **Log Aggregation** | Production deployment | Medium | 1-2 stories |
+| Enhancement                 | Trigger               | Priority | Estimated Effort |
+| --------------------------- | --------------------- | -------- | ---------------- |
+| **Automated DB Backups**    | Production deployment | Critical | 0.5 story        |
+| **Database Replication**    | Production deployment | High     | 2 stories        |
+| **Uptime Monitoring**       | Production deployment | High     | 0.5 story        |
+| **Error Tracking (Sentry)** | Production deployment | High     | 1 story          |
+| **Log Aggregation**         | Production deployment | Medium   | 1-2 stories      |
 
 ---
 
@@ -2003,28 +2127,33 @@ check() {
 #### Initial Setup
 
 **1. Clone Repository:**
+
 ```bash
 git clone https://github.com/user/tradelog.git
 cd tradelog
 ```
 
 **2. Install Dependencies:**
+
 ```bash
 pnpm install
 ```
 
 **3. Environment Configuration:**
+
 ```bash
 cp api/.env.example api/.env
 cp web/.env.example web/.env
 ```
 
 **4. Start Services:**
+
 ```bash
 docker-compose up
 ```
 
 **5. Run Migrations:**
+
 ```bash
 cd api
 pnpm prisma migrate dev
@@ -2072,31 +2201,32 @@ packages:
 ### Docker Configuration
 
 **docker-compose.yml:**
+
 ```yaml
 version: '3.8'
 
 services:
   web:
     build: ./web
-    ports: ["5173:5173"]
-    volumes: ["./web:/app", "/app/node_modules"]
-    environment: ["VITE_API_URL=http://localhost:3000/v1"]
+    ports: ['5173:5173']
+    volumes: ['./web:/app', '/app/node_modules']
+    environment: ['VITE_API_URL=http://localhost:3000/v1']
     depends_on: [api]
 
   api:
     build: ./api
-    ports: ["3000:3000"]
-    volumes: ["./api:/app", "/app/node_modules"]
-    environment: ["DATABASE_URL=postgresql://postgres:password@postgres:5432/tradelog"]
+    ports: ['3000:3000']
+    volumes: ['./api:/app', '/app/node_modules']
+    environment: ['DATABASE_URL=postgresql://postgres:password@postgres:5432/tradelog']
     depends_on: [postgres]
 
   postgres:
     image: postgres:15-alpine
-    ports: ["5432:5432"]
-    environment: ["POSTGRES_DB=tradelog"]
-    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    ports: ['5432:5432']
+    environment: ['POSTGRES_DB=tradelog']
+    volumes: ['postgres-data:/var/lib/postgresql/data']
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 5s
 
 volumes:
@@ -2136,14 +2266,14 @@ async function bootstrap() {
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: false,
-    }),
+    })
   );
 
   // ===== GLOBAL SERIALIZATION INTERCEPTOR =====
   app.useGlobalInterceptors(
     new ClassSerializerInterceptor(app.get(Reflector), {
       excludeExtraneousValues: true,
-    }),
+    })
   );
 
   // ===== COMPRESSION =====
@@ -2151,7 +2281,7 @@ async function bootstrap() {
     compression({
       threshold: 1024,
       level: 6,
-    }),
+    })
   );
 
   // ===== SWAGGER DOCUMENTATION =====
@@ -2189,12 +2319,14 @@ bootstrap();
 ### Database Migrations Workflow
 
 **Creating Migrations:**
+
 ```bash
 cd api
 pnpm prisma migrate dev --name add_new_field
 ```
 
 **Applying Migrations (Production):**
+
 ```bash
 pnpm prisma migrate deploy
 ```
@@ -2202,12 +2334,14 @@ pnpm prisma migrate deploy
 ### Type Generation Workflow
 
 **1. Generate Prisma types:**
+
 ```bash
 cd api
 pnpm prisma generate
 ```
 
 **2. Generate frontend types from Swagger:**
+
 ```bash
 pnpm web:generate
 # Generates: web/src/types/api.types.ts
@@ -2216,11 +2350,13 @@ pnpm web:generate
 ### Build Process
 
 **Development Build:**
+
 ```bash
 pnpm build  # Builds both api and web
 ```
 
 **Production Dockerfiles:**
+
 - Node 24 Alpine base images
 - Multi-stage builds for optimization
 - nginx for frontend static serving
@@ -2235,7 +2371,9 @@ describe('Trades E2E', () => {
   it('should create a new trade', () => {
     return request(app.getHttpServer())
       .post('/v1/trades')
-      .send({ /* trade data */ })
+      .send({
+        /* trade data */
+      })
       .expect(201)
       .expect((res) => {
         expect(res.body.data.status).toBe('OPEN'); // Default status
@@ -2245,6 +2383,7 @@ describe('Trades E2E', () => {
 ```
 
 **Run Tests:**
+
 ```bash
 pnpm api:test:e2e
 ```
@@ -2257,24 +2396,24 @@ pnpm api:test:e2e
 
 **Functional Requirements → Architectural Components**
 
-| FR | Requirement | Primary Components |
-|----|-------------|--------------------|
-| FR-000 | Project setup with Swagger/OpenAPI | Docker, @nestjs/swagger, openapi-typescript |
-| FR-001 | Create individual trade | TradesController, TradesService, Prisma |
-| FR-002 | Create trade group | GroupsController, GroupsService, Prisma |
+| FR     | Requirement                                    | Primary Components                                           |
+| ------ | ---------------------------------------------- | ------------------------------------------------------------ |
+| FR-000 | Project setup with Swagger/OpenAPI             | Docker, @nestjs/swagger, openapi-typescript                  |
+| FR-001 | Create individual trade                        | TradesController, TradesService, Prisma                      |
+| FR-002 | Create trade group                             | GroupsController, GroupsService, Prisma                      |
 | FR-003 | View all trades and groups (unified dashboard) | TradesController (`?include=groups`), ItemType discriminator |
-| FR-004 | View individual trade details | TradesController.findByUuid() |
-| FR-005 | View individual group details | GroupsController.findByUuid(), derived fields |
-| FR-006 | Edit existing trade | TradesController.update() |
-| FR-007 | Track trade status | TradeStatus enum, GroupsService (derived status) |
-| FR-008 | Add trades to group | GroupsController, Prisma transactions |
-| FR-009 | Remove trades from group | GroupsController, GroupsService (integrity check) |
-| FR-010 | Delete trades | TradesController.deleteByUuid() |
-| FR-011 | Automated P&L calculation | GroupsService, derived fields |
-| FR-012 | Add notes | Trade.notes, Group.notes |
-| FR-013 | Filter trades | Query params, PostgreSQL indexes |
-| FR-014 | Sort by expiry | PostgreSQL indexes, orderBy |
-| FR-015 | Distinguish trade types | TradeType, OptionType enums |
+| FR-004 | View individual trade details                  | TradesController.findByUuid()                                |
+| FR-005 | View individual group details                  | GroupsController.findByUuid(), derived fields                |
+| FR-006 | Edit existing trade                            | TradesController.update()                                    |
+| FR-007 | Track trade status                             | TradeStatus enum, GroupsService (derived status)             |
+| FR-008 | Add trades to group                            | GroupsController, Prisma transactions                        |
+| FR-009 | Remove trades from group                       | GroupsController, GroupsService (integrity check)            |
+| FR-010 | Delete trades                                  | TradesController.deleteByUuid()                              |
+| FR-011 | Automated P&L calculation                      | GroupsService, derived fields                                |
+| FR-012 | Add notes                                      | Trade.notes, Group.notes                                     |
+| FR-013 | Filter trades                                  | Query params, PostgreSQL indexes                             |
+| FR-014 | Sort by expiry                                 | PostgreSQL indexes, orderBy                                  |
+| FR-015 | Distinguish trade types                        | TradeType, OptionType enums                                  |
 
 ### Key Architectural Trade-offs
 
@@ -2282,10 +2421,10 @@ pnpm api:test:e2e
 
 **Decision:** Calculate on-demand, do NOT store
 
-| Approach | Pros | Cons |
-|----------|------|------|
-| **Store** (Rejected) | ✓ Faster (~80ms saved) | ✗ Consistency risk, update complexity |
-| **Calculate** (✅ Chosen) | ✓ Always consistent, single source of truth | ✗ Slight cost (~100ms) |
+| Approach                  | Pros                                        | Cons                                  |
+| ------------------------- | ------------------------------------------- | ------------------------------------- |
+| **Store** (Rejected)      | ✓ Faster (~80ms saved)                      | ✗ Consistency risk, update complexity |
+| **Calculate** (✅ Chosen) | ✓ Always consistent, single source of truth | ✗ Slight cost (~100ms)                |
 
 **Justification:** Consistency > 80ms performance gain
 
@@ -2293,10 +2432,10 @@ pnpm api:test:e2e
 
 **Decision:** Layered Monolith
 
-| Approach | Pros | Cons |
-|----------|------|------|
-| **Microservices** (Rejected) | ✓ Independent scaling | ✗ Overkill for 1 user, complex deployment |
-| **Monolith** (✅ Chosen) | ✓ Simple, ACID transactions, low latency | ✗ Cannot scale independently |
+| Approach                     | Pros                                     | Cons                                      |
+| ---------------------------- | ---------------------------------------- | ----------------------------------------- |
+| **Microservices** (Rejected) | ✓ Independent scaling                    | ✗ Overkill for 1 user, complex deployment |
+| **Monolith** (✅ Chosen)     | ✓ Simple, ACID transactions, low latency | ✗ Cannot scale independently              |
 
 **Justification:** Single user, localhost, 2-day MVP timeline
 
@@ -2305,6 +2444,7 @@ pnpm api:test:e2e
 **Decision:** UUIDs
 
 **Justification:**
+
 - Security: No ID enumeration
 - Future-proof: Supports replication
 - Storage overhead negligible
@@ -2364,12 +2504,12 @@ pnpm api:test:e2e
 
 ### Risks & Mitigation
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| Database grows >1GB | Low | Medium | Pagination, partitioning (backlog) |
-| Performance degrades >500 trades | Medium | High | Monitor, implement backlog items |
-| Data loss | Low | Critical | Regular backups |
-| Stale frontend types | Medium | Low | Run type:generate after changes |
+| Risk                             | Likelihood | Impact   | Mitigation                         |
+| -------------------------------- | ---------- | -------- | ---------------------------------- |
+| Database grows >1GB              | Low        | Medium   | Pagination, partitioning (backlog) |
+| Performance degrades >500 trades | Medium     | High     | Monitor, implement backlog items   |
+| Data loss                        | Low        | Critical | Regular backups                    |
+| Stale frontend types             | Medium     | Low      | Run type:generate after changes    |
 
 ---
 
@@ -2411,4 +2551,3 @@ After architecture approval:
 
 **Approval Required:** Yes
 **Next Phase:** Phase 4 - Sprint Planning (`/sprint-planning`)
-

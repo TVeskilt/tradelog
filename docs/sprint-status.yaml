@@ -3,9 +3,9 @@
 # Project: TradeLog MVP
 # Sprint Planning Document: docs/sprint-plan-tradelog-2025-01-02.md
 
-project_name: "tradelog"
-last_updated: "2025-01-02"
-current_sprint: null  # Will be set when Sprint 1 begins
+project_name: 'tradelog'
+last_updated: '2025-01-02'
+current_sprint: null # Will be set when Sprint 1 begins
 total_sprints: 3
 total_stories: 12
 total_points: 61
@@ -17,14 +17,14 @@ team_capacity_per_sprint: 20
 # Sprint Overview
 sprints:
   - sprint_number: 1
-    sprint_name: "Foundation & Backend Core"
-    status: "not_started"  # not_started, in_progress, completed
+    sprint_name: 'Foundation & Backend Core'
+    status: 'not_started' # not_started, in_progress, completed
     start_date: null
     end_date: null
     target_points: 20
     planned_points: 21
     completed_points: 0
-    goal: "Establish monorepo infrastructure and core backend API"
+    goal: 'Establish monorepo infrastructure and core backend API'
     stories:
       - STORY-001
       - STORY-002
@@ -32,28 +32,28 @@ sprints:
       - STORY-004
 
   - sprint_number: 2
-    sprint_name: "Groups & Primary UI"
-    status: "not_started"
+    sprint_name: 'Groups & Primary UI'
+    status: 'not_started'
     start_date: null
     end_date: null
     target_points: 20
     planned_points: 21
     completed_points: 0
-    goal: "Complete backend API and build primary user interfaces"
+    goal: 'Complete backend API and build primary user interfaces'
     stories:
       - STORY-005
       - STORY-006
       - STORY-009
 
   - sprint_number: 3
-    sprint_name: "Dashboard & Enhanced Features"
-    status: "not_started"
+    sprint_name: 'Dashboard & Enhanced Features'
+    status: 'not_started'
     start_date: null
     end_date: null
     target_points: 20
     planned_points: 19
     completed_points: 0
-    goal: "Deliver complete MVP with dashboard and portfolio overview"
+    goal: 'Deliver complete MVP with dashboard and portfolio overview'
     stories:
       - STORY-007
       - STORY-008
@@ -68,7 +68,7 @@ sprints:
 stories:
   # EPIC-001: Project Infrastructure & Setup
   - id: STORY-001
-    name: "Monorepo Setup with pnpm Workspaces"
+    name: 'Monorepo Setup with pnpm Workspaces'
     epic: EPIC-001
     sprint: 1
     points: 3
@@ -76,14 +76,14 @@ stories:
     priority: critical
     started_date: null
     completed_date: null
-    assignee: "Solo Developer"
+    assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
-    story_document: "docs/stories/STORY-001.md"
-    notes: "Story documented on 2025-01-02. Ready for implementation."
+    story_document: 'docs/stories/STORY-001.md'
+    notes: 'Story documented on 2025-01-02. Ready for implementation.'
 
   - id: STORY-002
-    name: "Docker Compose Development Environment"
+    name: 'Docker Compose Development Environment'
     epic: EPIC-001
     sprint: 1
     points: 5
@@ -91,13 +91,13 @@ stories:
     priority: critical
     started_date: null
     completed_date: null
-    assignee: "Solo Developer"
+    assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
     notes: null
 
   - id: STORY-003
-    name: "Prisma ORM Setup & Database Schema"
+    name: 'Prisma ORM Setup & Database Schema'
     epic: EPIC-001
     sprint: 1
     points: 5
@@ -105,14 +105,14 @@ stories:
     priority: critical
     started_date: null
     completed_date: null
-    assignee: "Solo Developer"
+    assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
     notes: null
 
   # EPIC-002: Trade & Group Management
   - id: STORY-004
-    name: "Trade CRUD API Endpoints"
+    name: 'Trade CRUD API Endpoints'
     epic: EPIC-002
     sprint: 1
     points: 8
@@ -120,13 +120,13 @@ stories:
     priority: critical
     started_date: null
     completed_date: null
-    assignee: "Solo Developer"
+    assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
     notes: null
 
   - id: STORY-005
-    name: "Group CRUD API Endpoints"
+    name: 'Group CRUD API Endpoints'
     epic: EPIC-002
     sprint: 2
     points: 8
@@ -134,13 +134,13 @@ stories:
     priority: critical
     started_date: null
     completed_date: null
-    assignee: "Solo Developer"
+    assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
     notes: null
 
   - id: STORY-006
-    name: "Trade Entry Form UI"
+    name: 'Trade Entry Form UI'
     epic: EPIC-002
     sprint: 2
     points: 5
@@ -148,13 +148,13 @@ stories:
     priority: high
     started_date: null
     completed_date: null
-    assignee: "Solo Developer"
+    assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
     notes: null
 
   - id: STORY-007
-    name: "Group Management UI"
+    name: 'Group Management UI'
     epic: EPIC-002
     sprint: 3
     points: 5
@@ -162,13 +162,13 @@ stories:
     priority: high
     started_date: null
     completed_date: null
-    assignee: "Solo Developer"
+    assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
     notes: null
 
   - id: STORY-008
-    name: "Trade & Group Deletion with Confirmation"
+    name: 'Trade & Group Deletion with Confirmation'
     epic: EPIC-002
     sprint: 3
     points: 3
@@ -176,14 +176,14 @@ stories:
     priority: medium
     started_date: null
     completed_date: null
-    assignee: "Solo Developer"
+    assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
     notes: null
 
   # EPIC-003: Portfolio Dashboard & Visualization
   - id: STORY-009
-    name: "Hierarchical Trade List View"
+    name: 'Hierarchical Trade List View'
     epic: EPIC-003
     sprint: 2
     points: 8
@@ -191,13 +191,13 @@ stories:
     priority: critical
     started_date: null
     completed_date: null
-    assignee: "Solo Developer"
+    assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
     notes: null
 
   - id: STORY-010
-    name: "Dashboard Metrics & Filtering"
+    name: 'Dashboard Metrics & Filtering'
     epic: EPIC-003
     sprint: 3
     points: 5
@@ -205,13 +205,13 @@ stories:
     priority: high
     started_date: null
     completed_date: null
-    assignee: "Solo Developer"
+    assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
     notes: null
 
   - id: STORY-011
-    name: "Sorting & Expiry Alerts"
+    name: 'Sorting & Expiry Alerts'
     epic: EPIC-003
     sprint: 3
     points: 3
@@ -219,13 +219,13 @@ stories:
     priority: medium
     started_date: null
     completed_date: null
-    assignee: "Solo Developer"
+    assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
     notes: null
 
   - id: STORY-012
-    name: "P&L Calculation & Status Display"
+    name: 'P&L Calculation & Status Display'
     epic: EPIC-003
     sprint: 3
     points: 3
@@ -233,7 +233,7 @@ stories:
     priority: high
     started_date: null
     completed_date: null
-    assignee: "Solo Developer"
+    assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
     notes: null
@@ -249,12 +249,12 @@ velocity:
   sprint_3:
     planned: 19
     completed: 0
-  average_velocity: 0  # Will be calculated after sprint completions
+  average_velocity: 0 # Will be calculated after sprint completions
 
 # Burndown Data
 # Updated daily during sprints
 burndown:
-  sprint_1: []  # [{date: "YYYY-MM-DD", remaining_points: X}]
+  sprint_1: [] # [{date: "YYYY-MM-DD", remaining_points: X}]
   sprint_2: []
   sprint_3: []
 

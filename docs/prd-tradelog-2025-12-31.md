@@ -14,6 +14,7 @@
 This Product Requirements Document (PRD) defines the functional and non-functional requirements for tradelog. It serves as the source of truth for what will be built and provides traceability from requirements through implementation.
 
 **Related Documents:**
+
 - Product Brief: `docs/product-brief-tradelog-2025-12-31.md`
 
 ---
@@ -52,6 +53,7 @@ The project succeeds when the user stops opening IB to check portfolio overview 
 Functional Requirements (FRs) define **what** the system does - specific features and behaviors.
 
 Each requirement includes:
+
 - **ID**: Unique identifier (FR-000, FR-001, etc.)
 - **Priority**: Must Have / Should Have / Could Have (MoSCoW)
 - **Description**: What the system should do
@@ -68,6 +70,7 @@ Each requirement includes:
 Set up monorepo project structure with React frontend, NestJS backend, PostgreSQL database, Prisma ORM, Docker containerization, and development tooling.
 
 **Acceptance Criteria:**
+
 - [ ] Monorepo structure created (apps/frontend, apps/backend, packages/shared)
 - [ ] React app initialized with TypeScript, shadcn UI, ESLint, Prettier
 - [ ] NestJS API initialized with TypeScript, Prisma ORM, class-validator, ESLint, Prettier
@@ -91,6 +94,7 @@ Set up monorepo project structure with React frontend, NestJS backend, PostgreSQ
 User can manually create a new individual options trade by entering: strike price, option type (PUT/CALL), trade action (BUY/SELL), cost, current value (for P&L), expiry date, and optional notes.
 
 **Acceptance Criteria:**
+
 - [ ] Form accepts all required fields (strike, type, action, cost, current value, expiry)
 - [ ] Form uses React Hook Form for state management
 - [ ] Form validates with Zod schema (client-side)
@@ -113,6 +117,7 @@ User can manually create a new individual options trade by entering: strike pric
 User can create a trade group (combination) with unlimited legs, allowing grouping of related options positions (e.g., calendar spread, ratio spread, hedges). Group names are suggested based on strategy type and closest expiry date, with option for custom names.
 
 **Acceptance Criteria:**
+
 - [ ] User can create empty group with name/label
 - [ ] Suggested group name format: "{Strategy Type} {Closest Expiry Date}"
   - Format: "MMM-DD-YYYY"
@@ -137,6 +142,7 @@ User can create a trade group (combination) with unlimited legs, allowing groupi
 User can add trades to existing groups or remove trades from groups, enabling dynamic regrouping as strategies evolve (e.g., adding hedges to existing positions).
 
 **Acceptance Criteria:**
+
 - [ ] User can add existing trades to any group
 - [ ] User can remove trades from groups
 - [ ] User can move trades between groups
@@ -156,6 +162,7 @@ User can add trades to existing groups or remove trades from groups, enabling dy
 User can view trades in a hierarchical list where groups are expandable/collapsible, showing constituent leg trades when expanded.
 
 **Acceptance Criteria:**
+
 - [ ] Groups display as parent rows with summary info (name, aggregate P&L, status)
 - [ ] Individual trades display as child rows under groups when expanded
 - [ ] User can expand/collapse groups (▶/▼ icon)
@@ -177,6 +184,7 @@ User can view trades in a hierarchical list where groups are expandable/collapsi
 Dashboard displays portfolio-level metrics: total portfolio size, aggregate P&L, and count of open positions.
 
 **Acceptance Criteria:**
+
 - [ ] Dashboard shows total portfolio value (sum of all positions)
 - [ ] Dashboard shows total P&L (aggregate across all positions)
 - [ ] Dashboard shows count of Open positions
@@ -198,6 +206,7 @@ Dashboard displays portfolio-level metrics: total portfolio size, aggregate P&L,
 User can filter the trade list by expiry date, status (Open/Closing Soon/Closed), option type (PUT/CALL), and P&L (profitable/losing).
 
 **Acceptance Criteria:**
+
 - [ ] Filter by expiry date range (date picker)
 - [ ] Filter by status (Open / Closing Soon / Closed)
 - [ ] Filter by option type (PUT / CALL)
@@ -221,6 +230,7 @@ System tracks and displays trade status for individual trades (Open, Closing Soo
 **Acceptance Criteria:**
 
 **Individual Trades:**
+
 - [ ] User can manually set status for individual trades
 - [ ] System auto-sets "Closing Soon" for trades expiring ≤7 days
 - [ ] Status values: Open, Closing Soon, Closed
@@ -229,6 +239,7 @@ System tracks and displays trade status for individual trades (Open, Closing Soo
 - [ ] Default status for new trades: Open
 
 **Group Status (Derived):**
+
 - [ ] Group status = "Closed" if ALL children are Closed
 - [ ] Group status = "Closing Soon" if ANY child is Closing Soon (and not all Closed)
 - [ ] Group status = "Open" if all children are Open (none Closing Soon or Closed)
@@ -236,6 +247,7 @@ System tracks and displays trade status for individual trades (Open, Closing Soo
 - [ ] Derived status is clearly indicated (not manually editable for groups)
 
 **Future Enhancement (Could Have):**
+
 - [ ] Auto-close trades after expiry date + auto-note "Expired without manual closure"
 
 **Dependencies:** FR-001, FR-002
@@ -250,6 +262,7 @@ System tracks and displays trade status for individual trades (Open, Closing Soo
 User can sort trades by expiry date, P&L, entry date, or strike price in ascending/descending order.
 
 **Acceptance Criteria:**
+
 - [ ] Sort by expiry date (nearest first / furthest first)
 - [ ] Sort by P&L (most profitable / least profitable)
 - [ ] Sort by entry date (newest / oldest)
@@ -271,6 +284,7 @@ User can sort trades by expiry date, P&L, entry date, or strike price in ascendi
 System highlights trades/groups expiring within 7 days with visual alerts, enabling quick identification during Friday reviews.
 
 **Acceptance Criteria:**
+
 - [ ] Trades expiring ≤7 days are visually highlighted (color, icon, or badge)
 - [ ] Groups with ANY child expiring ≤7 days are highlighted
 - [ ] Highlighted trades appear at top of list (when no other sort applied)
@@ -290,6 +304,7 @@ System highlights trades/groups expiring within 7 days with visual alerts, enabl
 User can use pre-configured templates for common strategies (calendar spread, ratio calendar spread) that auto-populate trade fields based on strategy pattern.
 
 **Acceptance Criteria:**
+
 - [ ] Template for calendar spread (sell 1-month, buy 2-month)
 - [ ] Template for ratio calendar spread
 - [ ] Templates pre-fill option type, action, relative expiries
@@ -310,6 +325,7 @@ User can use pre-configured templates for common strategies (calendar spread, ra
 System automatically calculates P&L for individual trades and groups based on cost basis. For MVP, current value is manually entered by user. Future enhancement will use live market data.
 
 **Acceptance Criteria:**
+
 - [ ] Individual trade has "current value" field (manually entered by user)
 - [ ] Individual trade P&L = current value - cost
 - [ ] Group P&L = sum of constituent trade P&Ls
@@ -319,6 +335,7 @@ System automatically calculates P&L for individual trades and groups based on co
 - [ ] Negative P&L (loss) visually distinct from positive P&L (profit)
 
 **Future Enhancement:**
+
 - [ ] Real-time P&L with live market data integration (requires separate planning)
 
 **Dependencies:** FR-001, FR-002
@@ -333,6 +350,7 @@ System automatically calculates P&L for individual trades and groups based on co
 User can add, edit, and view notes on individual trades and groups to capture strategy reasoning, market outlook, or adjustment rationale.
 
 **Acceptance Criteria:**
+
 - [ ] Notes field available on trades and groups
 - [ ] Notes support multi-line text (textarea)
 - [ ] Notes are timestamped on creation/edit
@@ -341,6 +359,7 @@ User can add, edit, and view notes on individual trades and groups to capture st
 - [ ] Empty notes are visually distinct (placeholder text)
 
 **Could Have:**
+
 - [ ] Notes are searchable
 
 **Dependencies:** FR-001, FR-002
@@ -355,6 +374,7 @@ User can add, edit, and view notes on individual trades and groups to capture st
 User can edit trade details (strike, cost, current value, expiry, notes) or delete trades that were entered incorrectly.
 
 **Acceptance Criteria:**
+
 - [ ] User can edit all trade fields (strike, type, action, cost, current value, expiry, notes, status)
 - [ ] User can delete individual trades
 - [ ] Deleting a trade updates group P&L immediately
@@ -363,6 +383,7 @@ User can edit trade details (strike, cost, current value, expiry, notes) or dele
 - [ ] Edit uses same form/validation as create
 
 **Could Have:**
+
 - [ ] Edit history tracking
 
 **Dependencies:** FR-001
@@ -377,6 +398,7 @@ User can edit trade details (strike, cost, current value, expiry, notes) or dele
 User can delete trade groups while choosing to preserve or delete constituent trades.
 
 **Acceptance Criteria:**
+
 - [ ] User can delete group only (trades become ungrouped)
 - [ ] User can delete group and all constituent trades
 - [ ] Deletion requires confirmation modal with clear options
@@ -402,6 +424,7 @@ Non-Functional Requirements (NFRs) define **how** the system performs - quality 
 Dashboard and trade list must load quickly to support the 1-2 minute portfolio overview goal.
 
 **Acceptance Criteria:**
+
 - [ ] Initial dashboard load < 2 seconds (localhost)
 - [ ] Trade list renders first 50 items < 1 second
 - [ ] Infinite scroll loads next batch < 500ms
@@ -424,6 +447,7 @@ Fast Friday workflow requires instant visibility. Slow loading defeats the purpo
 Interface must be intuitive enough to use without documentation or training, supporting the "no training required" success criterion.
 
 **Acceptance Criteria:**
+
 - [ ] First-time user can create a trade within 1 minute without instructions
 - [ ] Trade grouping is discoverable (clear UI affordances like buttons, drag-drop indicators)
 - [ ] Expiring positions are immediately visible (visual prominence via color/badges)
@@ -431,6 +455,7 @@ Interface must be intuitive enough to use without documentation or training, sup
 - [ ] Error messages are actionable (explain what's wrong + how to fix)
 
 **Could Have:**
+
 - [ ] Keyboard shortcuts for common actions
 
 **Rationale:**
@@ -446,6 +471,7 @@ As a solo user building for yourself, time spent learning the tool is wasted tim
 Application must be responsive and adapt to different viewport sizes including desktop, tablet, and mobile browsers.
 
 **Acceptance Criteria:**
+
 - [ ] Works on Chrome/Chromium (latest version)
 - [ ] Works on Firefox (latest version)
 - [ ] Works on Safari (latest version)
@@ -470,6 +496,7 @@ While primary use is desktop (Friday workflow), being able to check positions on
 User data must be persisted reliably with no risk of loss during normal operations.
 
 **Acceptance Criteria:**
+
 - [ ] All trade/group operations are transactional (atomic)
 - [ ] Database writes are durable (Prisma transactions)
 - [ ] Failed operations rollback cleanly
@@ -490,6 +517,7 @@ Trading data is financial data. Loss of trade records could result in costly err
 Codebase must be maintainable for solo developer with clear structure, type safety, and consistent formatting.
 
 **Acceptance Criteria:**
+
 - [ ] TypeScript strict mode enabled (frontend + backend)
 - [ ] ESLint configured and passing with 0 errors
 - [ ] Prettier configured for consistent code formatting
@@ -513,6 +541,7 @@ Solo developer project that may be picked up after interruptions. Good code qual
 System must handle expected trade volume without performance degradation.
 
 **Acceptance Criteria:**
+
 - [ ] Support 500+ individual trades without slowdown
 - [ ] Support 100+ trade groups without slowdown
 - [ ] Infinite scroll handles large datasets efficiently (virtualization)
@@ -532,6 +561,7 @@ Weekly trading over 1-2 years = ~100-200 trades. System should handle 2-3x expec
 Application must run reliably in local development environment (localhost).
 
 **Acceptance Criteria:**
+
 - [ ] Docker compose brings up full stack (DB + API + Frontend) with single command
 - [ ] Hot reload works for development (React + NestJS)
 - [ ] Database persists data between container restarts (volumes)
@@ -551,12 +581,14 @@ MVP runs localhost-only. Deployment comes later. Local reliability is critical f
 For MVP, minimal security is acceptable (localhost single-user). For future sharing, basic authentication required.
 
 **Acceptance Criteria (MVP):**
+
 - [ ] No authentication required (single-user localhost)
 - [ ] Database credentials stored in .env file (not committed to git)
 - [ ] SQL injection prevented by Prisma ORM (parameterized queries)
 - [ ] Input validation on both frontend (Zod) and backend (class-validator)
 
 **Acceptance Criteria (Future - when shared):**
+
 - [ ] User authentication (username/password or OAuth)
 - [ ] Session management with secure cookies
 - [ ] Data isolation between users (row-level security)
@@ -581,9 +613,11 @@ Each epic maps to multiple functional requirements and will generate 2-10 storie
 Establish the foundational monorepo architecture with React frontend, NestJS backend, PostgreSQL database, and development tooling. This epic delivers a working skeleton that other features build upon.
 
 **Functional Requirements:**
+
 - FR-000: Project Setup & Infrastructure
 
 **Non-Functional Requirements:**
+
 - NFR-005: Code Quality (TypeScript, ESLint, Prettier)
 - NFR-007: Local Development Reliability
 
@@ -595,6 +629,7 @@ Establish the foundational monorepo architecture with React frontend, NestJS bac
 Enables all other development. Without solid infrastructure, nothing else can be built. Sets up maintainability and developer experience for the entire project.
 
 **Example Stories:**
+
 - Set up monorepo structure with apps/backend, apps/frontend, packages/shared
 - Configure Docker Compose for PostgreSQL + NestJS + React
 - Set up Prisma ORM with initial schema and migrations
@@ -608,6 +643,7 @@ Enables all other development. Without solid infrastructure, nothing else can be
 Core CRUD functionality for creating, editing, and organizing individual trades and trade groups (combinations). Includes quick-entry templates and note-taking capabilities for strategy documentation.
 
 **Functional Requirements:**
+
 - FR-001: Create Individual Trade
 - FR-002: Create Trade Group/Combination
 - FR-003: Modify Trade Groups
@@ -617,6 +653,7 @@ Core CRUD functionality for creating, editing, and organizing individual trades 
 - FR-014: Delete Trade Groups
 
 **Non-Functional Requirements:**
+
 - NFR-004: Data Integrity (transactional operations)
 
 **Story Count Estimate:** 6-8 stories
@@ -627,6 +664,7 @@ Core CRUD functionality for creating, editing, and organizing individual trades 
 This is the core value proposition - flexible grouping with unlimited legs that IB doesn't provide. Without this, the entire project fails to solve the core problem.
 
 **Example Stories:**
+
 - Create trade entry form with validation (strike, type, action, cost, expiry)
 - Create group with suggested naming
 - Add/remove trades from groups
@@ -642,6 +680,7 @@ This is the core value proposition - flexible grouping with unlimited legs that 
 Comprehensive portfolio overview with hierarchical trade list, dashboard metrics, filtering, sorting, status tracking, expiry alerts, and automated P&L calculations. Delivers the "instant 1-2 minute overview" goal.
 
 **Functional Requirements:**
+
 - FR-004: View Hierarchical Trade List
 - FR-005: Dashboard Portfolio Metrics
 - FR-006: Filter Trades
@@ -651,6 +690,7 @@ Comprehensive portfolio overview with hierarchical trade list, dashboard metrics
 - FR-011: Automated P&L Calculation
 
 **Non-Functional Requirements:**
+
 - NFR-001: Dashboard Load Time Performance
 - NFR-002: Intuitive Interface
 - NFR-003: Responsive Design
@@ -664,6 +704,7 @@ Comprehensive portfolio overview with hierarchical trade list, dashboard metrics
 Delivers the fast Friday workflow and prevents trading errors. This epic provides the enhanced overview that solves the visibility problem with IB.
 
 **Example Stories:**
+
 - Implement hierarchical trade list with expand/collapse
 - Build dashboard with portfolio metrics (value, P&L, counts)
 - Implement trade filtering (status, expiry, type, P&L)
@@ -687,11 +728,13 @@ User stories follow the format: "As a [user type], I want [goal] so that [benefi
 ### Primary User: Tristan
 
 **Demographics:**
+
 - Software engineer with 4 years professional experience
 - 2 years trading options
 - Highly comfortable with web applications and data entry
 
 **Trading Profile:**
+
 - **Strategies:** Calendar spreads and ratio calendar spreads
 - **Time Horizon:** 1-2 month expiries (short 1-month, long 2-month)
 - **Trading Focus:** Profiting from time decay (theta)
@@ -699,12 +742,14 @@ User stories follow the format: "As a [user type], I want [goal] so that [benefi
 - **Trading Volume:** Weekly position management with 1-2 month holding periods
 
 **Pain Points:**
+
 - IB's interface cannot group 5+ leg trades
 - Cannot add trades to existing groups
 - Poor visibility into multi-leg strategy P&L
 - Manual tracking is error-prone at scale
 
 **Goals:**
+
 - Fast Friday workflow (1-2 minute portfolio overview)
 - Zero trade closing errors
 - Clear visualization of expiring positions
@@ -717,10 +762,12 @@ User stories follow the format: "As a [user type], I want [goal] so that [benefi
 ### Secondary Users: Trading Friends
 
 **Demographics:**
+
 - Options traders (skill level varies)
 - Potential future users if application is shared
 
 **Influence:**
+
 - Medium influence on feature prioritization
 - May provide feedback on UX and features
 - Not involved in MVP phase
@@ -734,6 +781,7 @@ User stories follow the format: "As a [user type], I want [goal] so that [benefi
 **Goal:** Quickly identify expiring positions and decide which to close
 
 **Steps:**
+
 1. User opens tradelog in browser
 2. Dashboard loads showing portfolio metrics
 3. User scans for "Closing Soon" badge or expiry alerts
@@ -743,6 +791,7 @@ User stories follow the format: "As a [user type], I want [goal] so that [benefi
 7. Total time: 1-2 minutes
 
 **Success Criteria:**
+
 - All expiring positions visible at a glance
 - P&L is accurate and up-to-date
 - No need to click through multiple pages
@@ -754,6 +803,7 @@ User stories follow the format: "As a [user type], I want [goal] so that [benefi
 **Goal:** Quickly enter a new calendar spread strategy
 
 **Steps:**
+
 1. User clicks "Quick Entry: Calendar Spread"
 2. Template pre-fills form with strategy pattern
 3. User enters strikes and specific expiries
@@ -765,6 +815,7 @@ User stories follow the format: "As a [user type], I want [goal] so that [benefi
 9. Total time: <1 minute
 
 **Success Criteria:**
+
 - Template saves time vs manual entry
 - Group is correctly created with both trades
 - P&L calculates correctly
@@ -776,6 +827,7 @@ User stories follow the format: "As a [user type], I want [goal] so that [benefi
 **Goal:** Add a hedge trade to an existing multi-leg strategy
 
 **Steps:**
+
 1. User creates new individual trade (hedge)
 2. User clicks "Add to Group" on the trade
 3. Modal shows list of existing groups
@@ -785,6 +837,7 @@ User stories follow the format: "As a [user type], I want [goal] so that [benefi
 7. Group status may change if hedge affects expiry timeline
 
 **Success Criteria:**
+
 - Trade successfully added to group
 - Group P&L updates immediately
 - Visual hierarchy shows trade nested under group
@@ -800,6 +853,7 @@ None - greenfield project with no existing internal systems.
 ### External Dependencies
 
 **Frontend:**
+
 - React (UI framework)
 - React Hook Form (form state management)
 - Zod (client-side schema validation)
@@ -808,6 +862,7 @@ None - greenfield project with no existing internal systems.
 - Vite or Create React App (build tool)
 
 **Backend:**
+
 - NestJS (backend framework)
 - Prisma ORM (database ORM and migrations)
 - class-validator (server-side validation via NestJS DTOs)
@@ -816,17 +871,20 @@ None - greenfield project with no existing internal systems.
 - TypeScript
 
 **Infrastructure:**
+
 - PostgreSQL (database)
 - Docker (containerization)
 - Node.js runtime (v18+ recommended)
 - npm or pnpm (package manager)
 
 **Development:**
+
 - ESLint (linting)
 - Prettier (code formatting)
 - Git (version control)
 
 **Future Dependencies (post-MVP):**
+
 - Market data API (for real-time pricing and Greeks)
 - Authentication library (for multi-user)
 
@@ -850,6 +908,7 @@ None - greenfield project with no existing internal systems.
 ## Out of Scope
 
 ### Out of Scope for MVP (moved to backlog):
+
 - Live market data integration
 - Automated trade import from Interactive Brokers API
 - Multi-user capabilities and authentication
@@ -859,6 +918,7 @@ None - greenfield project with no existing internal systems.
 - Real-time broker integration (very low priority - licensing complexity)
 
 ### Future Backlog (post-MVP):
+
 - Analytics (performance over time, strategy win rates, trend analysis)
 - Automated expiry handling (auto-close + auto-notes)
 - Advanced filtering (by tags, notes content)
@@ -868,6 +928,7 @@ None - greenfield project with no existing internal systems.
 - Tax reporting features
 
 ### Never Implement:
+
 - **Mobile app** (native iOS/Android) - web-only by design
 - **Backtesting** - active management makes accurate backtesting too complex
 - **Tax reporting features** - complexity and legal liability
@@ -899,9 +960,9 @@ No open questions at this time. All requirements have been clarified.
 
 ## Revision History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2025-12-31 | TristanVeskilt | Initial PRD |
+| Version | Date       | Author         | Changes     |
+| ------- | ---------- | -------------- | ----------- |
+| 1.0     | 2025-12-31 | TristanVeskilt | Initial PRD |
 
 ---
 
@@ -912,6 +973,7 @@ No open questions at this time. All requirements have been clarified.
 Run `/architecture` to create system architecture based on these requirements.
 
 The architecture will address:
+
 - All functional requirements (FRs)
 - All non-functional requirements (NFRs)
 - Technical stack decisions
@@ -923,6 +985,7 @@ The architecture will address:
 ### Phase 4: Sprint Planning
 
 After architecture is complete, run `/sprint-planning` to:
+
 - Break epics into detailed user stories
 - Estimate story complexity
 - Plan sprint iterations
@@ -932,17 +995,17 @@ After architecture is complete, run `/sprint-planning` to:
 
 **This document was created using BMAD Method v6 - Phase 2 (Planning)**
 
-*To continue: Run `/workflow-status` to see your progress and next recommended workflow.*
+_To continue: Run `/workflow-status` to see your progress and next recommended workflow._
 
 ---
 
 ## Appendix A: Requirements Traceability Matrix
 
-| Epic ID | Epic Name | Functional Requirements | Story Count (Est.) |
-|---------|-----------|-------------------------|-------------------|
-| EPIC-001 | Project Infrastructure & Setup | FR-000 | 3-4 stories |
-| EPIC-002 | Trade & Group Management | FR-001, FR-002, FR-003, FR-010, FR-012, FR-013, FR-014 | 6-8 stories |
-| EPIC-003 | Portfolio Dashboard & Visualization | FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-011 | 5-7 stories |
+| Epic ID  | Epic Name                           | Functional Requirements                                | Story Count (Est.) |
+| -------- | ----------------------------------- | ------------------------------------------------------ | ------------------ |
+| EPIC-001 | Project Infrastructure & Setup      | FR-000                                                 | 3-4 stories        |
+| EPIC-002 | Trade & Group Management            | FR-001, FR-002, FR-003, FR-010, FR-012, FR-013, FR-014 | 6-8 stories        |
+| EPIC-003 | Portfolio Dashboard & Visualization | FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-011 | 5-7 stories        |
 
 **Total Estimated Stories:** 14-19 stories
 
@@ -953,6 +1016,7 @@ After architecture is complete, run `/sprint-planning` to:
 ### Functional Requirements Summary
 
 **Must Have (13):**
+
 - FR-000: Project Setup
 - FR-001: Create Trade
 - FR-002: Create Group
@@ -968,10 +1032,12 @@ After architecture is complete, run `/sprint-planning` to:
 - FR-014: Delete Groups
 
 **Should Have (2):**
+
 - FR-010: Quick Entry Templates
 - FR-012: Trade Notes
 
 **Could Have (0):**
+
 - None explicitly defined
 
 **Total FRs:** 15
@@ -981,6 +1047,7 @@ After architecture is complete, run `/sprint-planning` to:
 ### Non-Functional Requirements Summary
 
 **Must Have (5):**
+
 - NFR-001: Performance - Dashboard Load Time
 - NFR-002: Usability - Intuitive Interface
 - NFR-003: Usability - Responsive Design
@@ -988,6 +1055,7 @@ After architecture is complete, run `/sprint-planning` to:
 - NFR-007: Availability - Local Development
 
 **Should Have (3):**
+
 - NFR-005: Maintainability - Code Quality
 - NFR-006: Scalability - Handle Volume
 - NFR-008: Security (MVP = Should Have, Future = Must Have)

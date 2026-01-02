@@ -29,6 +29,7 @@ I currently have free time and possess the technical skills (4 years as a softwa
 ### Impact if Unsolved
 
 Currently, I manually handle trade tracking, which is manageable at low volumes. However, as trading volume increases, this fragmented view becomes a nightmare for:
+
 - **Decision-making:** Can't quickly assess position status
 - **P&L tracking:** Can't see true profitability of multi-leg strategies
 - **Risk management:** Can't evaluate overall exposure across related positions
@@ -42,6 +43,7 @@ Most critically, poor visibility increases the chance of faulty trades - mistake
 ### Primary Users
 
 **Tristan (myself):**
+
 - **Trading experience:** 2 years trading options
 - **Strategies:** Calendar spreads and ratio calendar spreads
   - Selling 1-month expiry options
@@ -78,6 +80,7 @@ A web application with an infinite scroll list of trades, providing instant clar
 ### Key Features
 
 **MVP (Phase 1 - 2 days):**
+
 - Manual trade entry with essential fields (strike, type, action, cost, expiry)
 - Unlimited leg grouping/combinations
 - Hierarchical display (combinations → individual legs)
@@ -90,11 +93,13 @@ A web application with an infinite scroll list of trades, providing instant clar
 - Automated P&L calculations
 
 **Phase 2 (Enhancements):**
+
 - Advanced calculations
 - Enhanced filters and templates
 - Alert refinements
 
 **Post-MVP Backlog:**
+
 - Analytics (performance over time, win rate by strategy)
 - Live market data integration
 - Automated trade import from IB API
@@ -103,6 +108,7 @@ A web application with an infinite scroll list of trades, providing instant clar
 - Automated Greeks calculation
 
 **Never Implement:**
+
 - Mobile app
 - Backtesting (too complex for active management strategies)
 - Tax reporting features
@@ -110,6 +116,7 @@ A web application with an infinite scroll list of trades, providing instant clar
 ### Value Proposition
 
 Unlike spreadsheets and IB's interface, this solution provides:
+
 - **Readability:** Clean, intuitive interface designed for options traders
 - **Flexibility:** Unlimited legs per combination, dynamic regrouping
 - **Automation:** Calculated P&L, expiry tracking, status management
@@ -140,6 +147,7 @@ The "magic" is combining the clarity of a purpose-built tool with the flexibilit
 
 **Primary value - Fast Friday workflow:**
 Every Friday, quickly identify:
+
 - Which positions are expiring this week
 - P&L status of each combination
 - Which positions need closing
@@ -155,6 +163,7 @@ Even one prevented trading error (value: $10-500) justifies the development inve
 ### In Scope
 
 **MVP Features:**
+
 - Manual trade entry (strike, option type, trade type, cost, expiry, notes)
 - Unlimited leg grouping/combinations
 - Hierarchical display and management
@@ -177,6 +186,7 @@ Even one prevented trading error (value: $10-500) justifies the development inve
 ### Out of Scope
 
 **Not in MVP (moved to backlog):**
+
 - Live market data integration
 - Automated trade import from Interactive Brokers API
 - Multi-user capabilities and authentication
@@ -184,10 +194,12 @@ Even one prevented trading error (value: $10-500) justifies the development inve
 - Research broker data validation/import
 
 **Future Backlog (post-MVP):**
+
 - Analytics (performance over time, strategy win rates)
 - Real-time broker integration (very low priority due to licensing complexity)
 
 **Never Implement:**
+
 - Mobile app (web-only by design)
 - Backtesting (active management makes accurate backtesting too complex)
 - Tax reporting features
@@ -211,16 +223,19 @@ Post-MVP enhancements will be evaluated based on actual usage patterns. Priority
 ### Constraints
 
 **Budget:**
+
 - Zero-cost project
 - Local development environment initially
 - Potential migration to free tier hosting (Vercel, Railway, etc.) post-MVP
 
 **Time:**
+
 - No hard deadlines
 - Free time project with flexible timeline
 - Target: 2-day MVP with Claude Code assistance
 
 **Technology:**
+
 - **Frontend:** React, TypeScript, shadcn UI components
 - **Backend:** NestJS, TypeScript
 - **Database:** PostgreSQL
@@ -231,6 +246,7 @@ Post-MVP enhancements will be evaluated based on actual usage patterns. Priority
 - **Deployment:** Self-hosted initially
 
 **Resources:**
+
 - Solo developer (Tristan)
 - AI assistance via Claude Code
 - No team, no external contributors for MVP
@@ -249,17 +265,20 @@ Post-MVP enhancements will be evaluated based on actual usage patterns. Priority
 ## Success Criteria
 
 **Usage Indicators:**
+
 - Using tradelog as primary tool for portfolio overview and trade logging
 - Referencing tradelog when navigating Interactive Brokers for trade execution
 - Consistently maintaining trade notes for decision tracking
 - Weekly usage during Friday position management sessions
 
 **Quality Benchmarks:**
+
 - **Zero trade closing errors** due to poor visibility or confusion
 - **Portfolio overview in 1-2 minutes** from app open to full understanding
 - **Intuitive interface** requiring no documentation or training
 
 **Satisfaction Indicators:**
+
 - **Enjoy using it** - positive experience vs. current frustration with IB
 - **Clearer overview** - demonstrably better visibility than current manual methods
 - **Confidence boost** - feeling more in control of position management
@@ -280,6 +299,7 @@ Goal: Move as fast as possible to get a usable version for real trading
 ### Key Milestones
 
 **Phase 1 - Minimum Viable (Target: 2 days):**
+
 - Basic CRUD operations for trades and groups
 - Basic dashboard with portfolio metrics
 - **Status:** Usable for real trading
@@ -287,11 +307,13 @@ Goal: Move as fast as possible to get a usable version for real trading
 **Milestone Definition:** Phase 1 is complete when I can enter my current positions, view them grouped correctly, and get a quick P&L overview.
 
 **Phase 2 - Enhancements (post-MVP, timeline flexible):**
+
 - Automated calculations refinements
 - Advanced filters, templates, and alerts
 - Feature additions based on real usage
 
 **Deployment Milestones:**
+
 1. Local development environment (Day 0)
 2. MVP complete, tested with real trades (Day 2 target)
 3. Production hosting on free tier (post-MVP, when validated)
@@ -302,11 +324,13 @@ Goal: Move as fast as possible to get a usable version for real trading
 ## Risks and Mitigation
 
 ### Risk 1: Complexity Underestimation
+
 **Description:** P&L calculations or grouping logic may be more complex than anticipated, especially for multi-leg positions with different costs and expiries.
 
 **Likelihood:** Medium
 
 **Mitigation:**
+
 - Research and leverage existing libraries for options calculations
 - Start with simple P&L (cost basis only, no Greeks)
 - If Greeks calculations prove too complex, push to post-MVP backlog
@@ -314,22 +338,26 @@ Goal: Move as fast as possible to get a usable version for real trading
 - Validate calculations against IB data during testing
 
 ### Risk 2: Time Availability
+
 **Description:** Free time might disappear due to work demands, personal obligations, or other priorities.
 
 **Likelihood:** Low
 
 **Mitigation:**
+
 - Aggressive 2-day timeline to capture MVP before potential interruptions
 - Scope simplification if time becomes constrained - can cut features to reach "usable" state faster
 - Flexible long-term approach - if interrupted, can resume development when time permits
 - No external commitments or deadlines to create pressure
 
 ### Risk 3: Feature Incompleteness
+
 **Description:** MVP might be missing a critical feature that prevents actual usage for real trading, requiring a return to development before validation.
 
 **Likelihood:** Medium
 
 **Mitigation:**
+
 - Iterative deployment approach - test with real trades as soon as basic CRUD works
 - Keep Interactive Brokers as backup during transition period
 - Add features incrementally as needs are discovered through actual use
@@ -348,4 +376,4 @@ Goal: Move as fast as possible to get a usable version for real trading
 
 **This document was created using BMAD Method v6 - Phase 1 (Analysis)**
 
-*To continue: Run `/workflow-status` to see your progress and next recommended workflow.*
+_To continue: Run `/workflow-status` to see your progress and next recommended workflow._
