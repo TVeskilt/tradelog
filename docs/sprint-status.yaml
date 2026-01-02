@@ -1,0 +1,300 @@
+# Sprint Status Tracking
+# Generated: 2025-01-02
+# Project: TradeLog MVP
+# Sprint Planning Document: docs/sprint-plan-tradelog-2025-01-02.md
+
+project_name: "tradelog"
+last_updated: "2025-01-02"
+current_sprint: null  # Will be set when Sprint 1 begins
+total_sprints: 3
+total_stories: 12
+total_points: 61
+
+# Sprint Configuration
+sprint_duration_weeks: 2
+team_capacity_per_sprint: 20
+
+# Sprint Overview
+sprints:
+  - sprint_number: 1
+    sprint_name: "Foundation & Backend Core"
+    status: "not_started"  # not_started, in_progress, completed
+    start_date: null
+    end_date: null
+    target_points: 20
+    planned_points: 21
+    completed_points: 0
+    goal: "Establish monorepo infrastructure and core backend API"
+    stories:
+      - STORY-001
+      - STORY-002
+      - STORY-003
+      - STORY-004
+
+  - sprint_number: 2
+    sprint_name: "Groups & Primary UI"
+    status: "not_started"
+    start_date: null
+    end_date: null
+    target_points: 20
+    planned_points: 21
+    completed_points: 0
+    goal: "Complete backend API and build primary user interfaces"
+    stories:
+      - STORY-005
+      - STORY-006
+      - STORY-009
+
+  - sprint_number: 3
+    sprint_name: "Dashboard & Enhanced Features"
+    status: "not_started"
+    start_date: null
+    end_date: null
+    target_points: 20
+    planned_points: 19
+    completed_points: 0
+    goal: "Deliver complete MVP with dashboard and portfolio overview"
+    stories:
+      - STORY-007
+      - STORY-008
+      - STORY-010
+      - STORY-011
+      - STORY-012
+
+# Story Status Tracking
+# Status values: not_started, in_progress, completed, blocked
+# Format: {story-id}: {status}
+
+stories:
+  # EPIC-001: Project Infrastructure & Setup
+  - id: STORY-001
+    name: "Monorepo Setup with pnpm Workspaces"
+    epic: EPIC-001
+    sprint: 1
+    points: 3
+    status: not_started
+    priority: critical
+    started_date: null
+    completed_date: null
+    assignee: "Solo Developer"
+    blocked: false
+    blocker_reason: null
+    notes: null
+
+  - id: STORY-002
+    name: "Docker Compose Development Environment"
+    epic: EPIC-001
+    sprint: 1
+    points: 5
+    status: not_started
+    priority: critical
+    started_date: null
+    completed_date: null
+    assignee: "Solo Developer"
+    blocked: false
+    blocker_reason: null
+    notes: null
+
+  - id: STORY-003
+    name: "Prisma ORM Setup & Database Schema"
+    epic: EPIC-001
+    sprint: 1
+    points: 5
+    status: not_started
+    priority: critical
+    started_date: null
+    completed_date: null
+    assignee: "Solo Developer"
+    blocked: false
+    blocker_reason: null
+    notes: null
+
+  # EPIC-002: Trade & Group Management
+  - id: STORY-004
+    name: "Trade CRUD API Endpoints"
+    epic: EPIC-002
+    sprint: 1
+    points: 8
+    status: not_started
+    priority: critical
+    started_date: null
+    completed_date: null
+    assignee: "Solo Developer"
+    blocked: false
+    blocker_reason: null
+    notes: null
+
+  - id: STORY-005
+    name: "Group CRUD API Endpoints"
+    epic: EPIC-002
+    sprint: 2
+    points: 8
+    status: not_started
+    priority: critical
+    started_date: null
+    completed_date: null
+    assignee: "Solo Developer"
+    blocked: false
+    blocker_reason: null
+    notes: null
+
+  - id: STORY-006
+    name: "Trade Entry Form UI"
+    epic: EPIC-002
+    sprint: 2
+    points: 5
+    status: not_started
+    priority: high
+    started_date: null
+    completed_date: null
+    assignee: "Solo Developer"
+    blocked: false
+    blocker_reason: null
+    notes: null
+
+  - id: STORY-007
+    name: "Group Management UI"
+    epic: EPIC-002
+    sprint: 3
+    points: 5
+    status: not_started
+    priority: high
+    started_date: null
+    completed_date: null
+    assignee: "Solo Developer"
+    blocked: false
+    blocker_reason: null
+    notes: null
+
+  - id: STORY-008
+    name: "Trade & Group Deletion with Confirmation"
+    epic: EPIC-002
+    sprint: 3
+    points: 3
+    status: not_started
+    priority: medium
+    started_date: null
+    completed_date: null
+    assignee: "Solo Developer"
+    blocked: false
+    blocker_reason: null
+    notes: null
+
+  # EPIC-003: Portfolio Dashboard & Visualization
+  - id: STORY-009
+    name: "Hierarchical Trade List View"
+    epic: EPIC-003
+    sprint: 2
+    points: 8
+    status: not_started
+    priority: critical
+    started_date: null
+    completed_date: null
+    assignee: "Solo Developer"
+    blocked: false
+    blocker_reason: null
+    notes: null
+
+  - id: STORY-010
+    name: "Dashboard Metrics & Filtering"
+    epic: EPIC-003
+    sprint: 3
+    points: 5
+    status: not_started
+    priority: high
+    started_date: null
+    completed_date: null
+    assignee: "Solo Developer"
+    blocked: false
+    blocker_reason: null
+    notes: null
+
+  - id: STORY-011
+    name: "Sorting & Expiry Alerts"
+    epic: EPIC-003
+    sprint: 3
+    points: 3
+    status: not_started
+    priority: medium
+    started_date: null
+    completed_date: null
+    assignee: "Solo Developer"
+    blocked: false
+    blocker_reason: null
+    notes: null
+
+  - id: STORY-012
+    name: "P&L Calculation & Status Display"
+    epic: EPIC-003
+    sprint: 3
+    points: 3
+    status: not_started
+    priority: high
+    started_date: null
+    completed_date: null
+    assignee: "Solo Developer"
+    blocked: false
+    blocker_reason: null
+    notes: null
+
+# Velocity Tracking
+velocity:
+  sprint_1:
+    planned: 21
+    completed: 0
+  sprint_2:
+    planned: 21
+    completed: 0
+  sprint_3:
+    planned: 19
+    completed: 0
+  average_velocity: 0  # Will be calculated after sprint completions
+
+# Burndown Data
+# Updated daily during sprints
+burndown:
+  sprint_1: []  # [{date: "YYYY-MM-DD", remaining_points: X}]
+  sprint_2: []
+  sprint_3: []
+
+# Risk & Issue Tracking
+# Active risks and blockers identified during sprint
+active_risks: []
+# Format:
+# - risk_id: RISK-XXX
+#   description: "Description"
+#   impact: high/medium/low
+#   status: active/resolved
+#   mitigation: "Mitigation strategy"
+
+active_issues: []
+# Format:
+# - issue_id: ISSUE-XXX
+#   description: "Description"
+#   severity: critical/high/medium/low
+#   status: open/in_progress/resolved
+#   created_date: "YYYY-MM-DD"
+#   resolved_date: null
+
+# Notes
+notes: |
+  Sprint planning completed on 2025-01-02.
+  Ready to begin Sprint 1.
+
+  To start Sprint 1:
+  1. Set current_sprint to 1
+  2. Update sprint 1 start_date
+  3. Update sprint 1 status to "in_progress"
+  4. Begin work on STORY-001
+
+  When completing a story:
+  1. Update story status to "completed"
+  2. Set completed_date
+  3. Update sprint completed_points
+  4. Update velocity tracking
+
+  When sprint completes:
+  1. Update sprint status to "completed"
+  2. Set sprint end_date
+  3. Calculate average_velocity
+  4. Set current_sprint to next sprint number
