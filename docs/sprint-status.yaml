@@ -72,14 +72,15 @@ stories:
     epic: EPIC-001
     sprint: 1
     points: 3
-    status: not_started
+    status: defined
     priority: critical
     started_date: null
     completed_date: null
     assignee: "Solo Developer"
     blocked: false
     blocker_reason: null
-    notes: null
+    story_document: "docs/stories/STORY-001.md"
+    notes: "Story documented on 2025-01-02. Ready for implementation."
 
   - id: STORY-002
     name: "Docker Compose Development Environment"
