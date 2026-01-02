@@ -1,16 +1,4 @@
-/**
- * Database Seed Script
- *
- * This script will populate the database with sample development data:
- * - 2 sample groups (Calendar Spread, Ratio Calendar Spread)
- * - 6 sample trades (3 per group)
- * - Realistic options data (SPY, QQQ symbols)
- *
- * NOTE: This will be fully implemented in STORY-003 after Prisma is set up.
- * For now, this is a placeholder structure.
- */
-
-async function seed() {
+async function seed(): Promise<void> {
   console.log('🌱 Starting database seed...');
 
   // Sample data structure (will use Prisma after STORY-003)
@@ -36,8 +24,8 @@ async function seed() {
       tradeType: 'BUY',
       optionType: 'CALL',
       quantity: 10,
-      costBasis: 5.50,
-      currentValue: 6.20,
+      costBasis: 5.5,
+      currentValue: 6.2,
       status: 'OPEN',
       notes: 'Long call - front month',
     },
@@ -48,8 +36,8 @@ async function seed() {
       tradeType: 'SELL',
       optionType: 'CALL',
       quantity: 10,
-      costBasis: 8.30,
-      currentValue: 8.10,
+      costBasis: 8.3,
+      currentValue: 8.1,
       status: 'OPEN',
       notes: 'Short call - back month',
     },
@@ -60,8 +48,8 @@ async function seed() {
       tradeType: 'BUY',
       optionType: 'PUT',
       quantity: 5,
-      costBasis: 4.20,
-      currentValue: 3.80,
+      costBasis: 4.2,
+      currentValue: 3.8,
       status: 'OPEN',
       notes: 'Protective put',
     },
@@ -74,7 +62,7 @@ async function seed() {
       optionType: 'CALL',
       quantity: 20,
       costBasis: 6.75,
-      currentValue: 7.10,
+      currentValue: 7.1,
       status: 'OPEN',
       notes: 'Long call - near term',
     },
@@ -85,8 +73,8 @@ async function seed() {
       tradeType: 'SELL',
       optionType: 'CALL',
       quantity: 10,
-      costBasis: 10.20,
-      currentValue: 9.90,
+      costBasis: 10.2,
+      currentValue: 9.9,
       status: 'OPEN',
       notes: 'Short call - far term (ratio 2:1)',
     },
@@ -97,8 +85,8 @@ async function seed() {
       tradeType: 'BUY',
       optionType: 'PUT',
       quantity: 10,
-      costBasis: 5.30,
-      currentValue: 4.90,
+      costBasis: 5.3,
+      currentValue: 4.9,
       status: 'OPEN',
       notes: 'Downside protection',
     },

@@ -50,6 +50,7 @@ docker-compose up
 ```
 
 This will:
+
 - Pull Docker images (first run only, ~500MB total, 5-10 minutes)
 - Start PostgreSQL 15 database
 - Start NestJS backend API with hot-reloading
@@ -63,16 +64,16 @@ This will:
 
 ### Docker Commands
 
-| Command | Description |
-| ------- | ----------- |
-| `docker-compose up` | Start all services (PostgreSQL + API) |
-| `docker-compose up -d` | Start services in detached mode (background) |
-| `docker-compose down` | Stop services (keeps database data) |
-| `docker-compose down -v` | Stop services and remove volumes (fresh start) |
-| `docker-compose logs -f api` | View API logs in real-time |
-| `docker-compose logs -f db` | View database logs in real-time |
-| `docker-compose ps` | List running containers |
-| `docker-compose restart api` | Restart API service |
+| Command                      | Description                                    |
+| ---------------------------- | ---------------------------------------------- |
+| `docker-compose up`          | Start all services (PostgreSQL + API)          |
+| `docker-compose up -d`       | Start services in detached mode (background)   |
+| `docker-compose down`        | Stop services (keeps database data)            |
+| `docker-compose down -v`     | Stop services and remove volumes (fresh start) |
+| `docker-compose logs -f api` | View API logs in real-time                     |
+| `docker-compose logs -f db`  | View database logs in real-time                |
+| `docker-compose ps`          | List running containers                        |
+| `docker-compose restart api` | Restart API service                            |
 
 ### Environment Variables
 

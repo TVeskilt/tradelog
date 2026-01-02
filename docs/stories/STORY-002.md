@@ -29,6 +29,7 @@ The Docker Compose setup will orchestrate a PostgreSQL 15 database and NestJS ba
 ## Scope
 
 ### In Scope
+
 - Docker Compose configuration with PostgreSQL 15 service
 - Backend service using Node 24 Alpine image
 - Volume mounts for hot-reloading during development
@@ -38,6 +39,7 @@ The Docker Compose setup will orchestrate a PostgreSQL 15 database and NestJS ba
 - Development seed script for sample data
 
 ### Out of Scope
+
 - Production deployment configuration (future phase)
 - Frontend Docker service (runs locally via Vite for now)
 - CI/CD pipeline integration (future enhancement)
@@ -91,6 +93,7 @@ The Docker Compose setup will orchestrate a PostgreSQL 15 database and NestJS ba
 ## Technical Notes
 
 ### Components
+
 - **Docker Compose**: Orchestration for local development environment
 - **PostgreSQL Service**: Database container (postgres:15-alpine)
 - **Backend Service**: NestJS API container (node:24-alpine)
@@ -108,7 +111,7 @@ services:
     image: postgres:15-alpine
     container_name: tradelog-db
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -116,7 +119,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_NAME}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -128,19 +131,20 @@ services:
     container_name: tradelog-api
     working_dir: /app
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
       NODE_ENV: development
     volumes:
       - ./api:/app
-      - /app/node_modules  # Prevents overwriting node_modules from host
+      - /app/node_modules # Prevents overwriting node_modules from host
     command: sh -c "pnpm install && pnpm run start:dev"
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      test:
+        ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -178,10 +182,12 @@ DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@localhost:5432/${DB_NAME}
 ```
 
 ### Port Mappings
+
 - **PostgreSQL**: Host `5432` → Container `5432`
 - **Backend API**: Host `3000` → Container `3000`
 
 ### Volume Strategy
+
 - **Named volume** (`postgres_data`): Persists database data across container restarts
 - **Bind mount** (`./api:/app`): Maps local source code for hot-reloading
 - **Anonymous volume** (`/app/node_modules`): Prevents host from overwriting container's node_modules
@@ -191,6 +197,7 @@ DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@localhost:5432/${DB_NAME}
 **File: `api/src/seed.ts`**
 
 Will include:
+
 - 2 sample groups (Calendar Spread, Ratio Calendar Spread)
 - 6 sample trades (3 per group)
 - Realistic options data (SPY, QQQ symbols)
@@ -200,12 +207,14 @@ Will include:
 ### Health Check Details
 
 **PostgreSQL Health Check**:
+
 - Command: `pg_isready -U ${DB_USER} -d ${DB_NAME}`
 - Interval: 10 seconds
 - Timeout: 5 seconds
 - Retries: 5
 
 **Backend Health Check**:
+
 - Command: `wget --spider http://localhost:3000/health`
 - Interval: 30 seconds
 - Timeout: 10 seconds
@@ -215,6 +224,7 @@ Will include:
 ### Development Workflow
 
 1. **Initial Setup**:
+
    ```bash
    git clone <repo>
    cd tradelog
@@ -239,12 +249,14 @@ Will include:
    ```
 
 ### Security Considerations
+
 - `.env` file excluded from git via `.gitignore`
 - Default passwords only for local development (document warning in README)
 - PostgreSQL not exposed to internet (Docker network isolation)
 - Health check endpoints don't expose sensitive information
 
 ### Edge Cases
+
 - **First run**: Container downloads images (~500MB total), takes 5-10 minutes
 - **node_modules conflict**: Anonymous volume prevents host-container conflict
 - **Database persistence**: Named volume survives `docker-compose down`
@@ -252,6 +264,7 @@ Will include:
 - **Port conflicts**: Error if ports 3000 or 5432 already in use on host
 
 ### Performance Targets
+
 - **Container startup**: <60 seconds (after images cached)
 - **Hot-reload**: <3 seconds to reflect code changes
 - **Setup time** (new developer): <60 minutes from clone to running
@@ -261,12 +274,15 @@ Will include:
 ## Dependencies
 
 ### Prerequisite Stories
+
 - **STORY-001**: Monorepo Setup with pnpm Workspaces
   - Required: Monorepo structure must exist before Docker configuration
   - Reason: Docker Compose references `api/` directory and pnpm commands
 
 ### Blocked Stories
+
 This story blocks the following stories (they require a working development environment):
+
 - **STORY-003**: Prisma ORM Setup & Database Schema (needs running PostgreSQL)
 - **STORY-004**: Trade CRUD API Endpoints (needs backend development environment)
 - **STORY-005**: Group CRUD API Endpoints (needs backend development environment)
@@ -275,21 +291,25 @@ This story blocks the following stories (they require a working development envi
 ### External Dependencies
 
 **Software Requirements** (developer machine):
+
 - Docker Desktop or Docker Engine (v20.10+)
 - Docker Compose (v2.0+)
 - Git (for cloning repository)
 - Text editor (for editing .env file)
 
 **Network Dependencies**:
+
 - Docker Hub access (to pull postgres:15-alpine, node:24-alpine images)
 - Internet connection for first-time image download (~500MB total)
 
 **No blocking external dependencies**:
+
 - No third-party APIs required
 - No external services needed
 - No design assets required
 
 ### Risk Dependencies
+
 - **RISK-003**: Docker environment issues on local machine
   - Mitigation: Use standard Alpine images, test early in Sprint 1
   - Impact: High (blocks all development if Docker doesn't work)
@@ -350,6 +370,7 @@ This story blocks the following stories (they require a working development envi
 ## Additional Notes
 
 ### Testing Checklist
+
 - [ ] Test on fresh Docker installation
 - [ ] Test with no existing containers/volumes
 - [ ] Test port conflicts (start something on 3000, verify error message)
@@ -359,7 +380,9 @@ This story blocks the following stories (they require a working development envi
 - [ ] Time the setup process (should complete in <1 hour)
 
 ### Documentation Requirements
+
 README.md must include:
+
 - Prerequisites (Docker, Docker Compose versions)
 - Step-by-step setup instructions
 - How to run seed script
@@ -368,6 +391,7 @@ README.md must include:
 - How to stop/clean up services
 
 ### Future Enhancements (Post-MVP)
+
 - Production docker-compose.production.yml
 - Multi-stage Docker builds for optimized images
 - Docker secrets management
@@ -379,6 +403,7 @@ README.md must include:
 ## Progress Tracking
 
 **Status History:**
+
 - 2026-01-02: Created
 
 **Actual Effort:** TBD (will be filled during/after implementation)
