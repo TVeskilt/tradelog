@@ -95,7 +95,10 @@ stories:
     blocked: false
     blocker_reason: null
     story_document: 'docs/stories/STORY-002.md'
-    notes: 'Implemented Docker Compose environment with PostgreSQL 15 and NestJS backend. All 21 acceptance criteria validated. Created docker-compose.yml, .env.example, NestJS app structure with health endpoint, seed script, and comprehensive README documentation. Hot-reload verified working. Total implementation time: 29 minutes 23 seconds.'
+    actual_effort_hours: 0.49
+    estimated_effort_hours: 10.0
+    velocity_multiplier: 20.4
+    notes: 'Implemented Docker Compose environment with PostgreSQL 15 and NestJS backend. All 21 acceptance criteria validated. Created docker-compose.yml, .env.example, NestJS app structure with health endpoint, seed script, and comprehensive README documentation. Hot-reload verified working. Total implementation time: 29 minutes 23 seconds (0.49 hours). AI-assisted development completed 20.4x faster than human estimate (10 hours). Story points remain valid for human velocity tracking.'
 
   - id: STORY-003
     name: 'Prisma ORM Setup & Database Schema'
