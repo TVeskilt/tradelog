@@ -1,6 +1,7 @@
 node_modules/
 .pnp.*
 .yarn/*
+.pnpm-store/
 
 dist/
 build/
