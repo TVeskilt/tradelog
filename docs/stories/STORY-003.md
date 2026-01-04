@@ -25,12 +25,14 @@ So that **I can build type-safe APIs with reliable data persistence and integrit
 The TradeLog application requires a robust data persistence layer to store options trades and their groupings. Prisma ORM provides type-safe database access with automatic migration management, which is critical for maintaining data integrity as the schema evolves. This story establishes the foundational database schema that all API endpoints and business logic will depend on.
 
 Prisma was chosen for its:
+
 - **Type Safety**: Auto-generated TypeScript types that stay in sync with the database
 - **Migration Management**: Version-controlled schema changes with automatic migration generation
 - **Developer Experience**: Intuitive schema definition language and excellent tooling
 - **PostgreSQL Support**: First-class support for advanced PostgreSQL features
 
 This schema must support the core functional requirements:
+
 - **FR-001**: Manual trade entry with all necessary fields
 - **FR-002**: Group creation with strategy types
 - **FR-003**: Trade-to-group relationships with unlimited legs
@@ -39,6 +41,7 @@ This schema must support the core functional requirements:
 ### Scope
 
 **In Scope:**
+
 - Install and configure Prisma with PostgreSQL provider
 - Define `Trade` model with all required fields (symbol, strikePrice, expiryDate, etc.)
 - Define `Group` model with all required fields (name, strategyType, notes)
@@ -51,6 +54,7 @@ This schema must support the core functional requirements:
 - Verify database schema in PostgreSQL
 
 **Out of Scope:**
+
 - Derived fields (closingExpiry, status, totalPnL) - **calculated at runtime, NOT stored**
 - `ItemType` enum in Prisma schema - **TypeScript-only for API responses**
 - Database performance tuning (indexes, query optimization)
@@ -78,6 +82,7 @@ This schema must support the core functional requirements:
 ## Acceptance Criteria
 
 ### Prisma Configuration
+
 - [ ] Prisma installed (`@prisma/client`, `prisma` dev dependency)
 - [ ] `prisma/schema.prisma` created with PostgreSQL provider
 - [ ] Database connection string configured in `.env` (references `DATABASE_URL`)
@@ -85,6 +90,7 @@ This schema must support the core functional requirements:
 - [ ] Prisma Client generated successfully (`node_modules/.prisma/client`)
 
 ### Trade Model
+
 - [ ] `Trade` model defined with the following fields:
   - `uuid` (String, @id, @default(uuid()))
   - `symbol` (String) - e.g., "SPY", "AAPL"
@@ -103,6 +109,7 @@ This schema must support the core functional requirements:
 - [ ] NO derived fields (status, pnl) stored in database
 
 ### Group Model
+
 - [ ] `Group` model defined with the following fields:
   - `uuid` (String, @id, @default(uuid()))
   - `name` (String) - user-defined group name
@@ -114,6 +121,7 @@ This schema must support the core functional requirements:
 - [ ] NO derived fields (closingExpiry, status, totalPnL) stored in database
 
 ### Enums
+
 - [ ] `TradeType` enum: `BUY`, `SELL`
 - [ ] `OptionType` enum: `CALL`, `PUT`
 - [ ] `TradeStatus` enum: `OPEN`, `CLOSING_SOON`, `CLOSED` (for frontend use, derived at runtime)
@@ -121,6 +129,7 @@ This schema must support the core functional requirements:
 - [ ] **NOTE**: NO `ItemType` enum in Prisma (TypeScript discriminated union only)
 
 ### Relationships & Constraints
+
 - [ ] Group-to-Trade relationship is 1:N (one group has many trades)
 - [ ] Trade `groupUuid` is nullable (trades can be ungrouped)
 - [ ] `ON DELETE SET NULL` behavior: deleting a group ungroups its trades (doesn't delete them)
@@ -128,12 +137,14 @@ This schema must support the core functional requirements:
 - [ ] No unique constraints beyond primary keys
 
 ### Migrations
+
 - [ ] Initial migration created: `prisma/migrations/YYYYMMDDHHMMSS_init/migration.sql`
 - [ ] Migration applied successfully to PostgreSQL database
 - [ ] Migration creates all tables, enums, and relationships
 - [ ] Schema matches Prisma schema definition exactly
 
 ### Seed Script
+
 - [ ] Seed script created: `prisma/seed.ts`
 - [ ] Seed configured in `package.json`: `"prisma": { "seed": "tsx prisma/seed.ts" }`
 - [ ] Seed creates **2 groups**:
@@ -147,6 +158,7 @@ This schema must support the core functional requirements:
 - [ ] `prisma db seed` executes without errors
 
 ### Verification
+
 - [ ] Prisma Studio can open and display tables (`npx prisma studio`)
 - [ ] PostgreSQL contains `Trade`, `Group` tables with correct columns
 - [ ] Sample data visible in database
@@ -160,11 +172,13 @@ This schema must support the core functional requirements:
 ### Database Configuration
 
 **Connection String Format:**
+
 ```
 DATABASE_URL="postgresql://user:password@localhost:5432/tradelog?schema=public"
 ```
 
 **Docker Compose Integration:**
+
 - PostgreSQL service defined in `docker-compose.yml` (from STORY-002)
 - Database name: `tradelog`
 - Port: `5432`
@@ -237,32 +251,38 @@ model Trade {
 ### Key Design Decisions
 
 **1. Decimal vs Float for Money:**
+
 - Use `Decimal` type with precision `@db.Decimal(10, 2)` for all monetary values
 - Avoids floating-point rounding errors in P&L calculations
 - Supports values up to $99,999,999.99 (sufficient for options trading)
 
 **2. Date vs DateTime for expiryDate:**
+
 - Use `DateTime` with `@db.Date` annotation to store date only (no time component)
 - Options expire at market close, but exact time isn't needed for grouping logic
 - Simplifies comparison logic for "closing soon" calculations
 
 **3. UUID vs Auto-Increment IDs:**
+
 - UUID primary keys prevent enumeration attacks
 - Future-proof for distributed systems or data merging
 - Slight performance trade-off acceptable for MVP scale (<1000 trades)
 
 **4. ON DELETE SET NULL vs CASCADE:**
+
 - Deleting a group should NOT delete its trades
 - Trades become ungrouped (groupUuid = null) when group is deleted
 - Preserves data integrity and prevents accidental data loss
 
 **5. No Derived Fields in Database:**
+
 - `closingExpiry` (min expiry date in group) - calculated at query time
 - `status` (OPEN/CLOSING_SOON/CLOSED) - derived from expiryDate
 - `totalPnL` (sum of trade P&Ls) - calculated at query time
 - **Rationale**: Avoids data synchronization issues, guarantees accuracy
 
 **6. TradeStatus Enum in Prisma (but not stored):**
+
 - Enum defined for TypeScript type generation
 - NOT used as a database column (status is derived)
 - Included for consistency with API DTOs
@@ -270,6 +290,7 @@ model Trade {
 ### Seed Data Specification
 
 **Group 1: SPY Calendar Spread**
+
 - Name: "SPY Calendar Spread"
 - Strategy: CALENDAR_SPREAD
 - Trades:
@@ -278,6 +299,7 @@ model Trade {
   3. SPY $455 CALL, BUY, expiry: 30 days out, qty: 1, cost: $450, current: $470
 
 **Group 2: AAPL Ratio Calendar**
+
 - Name: "AAPL Ratio Calendar"
 - Strategy: RATIO_CALENDAR_SPREAD
 - Trades:
@@ -285,6 +307,7 @@ model Trade {
   2. AAPL $180 PUT, SELL, expiry: 45 days out, qty: 1, cost: -$450, current: -$430
 
 **Ungrouped Trade:**
+
 - TSLA $250 CALL, BUY, expiry: 10 days out, qty: 1, cost: $600, current: $550
 - groupUuid: null
 
@@ -313,31 +336,35 @@ npx prisma migrate reset
 ### NestJS Integration (Future Story)
 
 This schema enables NestJS integration in STORY-004:
-```typescript
-import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
+```typescript
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 // Type-safe query
 const trades = await prisma.trade.findMany({
   where: { groupUuid: 'some-uuid' },
-  include: { group: true }
-})
+  include: { group: true },
+});
 ```
 
 ### Edge Cases & Validation
 
 **Trade Validation (application layer, not database):**
+
 - `quantity` must be > 0
 - `strikePrice` must be > 0
 - `expiryDate` should be in the future (warning, not error)
 - `costBasis` and `currentValue` can be negative (short positions)
 
 **Group Validation:**
+
 - `name` must be non-empty
 - `strategyType` must be valid enum value
 
 **Relationship Validation:**
+
 - Trades can reference non-existent groups → database error (foreign key constraint)
 - Groups can be deleted → trades become ungrouped (ON DELETE SET NULL)
 
@@ -346,6 +373,7 @@ const trades = await prisma.trade.findMany({
 ## Dependencies
 
 ### Prerequisite Stories
+
 - **STORY-001**: Monorepo Setup with pnpm Workspaces
   - **Why**: Need monorepo structure and `api/` workspace to install Prisma
   - **Blocker**: Cannot install Prisma packages without pnpm workspace
@@ -355,6 +383,7 @@ const trades = await prisma.trade.findMany({
   - **Blocker**: Cannot run `prisma migrate dev` without PostgreSQL connection
 
 ### Blocked Stories
+
 - **STORY-004**: Trade CRUD API Endpoints
   - **Why**: API needs Prisma Client to query database
   - **Impact**: Cannot implement services without schema
@@ -364,11 +393,13 @@ const trades = await prisma.trade.findMany({
   - **Impact**: Cannot calculate derived metrics without Trade relationship
 
 ### External Dependencies
+
 - **PostgreSQL 15** running in Docker (from STORY-002)
 - **Node 24** with TypeScript support (from STORY-001)
 - **pnpm workspace** configured (from STORY-001)
 
 ### Package Dependencies
+
 - `@prisma/client` (^6.0.0) - Prisma Client runtime
 - `prisma` (^6.0.0) - Prisma CLI (dev dependency)
 - `tsx` (^4.0.0) - TypeScript execution for seed script (dev dependency)
@@ -378,6 +409,7 @@ const trades = await prisma.trade.findMany({
 ## Definition of Done
 
 ### Code Quality
+
 - [ ] `schema.prisma` follows Prisma naming conventions
 - [ ] All enums use SCREAMING_SNAKE_CASE
 - [ ] All models use PascalCase
@@ -388,6 +420,7 @@ const trades = await prisma.trade.findMany({
 - [ ] No `console.log` statements in seed script (use proper logging if needed)
 
 ### Testing
+
 - [ ] Seed script executes successfully (`pnpm prisma db seed`)
 - [ ] Prisma Studio displays all tables and data
 - [ ] Manual verification: 2 groups and 6 trades exist in database
@@ -396,6 +429,7 @@ const trades = await prisma.trade.findMany({
 - [ ] No Prisma Client generation errors
 
 ### Documentation
+
 - [ ] Prisma schema includes comments for complex fields
 - [ ] `.env.example` documents DATABASE_URL format
 - [ ] Seed script includes comments explaining sample data
@@ -403,6 +437,7 @@ const trades = await prisma.trade.findMany({
 - [ ] README updated with Prisma setup instructions (if new steps)
 
 ### Integration
+
 - [ ] Migration files committed to git
 - [ ] `schema.prisma` committed to git
 - [ ] Seed script committed to git
@@ -412,6 +447,7 @@ const trades = await prisma.trade.findMany({
 - [ ] No breaking changes to existing infrastructure (STORY-001, STORY-002)
 
 ### Functional
+
 - [ ] Database schema matches Prisma schema exactly
 - [ ] All acceptance criteria satisfied
 - [ ] Prisma Client can be imported in TypeScript files
@@ -420,6 +456,7 @@ const trades = await prisma.trade.findMany({
 - [ ] ON DELETE SET NULL behavior verified (delete group → trades persist)
 
 ### Performance
+
 - [ ] Migration applies in <10 seconds
 - [ ] Seed script executes in <5 seconds
 - [ ] Prisma Client generation takes <30 seconds
@@ -432,18 +469,19 @@ const trades = await prisma.trade.findMany({
 
 ### Estimation Details
 
-| Task                                  | Complexity | Time Estimate | Points |
-| ------------------------------------- | ---------- | ------------- | ------ |
-| Prisma installation & configuration   | Simple     | 30 minutes    | 0.5    |
-| Schema definition (models + enums)    | Moderate   | 1.5 hours     | 1.5    |
-| Migration creation & testing          | Simple     | 1 hour        | 1      |
-| Seed script with realistic sample data| Moderate   | 1.5 hours     | 1.5    |
-| Verification & documentation          | Simple     | 30 minutes    | 0.5    |
-| **Total**                             |            | **~5 hours**  | **5**  |
+| Task                                   | Complexity | Time Estimate | Points |
+| -------------------------------------- | ---------- | ------------- | ------ |
+| Prisma installation & configuration    | Simple     | 30 minutes    | 0.5    |
+| Schema definition (models + enums)     | Moderate   | 1.5 hours     | 1.5    |
+| Migration creation & testing           | Simple     | 1 hour        | 1      |
+| Seed script with realistic sample data | Moderate   | 1.5 hours     | 1.5    |
+| Verification & documentation           | Simple     | 30 minutes    | 0.5    |
+| **Total**                              |            | **~5 hours**  | **5**  |
 
 ### Rationale
 
 **Why 5 points:**
+
 - Schema definition requires careful attention to field types (Decimal vs Float)
 - Relationships need proper configuration (ON DELETE behavior)
 - Seed script must create realistic, interconnected data
@@ -452,11 +490,13 @@ const trades = await prisma.trade.findMany({
 - MORE complex than 3 points (multiple models, enums, relationships)
 
 **Senior developer efficiency:**
+
 - ~1 story point = 1 hour for this task
 - Prisma's excellent documentation reduces unknowns
 - Docker environment already set up (STORY-002 complete)
 
 **Risks factored into estimate:**
+
 - First-time Prisma setup in monorepo (+0.5 points)
 - Docker networking issues (low probability, already tested in STORY-002)
 
@@ -467,6 +507,7 @@ const trades = await prisma.trade.findMany({
 ### Future Enhancements (Post-MVP)
 
 **Performance Optimizations:**
+
 - Add database indexes on frequently queried fields:
   - `Trade.groupUuid` (for group lookup)
   - `Trade.expiryDate` (for sorting/filtering)
@@ -474,12 +515,14 @@ const trades = await prisma.trade.findMany({
   - `Group.strategyType` (for filtering)
 
 **Schema Evolution:**
+
 - Add `status` field to Trade model (if runtime calculation becomes bottleneck)
 - Add audit fields: `createdBy`, `updatedBy` (when user auth added)
 - Add soft delete: `deletedAt` (for undo functionality)
 - Add `version` field (for optimistic locking)
 
 **Data Integrity:**
+
 - Add check constraints (e.g., quantity > 0, strikePrice > 0)
 - Add unique constraint on (symbol, strikePrice, expiryDate, optionType) if needed
 - Add foreign key indexes for performance
@@ -487,6 +530,7 @@ const trades = await prisma.trade.findMany({
 ### Testing Strategy
 
 **Manual Testing Checklist:**
+
 1. Run `docker-compose up -d` → PostgreSQL starts
 2. Run `pnpm prisma migrate dev` → migration applies successfully
 3. Run `pnpm prisma db seed` → sample data loads
@@ -500,12 +544,14 @@ const trades = await prisma.trade.findMany({
 ### Rollback Plan
 
 If migration fails:
+
 1. Check Docker logs: `docker-compose logs postgres`
 2. Verify DATABASE_URL in `.env`
 3. Drop database and recreate: `docker-compose down -v && docker-compose up -d`
 4. Re-apply migration: `pnpm prisma migrate dev`
 
 If schema needs changes after migration:
+
 1. Modify `schema.prisma`
 2. Run `pnpm prisma migrate dev --name <change_description>`
 3. Review generated migration SQL before applying
@@ -515,6 +561,7 @@ If schema needs changes after migration:
 ## Progress Tracking
 
 **Status History:**
+
 - 2026-01-04: Created by solo developer
 - 2026-01-04 10:30 AM: Started implementation (feature/STORY-003-prisma-orm-setup)
 - 2026-01-04 11:10 AM: Completed implementation, testing, and documentation
@@ -522,6 +569,7 @@ If schema needs changes after migration:
 **Actual Effort:** 40 minutes (Estimated: 5 points / ~5 hours)
 
 **Implementation Notes:**
+
 - Used Prisma 7.2.0 with new configuration pattern (prisma.config.ts)
 - Required PrismaPg adapter for database connections (Prisma 7 breaking change)
 - Resolved Node.js version compatibility issue (Node 24 required)
@@ -530,6 +578,7 @@ If schema needs changes after migration:
 - Commit: c3774df on feature/STORY-003-prisma-orm-setup
 
 **Completion faster than estimated due to:**
+
 - AI-assisted implementation
 - Smooth prerequisite setup (Docker, PostgreSQL already running)
 - Quick resolution of Prisma 7 adapter requirement
