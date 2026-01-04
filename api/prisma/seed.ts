@@ -9,6 +9,7 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import { addDays } from 'date-fns';
 import 'dotenv/config';
 
 // Prisma 7 requires a database adapter
@@ -19,22 +20,13 @@ const prisma = new PrismaClient({ adapter });
 async function seed(): Promise<void> {
   console.log('🌱 Starting database seed...');
 
-  // Calculate dates relative to today
+  // Calculate dates relative to today using date-fns
   const today = new Date();
-  const in10Days = new Date(today);
-  in10Days.setDate(today.getDate() + 10);
-
-  const in15Days = new Date(today);
-  in15Days.setDate(today.getDate() + 15);
-
-  const in30Days = new Date(today);
-  in30Days.setDate(today.getDate() + 30);
-
-  const in45Days = new Date(today);
-  in45Days.setDate(today.getDate() + 45);
-
-  const in60Days = new Date(today);
-  in60Days.setDate(today.getDate() + 60);
+  const in10Days = addDays(today, 10);
+  const in15Days = addDays(today, 15);
+  const in30Days = addDays(today, 30);
+  const in45Days = addDays(today, 45);
+  const in60Days = addDays(today, 60);
 
   // Clean existing data (for idempotency)
   console.log('🧹 Cleaning existing data...');
