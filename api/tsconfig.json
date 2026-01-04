@@ -10,8 +10,9 @@
     "allowSyntheticDefaultImports": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "incremental": true
+    "incremental": true,
+    "types": ["jest", "node"]
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "test"]
+  "include": ["src", "test"],
+  "exclude": ["node_modules", "dist"]
 }
