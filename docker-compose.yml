@@ -7,13 +7,13 @@ services:
     ports:
       - '5432:5432'
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: tradelog_user
+      POSTGRES_PASSWORD: tradelog_dev_password_change_in_production
+      POSTGRES_DB: tradelog_dev
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_NAME}']
+      test: ['CMD-SHELL', 'pg_isready -U tradelog_user -d tradelog_dev']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -27,7 +27,8 @@ services:
     ports:
       - '3000:3000'
     environment:
-      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      # Use 'db' as the host (Docker service name) instead of 'localhost'
+      DATABASE_URL: postgresql://tradelog_user:tradelog_dev_password_change_in_production@db:5432/tradelog_dev?schema=public
       NODE_ENV: development
       PORT: 3000
     volumes:

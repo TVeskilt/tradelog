@@ -44,18 +44,19 @@ model Group {
 }
 
 model Trade {
-  uuid         String     @id @default(uuid())
+  uuid         String      @id @default(uuid())
   symbol       String
-  strikePrice  Decimal    @db.Decimal(10, 2)
-  expiryDate   DateTime   @db.Date
+  strikePrice  Decimal     @db.Decimal(10, 2)
+  expiryDate   DateTime    @db.Date
   tradeType    TradeType
   optionType   OptionType
   quantity     Int
-  costBasis    Decimal    @db.Decimal(10, 2)
-  currentValue Decimal    @db.Decimal(10, 2)
+  costBasis    Decimal     @db.Decimal(10, 2)
+  currentValue Decimal     @db.Decimal(10, 2)
+  status       TradeStatus @default(OPEN)
   notes        String?
   groupUuid    String?
-  group        Group?     @relation(fields: [groupUuid], references: [uuid], onDelete: SetNull)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  group        Group?      @relation(fields: [groupUuid], references: [uuid], onDelete: SetNull)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }

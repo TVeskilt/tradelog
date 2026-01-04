@@ -120,14 +120,15 @@ stories:
     epic: EPIC-002
     sprint: 1
     points: 8
-    status: not_started
+    status: completed
     priority: critical
-    started_date: null
-    completed_date: null
+    started_date: '2026-01-04'
+    completed_date: '2026-01-04'
     assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
-    notes: null
+    story_document: 'docs/stories/STORY-004.md'
+    notes: 'Completed in 2h 20m. Full CRUD API with 5 endpoints, 4 DTOs, validation, derived fields (P&L, daysToExpiry), 22 E2E tests (all passing), Swagger docs, ESLint/Prettier setup. Dual-mode support (local + Docker).'
 
   - id: STORY-005
     name: 'Group CRUD API Endpoints'
