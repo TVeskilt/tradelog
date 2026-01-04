@@ -1,0 +1,61 @@
+// TradeLog Prisma Schema
+// This schema defines the database models for the TradeLog application
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Enums
+enum TradeType {
+  BUY
+  SELL
+}
+
+enum OptionType {
+  CALL
+  PUT
+}
+
+enum TradeStatus {
+  OPEN
+  CLOSING_SOON
+  CLOSED
+}
+
+enum StrategyType {
+  CALENDAR_SPREAD
+  RATIO_CALENDAR_SPREAD
+  CUSTOM
+}
+
+// Models
+model Group {
+  uuid         String       @id @default(uuid())
+  name         String
+  strategyType StrategyType
+  notes        String?
+  trades       Trade[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Trade {
+  uuid         String     @id @default(uuid())
+  symbol       String
+  strikePrice  Decimal    @db.Decimal(10, 2)
+  expiryDate   DateTime   @db.Date
+  tradeType    TradeType
+  optionType   OptionType
+  quantity     Int
+  costBasis    Decimal    @db.Decimal(10, 2)
+  currentValue Decimal    @db.Decimal(10, 2)
+  notes        String?
+  groupUuid    String?
+  group        Group?     @relation(fields: [groupUuid], references: [uuid], onDelete: SetNull)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
