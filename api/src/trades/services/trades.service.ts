@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTradeDto, UpdateTradeDto } from '../dto/request';
-import { TradeStatus, Trade } from '@prisma/client';
+import { TradeStatus } from '@prisma/client';
+import { TradeEnrichmentUtil } from '../utils/trade-enrichment.util';
 
 @Injectable()
 export class TradesService {
@@ -15,7 +16,7 @@ export class TradesService {
       },
     });
 
-    return this.enrichTradeWithDerivedFields(trade);
+    return TradeEnrichmentUtil.enrichWithDerivedFields(trade);
   }
 
   async findMany() {
@@ -23,7 +24,7 @@ export class TradesService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return trades.map((trade) => this.enrichTradeWithDerivedFields(trade));
+    return trades.map((trade) => TradeEnrichmentUtil.enrichWithDerivedFields(trade));
   }
 
   async findByUuid(uuid: string) {
@@ -35,7 +36,7 @@ export class TradesService {
       throw new NotFoundException(`Trade with UUID '${uuid}' not found`);
     }
 
-    return this.enrichTradeWithDerivedFields(trade);
+    return TradeEnrichmentUtil.enrichWithDerivedFields(trade);
   }
 
   async updateByUuid(uuid: string, updateTradeDto: UpdateTradeDto) {
@@ -45,7 +46,7 @@ export class TradesService {
         data: updateTradeDto,
       });
 
-      return this.enrichTradeWithDerivedFields(trade);
+      return TradeEnrichmentUtil.enrichWithDerivedFields(trade);
     } catch (error) {
       if (error instanceof Error && 'code' in error && error.code === 'P2025') {
         throw new NotFoundException(`Trade with UUID '${uuid}' not found`);
@@ -92,30 +93,5 @@ export class TradesService {
         where: { uuid },
       });
     }
-  }
-
-  private enrichTradeWithDerivedFields(trade: Trade) {
-    const costBasis = Number(trade.costBasis);
-    const currentValue = Number(trade.currentValue);
-
-    return {
-      ...trade,
-      strikePrice: Number(trade.strikePrice),
-      costBasis,
-      currentValue,
-      pnl: this.calculatePnL(costBasis, currentValue),
-      daysToExpiry: this.calculateDaysToExpiry(trade.expiryDate),
-    };
-  }
-
-  private calculatePnL(costBasis: number, currentValue: number): number {
-    return currentValue - costBasis;
-  }
-
-  private calculateDaysToExpiry(expiryDate: Date): number {
-    const now = new Date();
-    const expiry = new Date(expiryDate);
-    const diffMs = expiry.getTime() - now.getTime();
-    return Math.floor(diffMs / (1000 * 60 * 60 * 24));
   }
 }

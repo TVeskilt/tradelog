@@ -44,13 +44,13 @@ describe('Trades API (e2e)', () => {
   });
 
   afterAll(async () => {
+    await prisma.$disconnect();
     await app.close();
   });
 
   beforeEach(async () => {
-    // Clean database before each test
-    await prisma.trade.deleteMany();
     await prisma.group.deleteMany();
+    await prisma.trade.deleteMany();
   });
 
   describe('POST /v1/trades', () => {

@@ -33,12 +33,12 @@ sprints:
 
   - sprint_number: 2
     sprint_name: 'Groups & Primary UI'
-    status: 'not_started'
-    start_date: null
+    status: 'in_progress'
+    start_date: '2026-01-05'
     end_date: null
     target_points: 20
     planned_points: 21
-    completed_points: 0
+    completed_points: 7
     goal: 'Complete backend API and build primary user interfaces'
     stories:
       - STORY-005
@@ -137,15 +137,19 @@ stories:
     name: 'Group CRUD API Endpoints'
     epic: EPIC-002
     sprint: 2
-    points: 8
-    status: not_started
+    points: 7
+    status: completed
     priority: critical
-    started_date: null
-    completed_date: null
+    started_date: '2026-01-05 19:30:00'
+    completed_date: '2026-01-05 21:50:00'
     assignee: 'Solo Developer'
     blocked: false
     blocker_reason: null
-    notes: null
+    story_document: 'docs/stories/STORY-005.md'
+    actual_effort_hours: 1.5
+    estimated_effort_hours: 14.0
+    velocity_multiplier: 9.33
+    notes: 'Completed Groups CRUD API with calculated metrics and comprehensive E2E testing. Deliverables: Test database setup (config/test.env, NODE_ENV-based env loading, Prisma 7 config), TradeEnrichmentUtil for shared logic, GroupsService with 5 CRUD methods, GroupsController with 5 endpoints, 3 DTOs (Create/Update/Response), GroupWithMetrics interface, 16 E2E tests (all passing), Swagger documentation. Prerequisites resolved: Prisma 7 migration issues (Node 24 upgrade, prisma.config.ts), test database isolation fixed. All acceptance criteria validated. Total implementation time: 1h 30m (2h 20m elapsed - 50m break). AI-assisted development completed 9.33x faster than human estimate (14 hours).'
 
   - id: STORY-006
     name: 'Trade Entry Form UI'

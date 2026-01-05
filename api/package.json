@@ -17,7 +17,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "prisma:migrate:deploy": "npx prisma migrate deploy",
+    "test:e2e": "NODE_ENV=test npm run prisma:migrate:deploy && NODE_ENV=test jest --config ./test/jest-e2e.json --runInBand"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
