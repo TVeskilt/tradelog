@@ -241,7 +241,7 @@ Implement REST API for Group CRUD operations with derived metrics calculation.
 - ✅ DELETE /v1/groups/:uuid - Delete group
 - ✅ DTOs: CreateGroupDto, UpdateGroupDto, GroupResponseDto
 - ✅ GroupResponseDto includes calculated fields: closingExpiry (MIN(trade.expiryDate)), status (derived from closingExpiry), totalPnL (SUM of trade P&Ls)
-- ✅ GroupWithMetrics interface in api/src/trades/interfaces/ (NO "I" prefix)
+- ✅ GroupWithMetricsInterface interface in api/src/trades/interfaces/ (NO "I" prefix)
 - ✅ class-validator validation on all DTOs
 - ✅ Swagger/OpenAPI documentation
 - ✅ E2E tests for all endpoints

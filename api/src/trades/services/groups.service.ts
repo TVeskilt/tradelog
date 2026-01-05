@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateGroupDto, UpdateGroupDto } from '../dto/request';
-import { GroupWithMetrics } from '../interfaces/group-with-metrics';
+import { GroupWithMetricsInterface } from '../interfaces/group-with-metrics.interface';
 import { TradeStatus, Group, Trade } from '@prisma/client';
 import { TradeEnrichmentUtil } from '../utils/trade-enrichment.util';
 
@@ -9,7 +9,7 @@ import { TradeEnrichmentUtil } from '../utils/trade-enrichment.util';
 export class GroupsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createGroupDto: CreateGroupDto): Promise<GroupWithMetrics> {
+  async create(createGroupDto: CreateGroupDto): Promise<GroupWithMetricsInterface> {
     const { tradeUuids, ...groupData } = createGroupDto;
 
     const trades = await this.prisma.trade.findMany({
@@ -39,7 +39,7 @@ export class GroupsService {
     return this.calculateMetrics(group);
   }
 
-  async findMany(): Promise<GroupWithMetrics[]> {
+  async findMany(): Promise<GroupWithMetricsInterface[]> {
     const groups = await this.prisma.group.findMany({
       include: { trades: true },
       orderBy: { createdAt: 'desc' },
@@ -48,7 +48,7 @@ export class GroupsService {
     return groups.map((g) => this.calculateMetrics(g));
   }
 
-  async findByUuid(uuid: string): Promise<GroupWithMetrics> {
+  async findByUuid(uuid: string): Promise<GroupWithMetricsInterface> {
     const group = await this.prisma.group.findUnique({
       where: { uuid },
       include: { trades: true },
@@ -61,7 +61,7 @@ export class GroupsService {
     return this.calculateMetrics(group);
   }
 
-  async updateByUuid(uuid: string, updateGroupDto: UpdateGroupDto): Promise<GroupWithMetrics> {
+  async updateByUuid(uuid: string, updateGroupDto: UpdateGroupDto): Promise<GroupWithMetricsInterface> {
     try {
       const group = await this.prisma.group.update({
         where: { uuid },
@@ -90,7 +90,7 @@ export class GroupsService {
     await this.prisma.group.delete({ where: { uuid } });
   }
 
-  private calculateMetrics(group: Group & { trades: Trade[] }): GroupWithMetrics {
+  private calculateMetrics(group: Group & { trades: Trade[] }): GroupWithMetricsInterface {
     const { trades } = group;
 
     if (trades.length === 0) {
@@ -113,7 +113,7 @@ export class GroupsService {
 
     return {
       ...group,
-      trades: enrichedTrades as any,
+      trades: enrichedTrades,
       closingExpiry,
       daysUntilClosingExpiry,
       status,

@@ -149,7 +149,7 @@ stories:
     actual_effort_hours: 1.5
     estimated_effort_hours: 14.0
     velocity_multiplier: 9.33
-    notes: 'Completed Groups CRUD API with calculated metrics and comprehensive E2E testing. Deliverables: Test database setup (config/test.env, NODE_ENV-based env loading, Prisma 7 config), TradeEnrichmentUtil for shared logic, GroupsService with 5 CRUD methods, GroupsController with 5 endpoints, 3 DTOs (Create/Update/Response), GroupWithMetrics interface, 16 E2E tests (all passing), Swagger documentation. Prerequisites resolved: Prisma 7 migration issues (Node 24 upgrade, prisma.config.ts), test database isolation fixed. All acceptance criteria validated. Total implementation time: 1h 30m (2h 20m elapsed - 50m break). AI-assisted development completed 9.33x faster than human estimate (14 hours).'
+    notes: 'Completed Groups CRUD API with calculated metrics and comprehensive E2E testing. Deliverables: Test database setup (config/test.env, NODE_ENV-based env loading, Prisma 7 config), TradeEnrichmentUtil for shared logic, GroupsService with 5 CRUD methods, GroupsController with 5 endpoints, 3 DTOs (Create/Update/Response), GroupWithMetricsInterface interface, 16 E2E tests (all passing), Swagger documentation. Prerequisites resolved: Prisma 7 migration issues (Node 24 upgrade, prisma.config.ts), test database isolation fixed. All acceptance criteria validated. Total implementation time: 1h 30m (2h 20m elapsed - 50m break). AI-assisted development completed 9.33x faster than human estimate (14 hours).'
 
   - id: STORY-006
     name: 'Trade Entry Form UI'

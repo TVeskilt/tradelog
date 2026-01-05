@@ -5,9 +5,7 @@ import { defineConfig } from 'prisma/config';
 import path from 'path';
 
 // Load the appropriate env file based on NODE_ENV
-const envFile = process.env.NODE_ENV
-  ? `config/${process.env.NODE_ENV}.env`
-  : 'config/development.env';
+const envFile = process.env.NODE_ENV ? `config/${process.env.NODE_ENV}.env` : 'config/development.env';
 
 dotenv.config({ path: path.join(process.cwd(), envFile) });
 

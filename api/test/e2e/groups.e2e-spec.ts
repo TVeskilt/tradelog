@@ -435,10 +435,7 @@ describe('Groups API (e2e)', () => {
     it('should return 404 when updating non-existent group', async () => {
       const fakeUuid = '123e4567-e89b-12d3-a456-426614174000';
 
-      await request(app.getHttpServer())
-        .patch(`/v1/groups/${fakeUuid}`)
-        .send({ name: 'New Name' })
-        .expect(404);
+      await request(app.getHttpServer()).patch(`/v1/groups/${fakeUuid}`).send({ name: 'New Name' }).expect(404);
     });
   });
 

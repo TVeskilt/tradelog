@@ -3,12 +3,13 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTradeDto, UpdateTradeDto } from '../dto/request';
 import { TradeStatus } from '@prisma/client';
 import { TradeEnrichmentUtil } from '../utils/trade-enrichment.util';
+import { EnrichedTradeInterface } from '../interfaces';
 
 @Injectable()
 export class TradesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createTradeDto: CreateTradeDto) {
+  async create(createTradeDto: CreateTradeDto): Promise<EnrichedTradeInterface> {
     const trade = await this.prisma.trade.create({
       data: {
         ...createTradeDto,
@@ -19,7 +20,7 @@ export class TradesService {
     return TradeEnrichmentUtil.enrichWithDerivedFields(trade);
   }
 
-  async findMany() {
+  async findMany(): Promise<EnrichedTradeInterface[]> {
     const trades = await this.prisma.trade.findMany({
       orderBy: { createdAt: 'desc' },
     });
@@ -27,7 +28,7 @@ export class TradesService {
     return trades.map((trade) => TradeEnrichmentUtil.enrichWithDerivedFields(trade));
   }
 
-  async findByUuid(uuid: string) {
+  async findByUuid(uuid: string): Promise<EnrichedTradeInterface> {
     const trade = await this.prisma.trade.findUnique({
       where: { uuid },
     });
@@ -39,7 +40,7 @@ export class TradesService {
     return TradeEnrichmentUtil.enrichWithDerivedFields(trade);
   }
 
-  async updateByUuid(uuid: string, updateTradeDto: UpdateTradeDto) {
+  async updateByUuid(uuid: string, updateTradeDto: UpdateTradeDto): Promise<EnrichedTradeInterface> {
     try {
       const trade = await this.prisma.trade.update({
         where: { uuid },
@@ -55,7 +56,7 @@ export class TradesService {
     }
   }
 
-  async deleteByUuid(uuid: string) {
+  async deleteByUuid(uuid: string): Promise<void> {
     const trade = await this.prisma.trade.findUnique({
       where: { uuid },
     });

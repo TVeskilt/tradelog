@@ -43,7 +43,7 @@ The API completes the backend foundation, allowing the frontend to provide the f
 - Automatic calculation of derived group metrics (closingExpiry, status, totalPnL)
 - GroupsController and GroupsService in existing `api/src/trades/` domain
 - Request/Response DTOs with validation (CreateGroupDto, UpdateGroupDto, GroupResponseDto)
-- GroupWithMetrics interface for internal service layer
+- GroupWithMetricsInterface interface for internal service layer
 - Swagger/OpenAPI documentation for all endpoints
 - E2E tests for all endpoints using NestJS Supertest
 - Business rule enforcement: Groups must have 2+ trades
@@ -109,6 +109,7 @@ The API completes the backend foundation, allowing the frontend to provide the f
 **Solution:** Create separate test database to prevent data loss.
 
 - [ ] **Create `.env.test` file in `api/` directory:**
+
   ```bash
   DATABASE_URL="postgresql://tradelog_user:tradelog_dev_password_change_in_production@localhost:5432/tradelog_test?schema=public"
   NODE_ENV=test
@@ -116,23 +117,27 @@ The API completes the backend foundation, allowing the frontend to provide the f
   ```
 
 - [ ] **Install dotenv-cli:**
+
   ```bash
   cd api
   pnpm add -D dotenv-cli
   ```
 
 - [ ] **Update `api/package.json` test script:**
+
   ```json
   "test:e2e": "NODE_ENV=test dotenv -e .env.test -- jest --config ./test/jest-e2e.json"
   ```
 
 - [ ] **Run migrations on test database (Prisma will auto-create DB):**
+
   ```bash
   cd api
   DATABASE_URL="postgresql://tradelog_user:tradelog_dev_password_change_in_production@localhost:5432/tradelog_test?schema=public" pnpm prisma migrate deploy
   ```
 
 - [ ] **Verify test database setup:**
+
   ```bash
   # Run existing e2e tests (should use tradelog_test, not tradelog_dev)
   cd api
@@ -146,6 +151,7 @@ The API completes the backend foundation, allowing the frontend to provide the f
 - [ ] **Add `.env.test` to `.gitignore` (if not already covered by `.env*` pattern)**
 
 **Why this is a prerequisite:**
+
 - Prevents accidental data loss during development
 - Allows safe iteration on e2e tests
 - Required for implementing and testing STORY-005 Groups API
@@ -222,10 +228,10 @@ The API completes the backend foundation, allowing the frontend to provide the f
   - createdAt and updatedAt NOT exposed
   - Follows same pattern as TradeResponseDto (pnl, daysToExpiry)
 
-- [ ] **GroupWithMetrics interface** in `api/src/trades/interfaces/`
+- [ ] **GroupWithMetricsInterface interface** in `api/src/trades/interfaces/`
   - Used internally by GroupsService
   - Combines Prisma Group type with calculated metrics
-  - NO "I" prefix (e.g., GroupWithMetrics, not IGroupWithMetrics)
+  - NO "I" prefix (e.g., GroupWithMetricsInterface, not IGroupWithMetrics)
 
 ### Business Logic
 
@@ -238,7 +244,7 @@ The API completes the backend foundation, allowing the frontend to provide the f
   - Calculated on every read, never stored
 
 - [ ] **daysUntilClosingExpiry calculation:**
-  - daysUntilClosingExpiry = Math.floor((closingExpiry - now) / (1000 * 60 * 60 * 24))
+  - daysUntilClosingExpiry = Math.floor((closingExpiry - now) / (1000 _ 60 _ 60 \* 24))
   - Follows same pattern as TradeResponseDto.daysToExpiry
   - Calculated on every read, never stored
 
@@ -331,10 +337,7 @@ The API completes the backend foundation, allowing the frontend to provide the f
 {
   "name": "Calendar Spread Feb-15-2026",
   "strategyType": "CALENDAR_SPREAD",
-  "tradeUuids": [
-    "a3bb189e-8bf9-3888-9912-ace4e6543001",
-    "a3bb189e-8bf9-3888-9912-ace4e6543002"
-  ],
+  "tradeUuids": ["a3bb189e-8bf9-3888-9912-ace4e6543001", "a3bb189e-8bf9-3888-9912-ace4e6543002"],
   "notes": "Selling Feb-15 $150 call, buying Mar-15 $150 call"
 }
 ```
@@ -351,12 +354,16 @@ The API completes the backend foundation, allowing the frontend to provide the f
     "closingExpiry": "2026-02-15T00:00:00.000Z",
     "daysUntilClosingExpiry": 41,
     "status": "OPEN",
-    "totalCostBasis": 1500.00,
-    "totalCurrentValue": 1750.00,
-    "profitLoss": 250.00,
+    "totalCostBasis": 1500.0,
+    "totalCurrentValue": 1750.0,
+    "profitLoss": 250.0,
     "trades": [
-      { /* TradeResponseDto 1 */ },
-      { /* TradeResponseDto 2 */ }
+      {
+        /* TradeResponseDto 1 */
+      },
+      {
+        /* TradeResponseDto 2 */
+      }
     ]
   }
 }
@@ -376,10 +383,12 @@ The API completes the backend foundation, allowing the frontend to provide the f
       "closingExpiry": "2026-02-15T00:00:00.000Z",
       "daysUntilClosingExpiry": 5,
       "status": "CLOSING_SOON",
-      "totalCostBasis": 1500.00,
-      "totalCurrentValue": 1750.00,
-      "profitLoss": 250.00,
-      "trades": [ /* nested trades */ ]
+      "totalCostBasis": 1500.0,
+      "totalCurrentValue": 1750.0,
+      "profitLoss": 250.0,
+      "trades": [
+        /* nested trades */
+      ]
     }
   ]
 }
@@ -399,21 +408,21 @@ The API completes the backend foundation, allowing the frontend to provide the f
     "closingExpiry": "2026-02-15T00:00:00.000Z",
     "daysUntilClosingExpiry": 5,
     "status": "CLOSING_SOON",
-    "totalCostBasis": 1500.00,
-    "totalCurrentValue": 1750.00,
-    "profitLoss": 250.00,
+    "totalCostBasis": 1500.0,
+    "totalCurrentValue": 1750.0,
+    "profitLoss": 250.0,
     "trades": [
       {
         "uuid": "a3bb189e-8bf9-3888-9912-ace4e6543001",
         "symbol": "AAPL",
-        "strikePrice": 150.00,
+        "strikePrice": 150.0,
         "expiryDate": "2026-02-15T00:00:00.000Z",
         "tradeType": "SELL",
         "optionType": "CALL",
         "quantity": 10,
-        "costBasis": 750.00,
-        "currentValue": 850.00,
-        "pnl": 100.00,
+        "costBasis": 750.0,
+        "currentValue": 850.0,
+        "pnl": 100.0,
         "daysToExpiry": 5,
         "status": "CLOSING_SOON",
         "notes": "Short leg",
@@ -422,14 +431,14 @@ The API completes the backend foundation, allowing the frontend to provide the f
       {
         "uuid": "a3bb189e-8bf9-3888-9912-ace4e6543002",
         "symbol": "AAPL",
-        "strikePrice": 150.00,
+        "strikePrice": 150.0,
         "expiryDate": "2026-03-15T00:00:00.000Z",
         "tradeType": "BUY",
         "optionType": "CALL",
         "quantity": 10,
-        "costBasis": 750.00,
-        "currentValue": 900.00,
-        "pnl": 150.00,
+        "costBasis": 750.0,
+        "currentValue": 900.0,
+        "pnl": 150.0,
         "daysToExpiry": 69,
         "status": "OPEN",
         "notes": "Long leg",
@@ -516,7 +525,17 @@ model Trade {
 **Controller Pattern (groups.controller.ts):**
 
 ```typescript
-import { Controller, Get, Post, Patch, Delete, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { GroupsService } from '../services/groups.service';
@@ -542,9 +561,7 @@ export class GroupsController {
   @ApiOperation({ summary: 'List all groups with metrics' })
   async findAll(): Promise<DataResponseDto<GroupResponseDto[]>> {
     const groups = await this.groupsService.findAll();
-    return new DataResponseDto(
-      groups.map((g) => plainToInstance(GroupResponseDto, g))
-    );
+    return new DataResponseDto(groups.map((g) => plainToInstance(GroupResponseDto, g)));
   }
 
   @Get(':uuid')
@@ -583,14 +600,14 @@ export class GroupsController {
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { CreateGroupDto, UpdateGroupDto } from '../dto/request';
-import { GroupWithMetrics } from '../interfaces';
+import { GroupWithMetricsInterface } from '../interfaces';
 import { TradeStatus } from '@prisma/client';
 
 @Injectable()
 export class GroupsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createGroupDto: CreateGroupDto): Promise<GroupWithMetrics> {
+  async create(createGroupDto: CreateGroupDto): Promise<GroupWithMetricsInterface> {
     const { tradeUuids, ...groupData } = createGroupDto;
 
     // Validate trades exist
@@ -620,7 +637,7 @@ export class GroupsService {
     return this.calculateMetrics(group);
   }
 
-  async findAll(): Promise<GroupWithMetrics[]> {
+  async findAll(): Promise<GroupWithMetricsInterface[]> {
     const groups = await this.prisma.group.findMany({
       include: { trades: true },
     });
@@ -628,7 +645,7 @@ export class GroupsService {
     return groups.map((g) => this.calculateMetrics(g));
   }
 
-  async findByUuid(uuid: string): Promise<GroupWithMetrics> {
+  async findByUuid(uuid: string): Promise<GroupWithMetricsInterface> {
     const group = await this.prisma.group.findUnique({
       where: { uuid },
       include: { trades: true },
@@ -641,7 +658,7 @@ export class GroupsService {
     return this.calculateMetrics(group);
   }
 
-  async update(uuid: string, updateGroupDto: UpdateGroupDto): Promise<GroupWithMetrics> {
+  async update(uuid: string, updateGroupDto: UpdateGroupDto): Promise<GroupWithMetricsInterface> {
     const group = await this.prisma.group.update({
       where: { uuid },
       data: updateGroupDto,
@@ -657,7 +674,7 @@ export class GroupsService {
   }
 
   // Helper: Calculate derived metrics (mirrors TradesService.enrichTradeWithDerivedFields pattern)
-  private calculateMetrics(group: any): GroupWithMetrics {
+  private calculateMetrics(group: any): GroupWithMetricsInterface {
     const { trades } = group;
 
     // Calculate closingExpiry (earliest expiry of all child trades)
@@ -672,15 +689,9 @@ export class GroupsService {
     const status = this.deriveStatus(daysUntilClosingExpiry);
 
     // Calculate P&L metrics
-    const totalCostBasis = trades.reduce(
-      (sum, t) => sum + Number(t.costBasis),
-      0
-    );
+    const totalCostBasis = trades.reduce((sum, t) => sum + Number(t.costBasis), 0);
 
-    const totalCurrentValue = trades.reduce(
-      (sum, t) => sum + Number(t.currentValue),
-      0
-    );
+    const totalCurrentValue = trades.reduce((sum, t) => sum + Number(t.currentValue), 0);
 
     const profitLoss = totalCurrentValue - totalCostBasis;
 
@@ -862,7 +873,7 @@ export class GroupsService {
   - CreateGroupDto with validation (@ArrayMinSize(2))
   - UpdateGroupDto (PartialType pattern from Trade API)
   - GroupResponseDto with @Expose decorators (mirrors TradeResponseDto)
-  - GroupWithMetrics interface (simple type composition)
+  - GroupWithMetricsInterface interface (simple type composition)
 
 - **E2E Testing (2 points):**
   - Test coverage for all 5 endpoints (mirror trades.e2e-spec.ts structure)
@@ -882,6 +893,7 @@ This is a moderately complex story (7 points) because:
 5. **Comprehensive testing:** Mirrors existing e2e test structure
 
 **Originally estimated 8 points, reduced to 7 because:**
+
 - DataResponseDto constructor pattern already exists
 - Derived field calculation pattern already proven
 - Transaction handling pattern already tested
@@ -910,7 +922,7 @@ This is a moderately complex story (7 points) because:
 
 **TypeScript Convention:** Modern TypeScript style guides recommend NO prefix.
 
-- ✅ `GroupWithMetrics` (modern, clean)
+- ✅ `GroupWithMetricsInterface` (modern, clean)
 - ❌ `IGroupWithMetrics` (outdated C#/Java convention)
 
 ### Why Reuse Trades Domain?
@@ -1004,6 +1016,7 @@ api/src/trades/
    - Updated all API response examples with daysUntilClosingExpiry
 
 **Changes verified against:**
+
 - `api/src/trades/controllers/trades.controller.ts`
 - `api/src/trades/services/trades.service.ts`
 - `api/src/trades/dto/response/trade-response.dto.ts`

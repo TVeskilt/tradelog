@@ -25,6 +25,7 @@ So that **the frontend can create, read, update, and delete individual trade rec
 This story implements the core backend API for managing individual options trades. Each trade represents a single options position (Buy/Sell, Call/Put) with fields like strike price, expiry date, cost basis, current value, and status. This API forms the foundation for all trade management features in TradeLog.
 
 The Trade API must support:
+
 - Manual trade entry from the frontend
 - Full CRUD operations with validation
 - Calculated derived fields (P&L)
@@ -34,6 +35,7 @@ The Trade API must support:
 ### Scope
 
 **In scope:**
+
 - REST endpoints for Trade CRUD (Create, Read, Update, Delete)
 - Request DTOs with validation (CreateTradeDto, UpdateTradeDto)
 - Response DTOs with @Expose() pattern (TradeResponseDto)
@@ -45,6 +47,7 @@ The Trade API must support:
 - Derived fields: P&L calculation, days to expiry
 
 **Out of scope:**
+
 - Bulk operations (create/update/delete multiple trades) - can be added later if needed
 - Backend pagination - client-side filtering is sufficient for MVP (<1000 trades)
 - Backend query filtering (status, symbol, groupUuid) - deferred to Phase 2
@@ -54,6 +57,7 @@ The Trade API must support:
 ### User Flow
 
 **Create Trade Flow:**
+
 1. Frontend sends POST /v1/trades with trade data
 2. Global ValidationPipe validates CreateTradeDto
 3. TradesService creates trade with status defaulting to OPEN
@@ -64,18 +68,21 @@ The Trade API must support:
 8. Frontend receives typed response
 
 **Read Trades Flow:**
+
 1. Frontend sends GET /v1/trades
 2. TradesService fetches all trades (no backend filtering for MVP)
 3. Each trade transformed to TradeResponseDto with derived fields (pnl, daysToExpiry)
 4. Response: DataResponseDto<TradeResponseDto[]>
 
 **Update Trade Flow:**
+
 1. Frontend sends PATCH /v1/trades/:uuid with updated fields
 2. ValidationPipe validates UpdateTradeDto
 3. TradesService updates trade (partial update)
 4. Response: DataResponseDto<TradeResponseDto>
 
 **Delete Trade Flow:**
+
 1. Frontend sends DELETE /v1/trades/:uuid
 2. TradesService checks if trade is in a group
 3. If in group with <2 remaining trades, auto-ungroup (transaction)
@@ -172,7 +179,7 @@ The Trade API must support:
 
 - [ ] **Calculate derived fields** in TradesService before returning:
   - pnl = currentValue - costBasis
-  - daysToExpiry = Math.floor((expiryDate - now) / (1000 * 60 * 60 * 24))
+  - daysToExpiry = Math.floor((expiryDate - now) / (1000 _ 60 _ 60 \* 24))
 
 - [ ] **plainToInstance transformation** used in controller to transform Prisma entity → TradeResponseDto
 
@@ -221,6 +228,7 @@ The Trade API must support:
 ### Components
 
 **Backend (NestJS):**
+
 - `api/src/trades/controllers/trades.controller.ts` - TradesController
 - `api/src/trades/services/trades.service.ts` - TradesService
 - `api/src/trades/dto/request/create-trade.dto.ts` - CreateTradeDto
@@ -231,9 +239,11 @@ The Trade API must support:
 - `api/test/e2e/trades.e2e-spec.ts` - E2E tests
 
 **Database:**
+
 - `trades` table (already exists from STORY-003)
 
 **Frontend (future consumption):**
+
 - Types generated from Swagger spec
 
 ### API Endpoints
@@ -241,38 +251,40 @@ The Trade API must support:
 #### POST /v1/trades
 
 **Request:**
+
 ```json
 {
   "symbol": "AAPL",
-  "strikePrice": 150.00,
+  "strikePrice": 150.0,
   "expiryDate": "2026-02-15",
   "tradeType": "BUY",
   "optionType": "CALL",
   "quantity": 10,
-  "costBasis": 1500.00,
-  "currentValue": 1750.00,
+  "costBasis": 1500.0,
+  "currentValue": 1750.0,
   "notes": "Long call position on AAPL",
   "groupUuid": "a3bb189e-8bf9-3888-9912-ace4e6543002"
 }
 ```
 
 **Response (201 Created):**
+
 ```json
 {
   "data": {
     "uuid": "123e4567-e89b-12d3-a456-426614174000",
     "symbol": "AAPL",
-    "strikePrice": 150.00,
+    "strikePrice": 150.0,
     "expiryDate": "2026-02-15",
     "tradeType": "BUY",
     "optionType": "CALL",
     "quantity": 10,
-    "costBasis": 1500.00,
-    "currentValue": 1750.00,
+    "costBasis": 1500.0,
+    "currentValue": 1750.0,
     "status": "OPEN",
     "notes": "Long call position on AAPL",
     "groupUuid": "a3bb189e-8bf9-3888-9912-ace4e6543002",
-    "pnl": 250.00,
+    "pnl": 250.0,
     "daysToExpiry": 42
   }
 }
@@ -281,23 +293,24 @@ The Trade API must support:
 #### GET /v1/trades
 
 **Response (200 OK):**
+
 ```json
 {
   "data": [
     {
       "uuid": "123e4567-e89b-12d3-a456-426614174000",
       "symbol": "AAPL",
-      "strikePrice": 150.00,
+      "strikePrice": 150.0,
       "expiryDate": "2026-02-15",
       "tradeType": "BUY",
       "optionType": "CALL",
       "quantity": 10,
-      "costBasis": 1500.00,
-      "currentValue": 1750.00,
+      "costBasis": 1500.0,
+      "currentValue": 1750.0,
       "status": "OPEN",
       "notes": "Long call position on AAPL",
       "groupUuid": "a3bb189e-8bf9-3888-9912-ace4e6543002",
-      "pnl": 250.00,
+      "pnl": 250.0,
       "daysToExpiry": 42
     }
   ]
@@ -310,6 +323,7 @@ The Trade API must support:
 Same as single item in GET /v1/trades
 
 **Response (404 Not Found):**
+
 ```json
 {
   "statusCode": 404,
@@ -321,9 +335,10 @@ Same as single item in GET /v1/trades
 #### PUT /v1/trades/:uuid
 
 **Request (partial update):**
+
 ```json
 {
-  "currentValue": 1800.00,
+  "currentValue": 1800.0,
   "status": "CLOSING_SOON"
 }
 ```
@@ -334,6 +349,7 @@ Same structure as POST response with updated fields
 #### DELETE /v1/trades/:uuid
 
 **Response (200 OK):**
+
 ```json
 {
   "data": null
@@ -345,6 +361,7 @@ Same structure as POST response with updated fields
 **No new migrations required** - `trades` table already exists from STORY-003.
 
 **Indexes used:**
+
 - `uuid` (primary key) - for GET/PUT/DELETE by UUID
 - `groupUuid` - for group integrity checks on deletion
 - `expiryDate` - for daysToExpiry calculation (optional optimization)
@@ -352,6 +369,7 @@ Same structure as POST response with updated fields
 ### Derived Fields Calculation
 
 **P&L Calculation:**
+
 ```typescript
 // In TradesService
 calculatePnL(trade: Trade): number {
@@ -360,6 +378,7 @@ calculatePnL(trade: Trade): number {
 ```
 
 **Days to Expiry Calculation:**
+
 ```typescript
 // In TradesService
 calculateDaysToExpiry(expiryDate: Date): number {
@@ -450,6 +469,7 @@ const responseDto = plainToInstance(TradeResponseDto, prismaTrade);
 ### Error Handling
 
 **Validation errors (400 Bad Request):**
+
 ```json
 {
   "statusCode": 400,
@@ -463,6 +483,7 @@ const responseDto = plainToInstance(TradeResponseDto, prismaTrade);
 ```
 
 **Not found (404 Not Found):**
+
 ```json
 {
   "statusCode": 404,
@@ -482,18 +503,22 @@ const responseDto = plainToInstance(TradeResponseDto, prismaTrade);
 ### Edge Cases
 
 **Trade deletion with group integrity:**
+
 - If deleting a trade leaves its group with <2 trades, auto-ungroup remaining trades and delete the group
 - Use Prisma transaction to ensure atomicity (all or nothing)
 
 **Invalid UUID format:**
+
 - NestJS automatically validates UUID format in route params
 - Returns 400 Bad Request if invalid
 
 **Decimal precision:**
+
 - strikePrice, costBasis, currentValue use Decimal(10,2) in database
 - Supports values up to $99,999,999.99
 
 **Date handling:**
+
 - expiryDate stored as Date type (no time component)
 - Accepts ISO 8601 format: "YYYY-MM-DD"
 - Validates with @IsDateString() decorator
@@ -605,6 +630,7 @@ const responseDto = plainToInstance(TradeResponseDto, prismaTrade);
 - **Total:** 10 points → **Adjusted to 8 points** (accounting for existing infrastructure from STORY-003)
 
 **Rationale:**
+
 - NestJS module structure already exists from STORY-003
 - Prisma Client and database schema already set up
 - Docker environment already running
@@ -618,6 +644,7 @@ const responseDto = plainToInstance(TradeResponseDto, prismaTrade);
 ### Integration with STORY-003
 
 This story builds directly on STORY-003:
+
 - Uses `trades` table created in STORY-003
 - Uses Prisma Client generated in STORY-003
 - Uses enums (TradeType, OptionType, TradeStatus) from STORY-003 schema
@@ -626,7 +653,8 @@ This story builds directly on STORY-003:
 ### Naming Conventions
 
 Per architecture document:
-- Interfaces: NO "I" prefix (e.g., GroupWithMetrics, not IGroupWithMetrics)
+
+- Interfaces: NO "I" prefix (e.g., GroupWithMetricsInterface, not IGroupWithMetrics)
 - Response DTOs: Use `@Expose()` pattern with excludeExtraneousValues
 - Request DTOs: Use class-validator decorators
 - Services: Singular name (TradesService, not TradeService)
@@ -634,6 +662,7 @@ Per architecture document:
 ### Type Safety
 
 Complete end-to-end type safety:
+
 1. Prisma schema → @prisma/client types
 2. DTOs with decorators → NestJS validation
 3. @nestjs/swagger → OpenAPI spec
@@ -646,6 +675,7 @@ All endpoints use `/v1` prefix from day 1 for future-proofing.
 ### No Pagination for MVP
 
 Per architecture decisions:
+
 - No backend pagination (frontend handles filtering/sorting)
 - Acceptable for <1000 trades
 - Can add later if needed (trigger: >1000 trades or >1s render time)
@@ -655,6 +685,7 @@ Per architecture decisions:
 ## Progress Tracking
 
 **Status History:**
+
 - 2026-01-04 11:36: Story created
 - 2026-01-04 11:40: Implementation started
 - 2026-01-04 13:45: Implementation completed
@@ -666,6 +697,7 @@ Per architecture decisions:
 **AI Velocity Multiplier:** ~6.4x faster than human estimate
 
 **Implementation Notes:**
+
 - Implemented complete Trade CRUD API with 5 endpoints
 - Created 4 DTOs with comprehensive validation and transformation
 - Used @Type(() => Date) for automatic date transformation
