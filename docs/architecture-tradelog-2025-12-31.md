@@ -197,7 +197,7 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 ┌─────────────────────────────────────┐
 │   PostgreSQL Database               │
 │   - trades table                    │
-│   - groups table                    │
+│   - trade_groups table                    │
 └─────────────────────────────────────┘
 
 ┌─────────────────────────────────────┐
@@ -411,34 +411,34 @@ web/src/
 │   ├── Dashboard.tsx
 │   ├── TradesList.tsx
 │   ├── TradeForm.tsx
-│   └── GroupForm.tsx
+│   └── TradeGroupForm.tsx
 ├── components/                 # Reusable UI (shadcn-based)
 │   ├── ui/                     # shadcn components
 │   ├── TradeCard.tsx
-│   ├── GroupCard.tsx
+│   ├── TradeGroupCard.tsx
 │   └── index.ts                # Barrel export
 ├── lib/
 │   ├── api/                    # API client layer
 │   │   ├── client.ts           # Axios/fetch instance
 │   │   ├── trades.ts           # Trade queries/mutations
-│   │   ├── groups.ts           # Group queries/mutations
+│   │   ├── trade-groups.ts           # Group queries/mutations
 │   │   └── index.ts
 │   └── validation/             # Zod schemas
 │       ├── trade.schema.ts
-│       ├── group.schema.ts
+│       ├── trade-group.schema.ts
 │       └── index.ts
 ├── types/
 │   └── api.types.ts            # Generated from Swagger via openapi-typescript
 ├── hooks/                      # Custom React hooks
 │   ├── useTrades.ts
-│   ├── useGroups.ts
+│   ├── useTradeGroups.ts
 │   └── index.ts
 └── main.tsx
 ```
 
 **Interfaces:**
 
-- Consumes: `GET/POST/PATCH/DELETE /v1/trades`, `/v1/groups`
+- Consumes: `GET/POST/PATCH/DELETE /v1/trades`, `/v1/trade-groups`
 - Receives: `DataResponseDto<T>` wrapped responses
 - Uses types from: `types/api.types.ts` (Swagger-generated)
 
@@ -481,7 +481,7 @@ api/src/
 ├── trades/                          # Trading Domain (DDD module)
 │   ├── controllers/
 │   │   ├── trades.controller.ts     # /v1/trades endpoints
-│   │   └── groups.controller.ts     # /v1/groups endpoints
+│   │   └── groups.controller.ts     # /v1/trade-groups endpoints
 │   ├── services/
 │   │   ├── trades.service.ts        # Trade business logic
 │   │   └── groups.service.ts        # Group aggregation logic
@@ -593,7 +593,7 @@ api/src/
 │ currentValue         │
 │ status (enum)        │
 │ notes                │
-│ groupUuid (FK, null) │─────┐
+│ tradeGroupUuid (FK, null) │─────┐
 │ createdAt            │     │
 │ updatedAt            │     │
 └──────────────────────┘     │
@@ -603,7 +603,7 @@ api/src/
 
 **Indexes:**
 
-- trades: `groupUuid`, `expiryDate`, `status`, `symbol`
+- trades: `tradeGroupUuid`, `expiryDate`, `status`, `symbol`
 - groups: `strategyType`
 
 **Enums (defined in Prisma):**
@@ -757,7 +757,7 @@ api/src/
 - `currentValue` - Decimal(10,2) - Current market value (manual entry for MVP)
 - `status` - Enum (OPEN, CLOSING_SOON, CLOSED)
 - `notes` - Text (nullable) - Trade journal notes
-- `groupUuid` - UUID (nullable, FK to Group)
+- `tradeGroupUuid` - UUID (nullable, FK to Group)
 - `createdAt` - Timestamp
 - `updatedAt` - Timestamp
 
@@ -786,17 +786,17 @@ api/src/
 
 ```
 Group (1) ──────< (many) Trade
-            groupUuid FK
+            tradeGroupUuid FK
 
 - One group contains many trades (2+ required by business logic)
-- One trade belongs to zero or one group (nullable groupUuid)
-- Ungrouped trades: groupUuid = null
+- One trade belongs to zero or one group (nullable tradeGroupUuid)
+- Ungrouped trades: tradeGroupUuid = null
 - Cascade behavior: ON DELETE SET NULL (preserve trades when group deleted)
 ```
 
 **Business Rules:**
 
-- Groups must have 2+ trades (enforced in GroupsService)
+- Groups must have 2+ trades (enforced in TradeGroupsService)
 - If group has <2 trades after deletion, auto-ungroup remaining trade(s)
 - Group derived fields recalculated on every read
 
@@ -867,13 +867,13 @@ model Trade {
   currentValue Decimal     @db.Decimal(10, 2)
   status       TradeStatus
   notes        String?     @db.Text
-  groupUuid    String?
+  tradeGroupUuid    String?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
-  group        Group?      @relation(fields: [groupUuid], references: [uuid], onDelete: SetNull)
+  group        Group?      @relation(fields: [tradeGroupUuid], references: [uuid], onDelete: SetNull)
 
-  @@index([groupUuid])
+  @@index([tradeGroupUuid])
   @@index([expiryDate])
   @@index([status])
   @@index([symbol])
@@ -900,7 +900,7 @@ model Trade {
 **Constraint Strategy:**
 
 - Primary keys: UUIDs (globally unique, no enumeration)
-- Foreign key: `trades.groupUuid → groups.uuid` with `ON DELETE SET NULL`
+- Foreign key: `trades.tradeGroupUuid → groups.uuid` with `ON DELETE SET NULL`
 - NOT NULL constraints on required fields
 - Check constraints: `quantity > 0`, `costBasis >= 0`, `currentValue >= 0`
 - Unique constraints: None (multiple trades can have same symbol/strike/expiry)
@@ -912,7 +912,7 @@ model Trade {
 **trades table:**
 
 - `uuid` (UUID, primary key) - Clustered index
-- `groupUuid` - Non-clustered - For joins and "trades in group" queries
+- `tradeGroupUuid` - Non-clustered - For joins and "trades in group" queries
 - `expiryDate` - Non-clustered - For sorting/filtering by expiry, "closing soon" queries
 - `status` - Non-clustered - For filtering open/closed trades
 - `symbol` - Non-clustered - For filtering by stock ticker
@@ -949,25 +949,25 @@ Frontend form → Validation (Zod)
 
 ```
 Frontend (select trades + name) → Validation
-                                → POST /v1/groups
+                                → POST /v1/trade-groups
                                 → DTO validation
-                                → GroupsService.create()
+                                → TradeGroupsService.create()
                                 → Prisma transaction BEGIN
                                 → INSERT INTO groups
-                                → UPDATE trades SET groupUuid WHERE uuid IN (...)
+                                → UPDATE trades SET tradeGroupUuid WHERE uuid IN (...)
                                 → Prisma transaction COMMIT
                                 → Calculate derived fields (closingExpiry, status, metrics)
-                                → Transform to GroupResponseDto
-                                → Return DataResponseDto<GroupResponseDto>
+                                → Transform to TradeGroupResponseDto
+                                → Return DataResponseDto<TradeGroupResponseDto>
                                 → Frontend cache invalidation
 ```
 
 **Fetch Group with Metrics (Read Path):**
 
 ```
-GET /v1/groups/:uuid
+GET /v1/trade-groups/:uuid
   ↓
-GroupsService.findByUuid(uuid)
+TradeGroupsService.findByUuid(uuid)
   ↓
 Prisma query with include: { trades: true }
   ↓
@@ -978,15 +978,15 @@ Calculate derived fields:
   - totalCurrentValue = trades.reduce((sum, t) => sum + t.currentValue, 0)
   - profitLoss = totalCurrentValue - totalCostBasis
   ↓
-Transform to GroupResponseDto (plainToInstance)
+Transform to TradeGroupResponseDto (plainToInstance)
   ↓
-Return DataResponseDto<GroupResponseDto>
+Return DataResponseDto<TradeGroupResponseDto>
 ```
 
 **Derived Status Algorithm:**
 
 ```typescript
-// GroupsService.deriveGroupStatus()
+// TradeGroupsService.deriveGroupStatus()
 deriveGroupStatus(trades: Trade[]): TradeStatus {
   if (trades.some(t => t.status === TradeStatus.CLOSED)) {
     return TradeStatus.CLOSED;
@@ -1009,7 +1009,7 @@ await prisma.$transaction([
   prisma.group.create({ data: { ... } }),
   prisma.trade.updateMany({
     where: { uuid: { in: tradeUuids } },
-    data: { groupUuid: newGroupUuid }
+    data: { tradeGroupUuid: newGroupUuid }
   })
 ]);
 ```
@@ -1019,7 +1019,7 @@ await prisma.$transaction([
 ```typescript
 // ON DELETE SET NULL handles this automatically
 await prisma.group.delete({ where: { uuid } });
-// trades.groupUuid automatically set to null
+// trades.tradeGroupUuid automatically set to null
 ```
 
 **Transaction Scope 3: Delete Trade (with group integrity check)**
@@ -1028,18 +1028,18 @@ await prisma.group.delete({ where: { uuid } });
 await prisma.$transaction(async (tx) => {
   const trade = await tx.trade.delete({ where: { uuid } });
 
-  if (trade.groupUuid) {
+  if (trade.tradeGroupUuid) {
     const remainingTrades = await tx.trade.count({
-      where: { groupUuid: trade.groupUuid },
+      where: { tradeGroupUuid: trade.tradeGroupUuid },
     });
 
     if (remainingTrades < 2) {
       // Ungroup remaining trades
       await tx.trade.updateMany({
-        where: { groupUuid: trade.groupUuid },
-        data: { groupUuid: null },
+        where: { tradeGroupUuid: trade.tradeGroupUuid },
+        data: { tradeGroupUuid: null },
       });
-      await tx.group.delete({ where: { uuid: trade.groupUuid } });
+      await tx.group.delete({ where: { uuid: trade.tradeGroupUuid } });
     }
   }
 });
@@ -1149,7 +1149,7 @@ export class DataResponseDto<T> {
 
 ```typescript
 type PortfolioItemDto =
-  | (GroupResponseDto & { readonly itemType: ItemType.GROUP })
+  | (TradeGroupResponseDto & { readonly itemType: ItemType.GROUP })
   | (TradeResponseDto & { readonly itemType: ItemType.TRADE });
 ```
 
@@ -1165,17 +1165,17 @@ export enum ItemType {
 
 #### Groups Endpoints
 
-**Base:** `/v1/groups`
+**Base:** `/v1/trade-groups`
 
 | Method | Endpoint                             | Description             | Request Body               | Response                              |
 | ------ | ------------------------------------ | ----------------------- | -------------------------- | ------------------------------------- |
-| GET    | `/v1/groups`                         | List all groups         | -                          | `DataResponseDto<GroupResponseDto[]>` |
-| GET    | `/v1/groups/:uuid`                   | Get single group        | -                          | `DataResponseDto<GroupResponseDto>`   |
-| POST   | `/v1/groups`                         | Create group            | `CreateGroupDto`           | `DataResponseDto<GroupResponseDto>`   |
-| PATCH  | `/v1/groups/:uuid`                   | Update group            | `UpdateGroupDto`           | `DataResponseDto<GroupResponseDto>`   |
-| DELETE | `/v1/groups/:uuid`                   | Delete group            | -                          | `DataResponseDto<void>`               |
-| POST   | `/v1/groups/:uuid/trades`            | Add trades to group     | `{ tradeUuids: string[] }` | `DataResponseDto<GroupResponseDto>`   |
-| DELETE | `/v1/groups/:uuid/trades/:tradeUuid` | Remove trade from group | -                          | `DataResponseDto<GroupResponseDto>`   |
+| GET    | `/v1/trade-groups`                         | List all groups         | -                          | `DataResponseDto<TradeGroupResponseDto[]>` |
+| GET    | `/v1/trade-groups/:uuid`                   | Get single group        | -                          | `DataResponseDto<TradeGroupResponseDto>`   |
+| POST   | `/v1/trade-groups`                         | Create group            | `CreateTradeGroupDto`           | `DataResponseDto<TradeGroupResponseDto>`   |
+| PATCH  | `/v1/trade-groups/:uuid`                   | Update group            | `UpdateTradeGroupDto`           | `DataResponseDto<TradeGroupResponseDto>`   |
+| DELETE | `/v1/trade-groups/:uuid`                   | Delete group            | -                          | `DataResponseDto<void>`               |
+| POST   | `/v1/trade-groups/:uuid/trades`            | Add trades to group     | `{ tradeUuids: string[] }` | `DataResponseDto<TradeGroupResponseDto>`   |
+| DELETE | `/v1/trade-groups/:uuid/trades/:tradeUuid` | Remove trade from group | -                          | `DataResponseDto<TradeGroupResponseDto>`   |
 
 ### DTO Definitions
 
@@ -1233,20 +1233,20 @@ export class CreateTradeDto {
   @ApiProperty({ required: false, description: 'UUID of parent group' })
   @IsOptional()
   @IsString()
-  readonly groupUuid?: string;
+  readonly tradeGroupUuid?: string;
 
   // NOTE: status NOT included - defaults to OPEN in service
 }
 ```
 
-**CreateGroupDto:**
+**CreateTradeGroupDto:**
 
 ```typescript
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEnum, IsArray, ArrayMinSize, IsOptional } from 'class-validator';
 import { StrategyType } from '@prisma/client';
 
-export class CreateGroupDto {
+export class CreateTradeGroupDto {
   @ApiProperty({ example: 'Calendar Spread Feb-15-2026' })
   @IsString()
   readonly name!: string;
@@ -1326,13 +1326,13 @@ export class TradeResponseDto {
 
   @Expose()
   @ApiProperty({ required: false })
-  readonly groupUuid?: string;
+  readonly tradeGroupUuid?: string;
 
   // NOTE: createdAt, updatedAt NOT exposed (removed per requirements)
 }
 ```
 
-**GroupResponseDto:**
+**TradeGroupResponseDto:**
 
 ```typescript
 import { Expose, Type } from 'class-transformer';
@@ -1340,7 +1340,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { StrategyType, TradeStatus } from '@prisma/client';
 import { TradeResponseDto } from './trade-response.dto';
 
-export class GroupResponseDto {
+export class TradeGroupResponseDto {
   @Expose()
   @ApiProperty()
   readonly uuid!: string;
@@ -1541,7 +1541,7 @@ This section maps each Non-Functional Requirement to architectural decisions.
 
 | Decision                                | How It Addresses NFR-001                                                                                             |
 | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **PostgreSQL Indexes**                  | Indexes on `groupUuid`, `expiryDate`, `status`, `symbol` enable fast filtering and sorting                           |
+| **PostgreSQL Indexes**                  | Indexes on `tradeGroupUuid`, `expiryDate`, `status`, `symbol` enable fast filtering and sorting                           |
 | **TanStack Query (React Query)**        | Client-side caching reduces redundant API calls, optimistic updates improve perceived performance                    |
 | **Compression Middleware**              | Gzip/deflate reduces payload size, faster network transfer for trade lists                                           |
 | **Derived Fields Calculated On-Demand** | No stale data, always fresh; trade-off: slight calculation overhead (~50ms for 100 groups) acceptable for <2s budget |
@@ -1604,10 +1604,10 @@ This section maps each Non-Functional Requirement to architectural decisions.
 | Decision                            | How It Addresses NFR-004                                                                       |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------- |
 | **Prisma Transactions**             | All multi-table operations wrapped in `$transaction` (ACID guarantees)                         |
-| **Foreign Key Constraints**         | `trades.groupUuid → groups.uuid ON DELETE SET NULL` enforces referential integrity at DB level |
+| **Foreign Key Constraints**         | `trades.tradeGroupUuid → groups.uuid ON DELETE SET NULL` enforces referential integrity at DB level |
 | **Derived Group Status**            | Never stored, always calculated from child trades (single source of truth)                     |
 | **Validation Pipeline**             | Frontend (Zod) → Backend (class-validator) → Database (constraints) triple validation          |
-| **Business Logic in Service Layer** | Group integrity rules (2+ trades) enforced in `GroupsService`                                  |
+| **Business Logic in Service Layer** | Group integrity rules (2+ trades) enforced in `TradeGroupsService`                                  |
 | **ClassSerializerInterceptor**      | `excludeExtraneousValues: true` prevents accidental data leaks                                 |
 
 ### NFR-005: Code Quality
@@ -1884,7 +1884,7 @@ id: 1, 2, 3, 4...
 **Trades Table Indexes:**
 
 ```sql
-CREATE INDEX idx_trades_group_uuid ON trades(groupUuid);
+CREATE INDEX idx_trades_group_uuid ON trades(tradeGroupUuid);
 CREATE INDEX idx_trades_expiry_date ON trades(expiryDate);
 CREATE INDEX idx_trades_status ON trades(status);
 CREATE INDEX idx_trades_symbol ON trades(symbol);
@@ -2400,16 +2400,16 @@ pnpm api:test:e2e
 | ------ | ---------------------------------------------- | ------------------------------------------------------------ |
 | FR-000 | Project setup with Swagger/OpenAPI             | Docker, @nestjs/swagger, openapi-typescript                  |
 | FR-001 | Create individual trade                        | TradesController, TradesService, Prisma                      |
-| FR-002 | Create trade group                             | GroupsController, GroupsService, Prisma                      |
+| FR-002 | Create trade group                             | TradeGroupsController, TradeGroupsService, Prisma                      |
 | FR-003 | View all trades and groups (unified dashboard) | TradesController (`?include=groups`), ItemType discriminator |
 | FR-004 | View individual trade details                  | TradesController.findByUuid()                                |
-| FR-005 | View individual group details                  | GroupsController.findByUuid(), derived fields                |
+| FR-005 | View individual group details                  | TradeGroupsController.findByUuid(), derived fields                |
 | FR-006 | Edit existing trade                            | TradesController.update()                                    |
-| FR-007 | Track trade status                             | TradeStatus enum, GroupsService (derived status)             |
-| FR-008 | Add trades to group                            | GroupsController, Prisma transactions                        |
-| FR-009 | Remove trades from group                       | GroupsController, GroupsService (integrity check)            |
+| FR-007 | Track trade status                             | TradeStatus enum, TradeGroupsService (derived status)             |
+| FR-008 | Add trades to group                            | TradeGroupsController, Prisma transactions                        |
+| FR-009 | Remove trades from group                       | TradeGroupsController, TradeGroupsService (integrity check)            |
 | FR-010 | Delete trades                                  | TradesController.deleteByUuid()                              |
-| FR-011 | Automated P&L calculation                      | GroupsService, derived fields                                |
+| FR-011 | Automated P&L calculation                      | TradeGroupsService, derived fields                                |
 | FR-012 | Add notes                                      | Trade.notes, Group.notes                                     |
 | FR-013 | Filter trades                                  | Query params, PostgreSQL indexes                             |
 | FR-014 | Sort by expiry                                 | PostgreSQL indexes, orderBy                                  |

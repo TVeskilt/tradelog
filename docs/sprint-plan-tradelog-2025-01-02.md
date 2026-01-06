@@ -161,7 +161,7 @@ Configure Prisma ORM with complete schema for Trade and Group models.
 **Acceptance Criteria**:
 
 - ✅ Prisma configured with PostgreSQL provider
-- ✅ Trade model with all fields (uuid, symbol, strikePrice, expiryDate, tradeType, optionType, quantity, costBasis, currentValue, status, notes, groupUuid, timestamps)
+- ✅ Trade model with all fields (uuid, symbol, strikePrice, expiryDate, tradeType, optionType, quantity, costBasis, currentValue, status, notes, tradeGroupUuid, timestamps)
 - ✅ Group model with all fields (uuid, name, strategyType, notes, timestamps)
 - ✅ Enums: TradeType (BUY, SELL), OptionType (CALL, PUT), TradeStatus (OPEN, CLOSING_SOON, CLOSED), StrategyType (CALENDAR_SPREAD, RATIO_CALENDAR_SPREAD, CUSTOM)
 - ✅ 1:N relationship (Group → Trades) with ON DELETE SET NULL
@@ -174,7 +174,7 @@ Configure Prisma ORM with complete schema for Trade and Group models.
 
 - Use Decimal type for monetary values (precision 10, scale 2)
 - Date type for expiryDate (no time component)
-- groupUuid nullable for ungrouped trades
+- tradeGroupUuid nullable for ungrouped trades
 - NO ItemType enum in Prisma (TypeScript-only)
 - NO derived fields (closingExpiry, status, pnl) stored in database
 
@@ -217,7 +217,7 @@ Implement REST API for Trade CRUD operations with NestJS.
 - DTOs in api/src/trades/dto/request/ and api/src/trades/dto/response/
 - Use barrel exports (index.ts)
 - NO status field in CreateTradeDto (defaults to OPEN in service)
-- groupUuid optional in CreateTradeDto
+- tradeGroupUuid optional in CreateTradeDto
 
 **Requirements Coverage**: FR-001, FR-013, FR-003
 
@@ -234,14 +234,14 @@ Implement REST API for Group CRUD operations with derived metrics calculation.
 
 **Acceptance Criteria**:
 
-- ✅ POST /v1/groups - Create group
-- ✅ GET /v1/groups - List all groups with metrics
-- ✅ GET /v1/groups/:uuid - Get single group with metrics and trades
-- ✅ PUT /v1/groups/:uuid - Update group
-- ✅ DELETE /v1/groups/:uuid - Delete group
-- ✅ DTOs: CreateGroupDto, UpdateGroupDto, GroupResponseDto
-- ✅ GroupResponseDto includes calculated fields: closingExpiry (MIN(trade.expiryDate)), status (derived from closingExpiry), totalPnL (SUM of trade P&Ls)
-- ✅ GroupWithMetricsInterface interface in api/src/trades/interfaces/ (NO "I" prefix)
+- ✅ POST /v1/trade-groups - Create group
+- ✅ GET /v1/trade-groups - List all groups with metrics
+- ✅ GET /v1/trade-groups/:uuid - Get single group with metrics and trades
+- ✅ PUT /v1/trade-groups/:uuid - Update group
+- ✅ DELETE /v1/trade-groups/:uuid - Delete group
+- ✅ DTOs: CreateTradeGroupDto, UpdateTradeGroupDto, TradeGroupResponseDto
+- ✅ TradeGroupResponseDto includes calculated fields: closingExpiry (MIN(trade.expiryDate)), status (derived from closingExpiry), totalPnL (SUM of trade P&Ls)
+- ✅ TradeGroupWithMetrics interface in api/src/trades/interfaces/ (NO "I" prefix)
 - ✅ class-validator validation on all DTOs
 - ✅ Swagger/OpenAPI documentation
 - ✅ E2E tests for all endpoints
@@ -250,8 +250,8 @@ Implement REST API for Group CRUD operations with derived metrics calculation.
 **Technical Notes**:
 
 - Reuse trades domain (api/src/trades/)
-- GroupsController and GroupsService alongside TradesController/Service
-- closingExpiry = MIN(trade.expiryDate WHERE groupUuid = group.uuid)
+- TradeGroupsController and TradeGroupsService alongside TradesController/Service
+- closingExpiry = MIN(trade.expiryDate WHERE tradeGroupUuid = group.uuid)
 - status logic: <7 days = CLOSING_SOON, past expiry = CLOSED, else OPEN
 - Performance target: <100ms for groups with up to 20 trades
 
@@ -309,9 +309,9 @@ Build React interface for creating, editing, and managing groups.
 - ✅ Edit group modal with same fields
 - ✅ Group list view showing name, strategyType, trade count
 - ✅ Assign trades to group (drag-and-drop or checkbox selection)
-- ✅ Ungroup trades (set groupUuid to null)
+- ✅ Ungroup trades (set tradeGroupUuid to null)
 - ✅ React Hook Form + Zod validation
-- ✅ Submit calls POST /v1/groups (create) or PUT /v1/groups/:uuid (update)
+- ✅ Submit calls POST /v1/trade-groups (create) or PUT /v1/trade-groups/:uuid (update)
 - ✅ TanStack Query for mutations and cache invalidation
 - ✅ shadcn/ui components
 - ✅ Visual indication of strategy type (calendar, ratio calendar, custom)
@@ -320,7 +320,7 @@ Build React interface for creating, editing, and managing groups.
 
 - Component in web/src/components/GroupManagement/
 - Modal for create/edit using shadcn/ui Dialog
-- Trade assignment via PUT /v1/trades/:uuid with updated groupUuid
+- Trade assignment via PUT /v1/trades/:uuid with updated tradeGroupUuid
 - Support unlimited legs (no UI limit on trade count)
 
 **Requirements Coverage**: FR-002, FR-003, FR-014, FR-010
@@ -342,7 +342,7 @@ Implement deletion flows with user confirmation dialogs.
 - ✅ Delete group button with confirmation modal
 - ✅ Confirmation shows what will be deleted
 - ✅ For group deletion, show impact: "X trades will be ungrouped"
-- ✅ Calls DELETE /v1/trades/:uuid or DELETE /v1/groups/:uuid
+- ✅ Calls DELETE /v1/trades/:uuid or DELETE /v1/trade-groups/:uuid
 - ✅ TanStack Query cache invalidation after deletion
 - ✅ Success/error feedback
 - ✅ shadcn/ui AlertDialog component
@@ -378,7 +378,7 @@ Build hierarchical list showing groups (expandable) with nested trades.
 - ✅ Trade rows show: symbol, strikePrice, expiryDate, tradeType, optionType, quantity, costBasis, currentValue, P&L, status
 - ✅ Expand/collapse animation
 - ✅ Visual hierarchy (indentation, icons)
-- ✅ Calls GET /v1/groups (includes trades) and GET /v1/trades
+- ✅ Calls GET /v1/trade-groups (includes trades) and GET /v1/trades
 - ✅ TanStack Query for data fetching and caching
 - ✅ Renders <2 seconds for 100 groups + 1000 trades
 - ✅ shadcn/ui Table or custom list component

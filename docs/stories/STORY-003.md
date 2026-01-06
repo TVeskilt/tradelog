@@ -102,10 +102,10 @@ This schema must support the core functional requirements:
   - `costBasis` (Decimal, @db.Decimal(10, 2)) - total cost
   - `currentValue` (Decimal, @db.Decimal(10, 2)) - current market value
   - `notes` (String, optional)
-  - `groupUuid` (String, optional) - nullable foreign key
+  - `tradeGroupUuid` (String, optional) - nullable foreign key
   - `createdAt` (DateTime, @default(now()))
   - `updatedAt` (DateTime, @updatedAt)
-- [ ] Relationship: `group Group? @relation(fields: [groupUuid], references: [uuid], onDelete: SetNull)`
+- [ ] Relationship: `group Group? @relation(fields: [tradeGroupUuid], references: [uuid], onDelete: SetNull)`
 - [ ] NO derived fields (status, pnl) stored in database
 
 ### Group Model
@@ -131,7 +131,7 @@ This schema must support the core functional requirements:
 ### Relationships & Constraints
 
 - [ ] Group-to-Trade relationship is 1:N (one group has many trades)
-- [ ] Trade `groupUuid` is nullable (trades can be ungrouped)
+- [ ] Trade `tradeGroupUuid` is nullable (trades can be ungrouped)
 - [ ] `ON DELETE SET NULL` behavior: deleting a group ungroups its trades (doesn't delete them)
 - [ ] UUID primary keys on all models (not auto-incrementing integers)
 - [ ] No unique constraints beyond primary keys
@@ -153,7 +153,7 @@ This schema must support the core functional requirements:
 - [ ] Seed creates **6 trades**:
   - 3 trades in Group 1 (various strikes/expiries)
   - 2 trades in Group 2
-  - 1 ungrouped trade (groupUuid = null)
+  - 1 ungrouped trade (tradeGroupUuid = null)
 - [ ] Seed script is idempotent (can run multiple times safely)
 - [ ] `prisma db seed` executes without errors
 
@@ -241,8 +241,8 @@ model Trade {
   costBasis    Decimal    @db.Decimal(10, 2)
   currentValue Decimal    @db.Decimal(10, 2)
   notes        String?
-  groupUuid    String?
-  group        Group?     @relation(fields: [groupUuid], references: [uuid], onDelete: SetNull)
+  tradeGroupUuid    String?
+  group        Group?     @relation(fields: [tradeGroupUuid], references: [uuid], onDelete: SetNull)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }
@@ -271,7 +271,7 @@ model Trade {
 **4. ON DELETE SET NULL vs CASCADE:**
 
 - Deleting a group should NOT delete its trades
-- Trades become ungrouped (groupUuid = null) when group is deleted
+- Trades become ungrouped (tradeGroupUuid = null) when group is deleted
 - Preserves data integrity and prevents accidental data loss
 
 **5. No Derived Fields in Database:**
@@ -309,7 +309,7 @@ model Trade {
 **Ungrouped Trade:**
 
 - TSLA $250 CALL, BUY, expiry: 10 days out, qty: 1, cost: $600, current: $550
-- groupUuid: null
+- tradeGroupUuid: null
 
 ### Prisma Commands Reference
 
@@ -344,7 +344,7 @@ const prisma = new PrismaClient();
 
 // Type-safe query
 const trades = await prisma.trade.findMany({
-  where: { groupUuid: 'some-uuid' },
+  where: { tradeGroupUuid: 'some-uuid' },
   include: { group: true },
 });
 ```
@@ -509,7 +509,7 @@ const trades = await prisma.trade.findMany({
 **Performance Optimizations:**
 
 - Add database indexes on frequently queried fields:
-  - `Trade.groupUuid` (for group lookup)
+  - `Trade.tradeGroupUuid` (for group lookup)
   - `Trade.expiryDate` (for sorting/filtering)
   - `Trade.symbol` (for filtering)
   - `Group.strategyType` (for filtering)
@@ -535,7 +535,7 @@ const trades = await prisma.trade.findMany({
 2. Run `pnpm prisma migrate dev` → migration applies successfully
 3. Run `pnpm prisma db seed` → sample data loads
 4. Open Prisma Studio → verify 2 groups, 6 trades
-5. Delete a group in Prisma Studio → verify trades persist (groupUuid becomes null)
+5. Delete a group in Prisma Studio → verify trades persist (tradeGroupUuid becomes null)
 6. Run `pnpm prisma generate` → Prisma Client regenerates
 7. Import PrismaClient in a TypeScript file → autocomplete works
 

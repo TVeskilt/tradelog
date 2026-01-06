@@ -1,4 +1,4 @@
-# STORY-005: Group CRUD API Endpoints
+# STORY-005: Trade Trade Group CRUD API Endpoints
 
 **Epic:** EPIC-002: Trade & Group Management
 **Priority:** Critical
@@ -25,7 +25,7 @@ So that **I can organize my multi-leg options strategies and view aggregate metr
 
 Interactive Brokers limits multi-leg options strategies to a fixed number of legs and doesn't allow editing groups after creation. This creates frustration when managing complex strategies like calendar spreads and ratio spreads that may have 5+ legs or require adding hedges over time.
 
-This story implements the Group CRUD API that enables unlimited leg grouping and dynamic group management. Groups aggregate individual trades and automatically calculate derived metrics including:
+This story implements the Trade Group CRUD API that enables unlimited leg grouping and dynamic group management. Groups aggregate individual trades and automatically calculate derived metrics including:
 
 - **closingExpiry:** Earliest expiry date of all child trades (MIN of expiryDate)
 - **daysUntilClosingExpiry:** Days remaining until closingExpiry (calculated)
@@ -39,11 +39,11 @@ The API completes the backend foundation, allowing the frontend to provide the f
 
 **In scope:**
 
-- REST API endpoints for Group CRUD operations (Create, Read, Update, Delete)
+- REST API endpoints for Trade Group CRUD operations (Create, Read, Update, Delete)
 - Automatic calculation of derived group metrics (closingExpiry, status, totalPnL)
-- GroupsController and GroupsService in existing `api/src/trades/` domain
-- Request/Response DTOs with validation (CreateGroupDto, UpdateGroupDto, GroupResponseDto)
-- GroupWithMetricsInterface interface for internal service layer
+- TradeGroupsController and TradeGroupsService in existing `api/src/trades/` domain
+- Request/Response DTOs with validation (CreateTradeGroupDto, UpdateTradeGroupDto, TradeGroupResponseDto)
+- TradeGroupWithMetrics interface for internal service layer
 - Swagger/OpenAPI documentation for all endpoints
 - E2E tests for all endpoints using NestJS Supertest
 - Business rule enforcement: Groups must have 2+ trades
@@ -59,41 +59,41 @@ The API completes the backend foundation, allowing the frontend to provide the f
 
 ### User Flow
 
-**Create Group Flow:**
+**Create Trade Group Flow:**
 
 1. User has created 2+ individual trades via STORY-004 API
-2. Frontend sends POST /v1/groups with name, strategyType, tradeUuids[], notes
+2. Frontend sends POST /v1/trade-groups with name, strategyType, tradeUuids[], notes
 3. Backend validates request (2+ trades required)
-4. Backend creates group and updates trades.groupUuid in transaction
+4. Backend creates group and updates trades.tradeGroupUuid in transaction
 5. Backend calculates derived metrics (closingExpiry, status, totalPnL)
-6. Backend returns GroupResponseDto with all metrics
+6. Backend returns TradeGroupResponseDto with all metrics
 7. User sees new group in frontend with calculated status and P&L
 
-**Read Group Flow:**
+**Read Trade Group Flow:**
 
 1. User opens dashboard or expands group in trade list
-2. Frontend sends GET /v1/groups/:uuid
+2. Frontend sends GET /v1/trade-groups/:uuid
 3. Backend queries group with included trades (single query with join)
 4. Backend calculates derived metrics on-demand
-5. Backend returns GroupResponseDto with nested TradeResponseDto[]
+5. Backend returns TradeGroupResponseDto with nested TradeResponseDto[]
 6. User sees group details including all legs and aggregate P&L
 
-**Update Group Flow:**
+**Update Trade Group Flow:**
 
 1. User edits group name or strategy type
-2. Frontend sends PATCH /v1/groups/:uuid with updated fields
+2. Frontend sends PATCH /v1/trade-groups/:uuid with updated fields
 3. Backend validates and updates group
 4. Backend recalculates metrics
-5. Backend returns updated GroupResponseDto
+5. Backend returns updated TradeGroupResponseDto
 6. User sees updated group information
 
-**Delete Group Flow:**
+**Delete Trade Group Flow:**
 
 1. User deletes group from frontend
-2. Frontend sends DELETE /v1/groups/:uuid
+2. Frontend sends DELETE /v1/trade-groups/:uuid
 3. Backend deletes group (ON DELETE SET NULL preserves trades)
 4. Backend returns success
-5. Child trades become ungrouped (groupUuid = null)
+5. Child trades become ungrouped (tradeGroupUuid = null)
 6. User sees trades moved to "Ungrouped" section
 
 ---
@@ -163,57 +163,57 @@ The API completes the backend foundation, allowing the frontend to provide the f
 
 ### API Endpoints
 
-- [ ] **POST /v1/groups** - Create new group
-  - Input: CreateGroupDto (name, strategyType, tradeUuids[], notes?)
-  - Output: DataResponseDto<GroupResponseDto>
+- [ ] **POST /v1/trade-groups** - Create new group
+  - Input: CreateTradeGroupDto (name, strategyType, tradeUuids[], notes?)
+  - Output: DataResponseDto<TradeGroupResponseDto>
   - Returns 201 Created on success
   - Returns 400 Bad Request if <2 trades provided
   - Returns 400 Bad Request if any tradeUuid doesn't exist
 
-- [ ] **GET /v1/groups** - List all groups with metrics
-  - Output: DataResponseDto<GroupResponseDto[]>
+- [ ] **GET /v1/trade-groups** - List all groups with metrics
+  - Output: DataResponseDto<TradeGroupResponseDto[]>
   - Returns 200 OK
   - Each group includes calculated fields: closingExpiry, status, totalPnL
   - Each group includes nested trades array
   - Empty array returned if no groups exist
 
-- [ ] **GET /v1/groups/:uuid** - Get single group with metrics and trades
-  - Output: DataResponseDto<GroupResponseDto>
+- [ ] **GET /v1/trade-groups/:uuid** - Get single group with metrics and trades
+  - Output: DataResponseDto<TradeGroupResponseDto>
   - Returns 200 OK if found
   - Returns 404 Not Found if uuid doesn't exist
   - Includes all derived metrics
   - Includes nested TradeResponseDto[]
 
-- [ ] **PATCH /v1/groups/:uuid** - Partially update group
-  - Input: UpdateGroupDto (name?, strategyType?, notes?) - All fields optional
-  - Output: DataResponseDto<GroupResponseDto>
+- [ ] **PATCH /v1/trade-groups/:uuid** - Partially update group
+  - Input: UpdateTradeGroupDto (name?, strategyType?, notes?) - All fields optional
+  - Output: DataResponseDto<TradeGroupResponseDto>
   - Returns 200 OK on success
   - Returns 404 Not Found if uuid doesn't exist
   - Returns 400 Bad Request on validation errors
   - Does NOT update trades (use separate trade endpoints)
-  - Uses PATCH (not PUT) since UpdateGroupDto allows partial updates
+  - Uses PATCH (not PUT) since UpdateTradeGroupDto allows partial updates
 
-- [ ] **DELETE /v1/groups/:uuid** - Delete group
+- [ ] **DELETE /v1/trade-groups/:uuid** - Delete group
   - Output: DataResponseDto<void>
   - Returns 200 OK on success
   - Returns 404 Not Found if uuid doesn't exist
-  - ON DELETE SET NULL behavior: child trades preserved with groupUuid = null
+  - ON DELETE SET NULL behavior: child trades preserved with tradeGroupUuid = null
 
 ### DTOs and Validation
 
-- [ ] **CreateGroupDto** includes:
+- [ ] **CreateTradeGroupDto** includes:
   - name: string (required, @IsString)
   - strategyType: StrategyType enum (required, @IsEnum)
   - tradeUuids: string[] (required, @IsArray, @ArrayMinSize(2))
   - notes: string (optional, @IsOptional, @IsString)
 
-- [ ] **UpdateGroupDto** includes:
+- [ ] **UpdateTradeGroupDto** includes:
   - name: string (optional, @IsOptional, @IsString)
   - strategyType: StrategyType enum (optional, @IsOptional, @IsEnum)
   - notes: string (optional, @IsOptional, @IsString)
   - All fields optional (PartialType pattern)
 
-- [ ] **GroupResponseDto** includes:
+- [ ] **TradeGroupResponseDto** includes:
   - uuid: string (@Expose)
   - name: string (@Expose)
   - strategyType: StrategyType (@Expose)
@@ -228,15 +228,15 @@ The API completes the backend foundation, allowing the frontend to provide the f
   - createdAt and updatedAt NOT exposed
   - Follows same pattern as TradeResponseDto (pnl, daysToExpiry)
 
-- [ ] **GroupWithMetricsInterface interface** in `api/src/trades/interfaces/`
-  - Used internally by GroupsService
+- [ ] **TradeGroupWithMetrics interface** in `api/src/trades/interfaces/`
+  - Used internally by TradeGroupsService
   - Combines Prisma Group type with calculated metrics
-  - NO "I" prefix (e.g., GroupWithMetricsInterface, not IGroupWithMetrics)
+  - NO "I" prefix (e.g., TradeGroupWithMetrics, not IGroupWithMetrics)
 
 ### Business Logic
 
 - [ ] **Group integrity rule:** Groups must have 2+ trades
-  - Enforced on creation (CreateGroupDto validation)
+  - Enforced on creation (CreateTradeGroupDto validation)
   - If trade removal leaves <2 trades, auto-ungroup remaining trade(s)
 
 - [ ] **closingExpiry calculation:**
@@ -266,13 +266,13 @@ The API completes the backend foundation, allowing the frontend to provide the f
 - [ ] **Create group transaction:**
   - BEGIN TRANSACTION
   - INSERT INTO groups
-  - UPDATE trades SET groupUuid WHERE uuid IN (tradeUuids)
+  - UPDATE trades SET tradeGroupUuid WHERE uuid IN (tradeUuids)
   - COMMIT
   - Rollback if any operation fails
 
 - [ ] **Delete group behavior:**
   - ON DELETE SET NULL constraint handles automatically
-  - Child trades preserved with groupUuid = null
+  - Child trades preserved with tradeGroupUuid = null
   - No explicit transaction needed
 
 ### Documentation
@@ -287,11 +287,11 @@ The API completes the backend foundation, allowing the frontend to provide the f
 ### Testing
 
 - [ ] **E2E tests pass for all endpoints:**
-  - POST /v1/groups creates group and updates trades
-  - GET /v1/groups returns all groups with metrics
-  - GET /v1/groups/:uuid returns single group with nested trades
-  - PATCH /v1/groups/:uuid updates group fields
-  - DELETE /v1/groups/:uuid deletes group and ungroups trades
+  - POST /v1/trade-groups creates group and updates trades
+  - GET /v1/trade-groups returns all groups with metrics
+  - GET /v1/trade-groups/:uuid returns single group with nested trades
+  - PATCH /v1/trade-groups/:uuid updates group fields
+  - DELETE /v1/trade-groups/:uuid deletes group and ungroups trades
   - Validation errors return 400 Bad Request
   - Not found errors return 404 Not Found
   - Derived metrics calculated correctly
@@ -315,12 +315,12 @@ The API completes the backend foundation, allowing the frontend to provide the f
 - `api/src/trades/dto/request/update-group.dto.ts` - NEW
 - `api/src/trades/dto/response/group-response.dto.ts` - NEW
 - `api/src/trades/interfaces/group-with-metrics.interface.ts` - NEW (NO "I" prefix)
-- `api/src/trades/trades.module.ts` - UPDATED (add GroupsController, GroupsService)
+- `api/src/trades/trades.module.ts` - UPDATED (add TradeGroupsController, TradeGroupsService)
 
 **Database:**
 
 - `groups` table (already exists via STORY-003 Prisma schema)
-- `trades` table (groupUuid FK already exists)
+- `trades` table (tradeGroupUuid FK already exists)
 
 **Shared:**
 
@@ -329,7 +329,7 @@ The API completes the backend foundation, allowing the frontend to provide the f
 
 ### API Endpoints Detail
 
-#### POST /v1/groups
+#### POST /v1/trade-groups
 
 **Request:**
 
@@ -369,7 +369,7 @@ The API completes the backend foundation, allowing the frontend to provide the f
 }
 ```
 
-#### GET /v1/groups
+#### GET /v1/trade-groups
 
 **Response (200 OK):**
 
@@ -394,7 +394,7 @@ The API completes the backend foundation, allowing the frontend to provide the f
 }
 ```
 
-#### GET /v1/groups/:uuid
+#### GET /v1/trade-groups/:uuid
 
 **Response (200 OK):**
 
@@ -426,7 +426,7 @@ The API completes the backend foundation, allowing the frontend to provide the f
         "daysToExpiry": 5,
         "status": "CLOSING_SOON",
         "notes": "Short leg",
-        "groupUuid": "b4cc290f-9cf0-4999-0023-bdf5f7654003"
+        "tradeGroupUuid": "b4cc290f-9cf0-4999-0023-bdf5f7654003"
       },
       {
         "uuid": "a3bb189e-8bf9-3888-9912-ace4e6543002",
@@ -442,14 +442,14 @@ The API completes the backend foundation, allowing the frontend to provide the f
         "daysToExpiry": 69,
         "status": "OPEN",
         "notes": "Long leg",
-        "groupUuid": "b4cc290f-9cf0-4999-0023-bdf5f7654003"
+        "tradeGroupUuid": "b4cc290f-9cf0-4999-0023-bdf5f7654003"
       }
     ]
   }
 }
 ```
 
-#### PATCH /v1/groups/:uuid
+#### PATCH /v1/trade-groups/:uuid
 
 **Request:**
 
@@ -465,12 +465,12 @@ The API completes the backend foundation, allowing the frontend to provide the f
 ```json
 {
   "data": {
-    /* Updated GroupResponseDto */
+    /* Updated TradeGroupResponseDto */
   }
 }
 ```
 
-#### DELETE /v1/groups/:uuid
+#### DELETE /v1/trade-groups/:uuid
 
 **Response (200 OK):**
 
@@ -509,13 +509,13 @@ model Trade {
   currentValue Decimal     @db.Decimal(10, 2)
   status       TradeStatus
   notes        String?     @db.Text
-  groupUuid    String?
+  tradeGroupUuid    String?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
-  group        Group?      @relation(fields: [groupUuid], references: [uuid], onDelete: SetNull)
+  group        Group?      @relation(fields: [tradeGroupUuid], references: [uuid], onDelete: SetNull)
 
-  @@index([groupUuid])
+  @@index([tradeGroupUuid])
   @@map("trades")
 }
 ```
@@ -538,38 +538,38 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import { GroupsService } from '../services/groups.service';
-import { CreateGroupDto, UpdateGroupDto } from '../dto/request';
-import { GroupResponseDto } from '../dto/response';
+import { TradeGroupsService } from '../services/trade-groups.service';
+import { CreateTradeGroupDto, UpdateTradeGroupDto } from '../dto/request';
+import { TradeGroupResponseDto } from '../dto/response';
 import { DataResponseDto } from '@/common/dto';
 
 @ApiTags('Groups')
 @Controller({ path: 'groups', version: '1' })
-export class GroupsController {
-  constructor(private readonly groupsService: GroupsService) {}
+export class TradeGroupsController {
+  constructor(private readonly groupsService: TradeGroupsService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new group' })
-  @ApiResponse({ status: 201, type: GroupResponseDto })
-  async create(@Body() createGroupDto: CreateGroupDto): Promise<DataResponseDto<GroupResponseDto>> {
+  @ApiResponse({ status: 201, type: TradeGroupResponseDto })
+  async create(@Body() createGroupDto: CreateTradeGroupDto): Promise<DataResponseDto<TradeGroupResponseDto>> {
     const group = await this.groupsService.create(createGroupDto);
-    return new DataResponseDto(plainToInstance(GroupResponseDto, group));
+    return new DataResponseDto(plainToInstance(TradeGroupResponseDto, group));
   }
 
   @Get()
   @ApiOperation({ summary: 'List all groups with metrics' })
-  async findAll(): Promise<DataResponseDto<GroupResponseDto[]>> {
+  async findAll(): Promise<DataResponseDto<TradeGroupResponseDto[]>> {
     const groups = await this.groupsService.findAll();
-    return new DataResponseDto(groups.map((g) => plainToInstance(GroupResponseDto, g)));
+    return new DataResponseDto(groups.map((g) => plainToInstance(TradeGroupResponseDto, g)));
   }
 
   @Get(':uuid')
   @ApiOperation({ summary: 'Get single group with metrics' })
   @ApiParam({ name: 'uuid', description: 'Group UUID' })
-  async findByUuid(@Param('uuid') uuid: string): Promise<DataResponseDto<GroupResponseDto>> {
+  async findByUuid(@Param('uuid') uuid: string): Promise<DataResponseDto<TradeGroupResponseDto>> {
     const group = await this.groupsService.findByUuid(uuid);
-    return new DataResponseDto(plainToInstance(GroupResponseDto, group));
+    return new DataResponseDto(plainToInstance(TradeGroupResponseDto, group));
   }
 
   @Patch(':uuid')
@@ -577,10 +577,10 @@ export class GroupsController {
   @ApiParam({ name: 'uuid', description: 'Group UUID' })
   async update(
     @Param('uuid') uuid: string,
-    @Body() updateGroupDto: UpdateGroupDto
-  ): Promise<DataResponseDto<GroupResponseDto>> {
+    @Body() updateGroupDto: UpdateTradeGroupDto
+  ): Promise<DataResponseDto<TradeGroupResponseDto>> {
     const group = await this.groupsService.update(uuid, updateGroupDto);
-    return new DataResponseDto(plainToInstance(GroupResponseDto, group));
+    return new DataResponseDto(plainToInstance(TradeGroupResponseDto, group));
   }
 
   @Delete(':uuid')
@@ -599,15 +599,15 @@ export class GroupsController {
 ```typescript
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { CreateGroupDto, UpdateGroupDto } from '../dto/request';
-import { GroupWithMetricsInterface } from '../interfaces';
+import { CreateTradeGroupDto, UpdateTradeGroupDto } from '../dto/request';
+import { TradeGroupWithMetrics } from '../interfaces';
 import { TradeStatus } from '@prisma/client';
 
 @Injectable()
-export class GroupsService {
+export class TradeGroupsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createGroupDto: CreateGroupDto): Promise<GroupWithMetricsInterface> {
+  async create(createGroupDto: CreateTradeGroupDto): Promise<TradeGroupWithMetrics> {
     const { tradeUuids, ...groupData } = createGroupDto;
 
     // Validate trades exist
@@ -625,7 +625,7 @@ export class GroupsService {
 
       await tx.trade.updateMany({
         where: { uuid: { in: tradeUuids } },
-        data: { groupUuid: newGroup.uuid },
+        data: { tradeGroupUuid: newGroup.uuid },
       });
 
       return tx.group.findUnique({
@@ -637,7 +637,7 @@ export class GroupsService {
     return this.calculateMetrics(group);
   }
 
-  async findAll(): Promise<GroupWithMetricsInterface[]> {
+  async findAll(): Promise<TradeGroupWithMetrics[]> {
     const groups = await this.prisma.group.findMany({
       include: { trades: true },
     });
@@ -645,7 +645,7 @@ export class GroupsService {
     return groups.map((g) => this.calculateMetrics(g));
   }
 
-  async findByUuid(uuid: string): Promise<GroupWithMetricsInterface> {
+  async findByUuid(uuid: string): Promise<TradeGroupWithMetrics> {
     const group = await this.prisma.group.findUnique({
       where: { uuid },
       include: { trades: true },
@@ -658,7 +658,7 @@ export class GroupsService {
     return this.calculateMetrics(group);
   }
 
-  async update(uuid: string, updateGroupDto: UpdateGroupDto): Promise<GroupWithMetricsInterface> {
+  async update(uuid: string, updateGroupDto: UpdateTradeGroupDto): Promise<TradeGroupWithMetrics> {
     const group = await this.prisma.group.update({
       where: { uuid },
       data: updateGroupDto,
@@ -674,7 +674,7 @@ export class GroupsService {
   }
 
   // Helper: Calculate derived metrics (mirrors TradesService.enrichTradeWithDerivedFields pattern)
-  private calculateMetrics(group: any): GroupWithMetricsInterface {
+  private calculateMetrics(group: any): TradeGroupWithMetrics {
     const { trades } = group;
 
     // Calculate closingExpiry (earliest expiry of all child trades)
@@ -744,11 +744,11 @@ export class GroupsService {
 
 2. **Deleting group with 2 trades:**
    - ON DELETE SET NULL preserves trades
-   - Both trades become ungrouped (groupUuid = null)
+   - Both trades become ungrouped (tradeGroupUuid = null)
 
 3. **Group with only 1 trade (should never happen):**
-   - CreateGroupDto enforces 2+ with @ArrayMinSize(2)
-   - If trade deletion leaves 1 trade, GroupsService auto-ungroups (future: STORY-008)
+   - CreateTradeGroupDto enforces 2+ with @ArrayMinSize(2)
+   - If trade deletion leaves 1 trade, TradeGroupsService auto-ungroups (future: STORY-008)
 
 4. **closingExpiry calculation with trades at same expiry:**
    - MIN returns same date for all
@@ -857,23 +857,23 @@ export class GroupsService {
 ### Breakdown
 
 - **Controllers & Routes (2 points):**
-  - GroupsController with 5 endpoints
+  - TradeGroupsController with 5 endpoints
   - Request/response handling (mirrors TradesController pattern)
   - Swagger decorators (@ApiOperation, @ApiParam, @ApiResponse)
   - HTTP status codes (@HttpCode)
 
 - **Services & Business Logic (2.5 points):**
-  - GroupsService CRUD operations
+  - TradeGroupsService CRUD operations
   - calculateMetrics helper (closingExpiry, daysUntilClosingExpiry, status, P&L)
   - calculateDaysUntilExpiry helper (matches Trade pattern)
   - deriveStatus helper
   - Transaction handling for create operations
 
 - **DTOs & Interfaces (0.5 points):**
-  - CreateGroupDto with validation (@ArrayMinSize(2))
-  - UpdateGroupDto (PartialType pattern from Trade API)
-  - GroupResponseDto with @Expose decorators (mirrors TradeResponseDto)
-  - GroupWithMetricsInterface interface (simple type composition)
+  - CreateTradeGroupDto with validation (@ArrayMinSize(2))
+  - UpdateTradeGroupDto (PartialType pattern from Trade API)
+  - TradeGroupResponseDto with @Expose decorators (mirrors TradeResponseDto)
+  - TradeGroupWithMetrics interface (simple type composition)
 
 - **E2E Testing (2 points):**
   - Test coverage for all 5 endpoints (mirror trades.e2e-spec.ts structure)
@@ -922,7 +922,7 @@ This is a moderately complex story (7 points) because:
 
 **TypeScript Convention:** Modern TypeScript style guides recommend NO prefix.
 
-- ✅ `GroupWithMetricsInterface` (modern, clean)
+- ✅ `TradeGroupWithMetrics` (modern, clean)
 - ❌ `IGroupWithMetrics` (outdated C#/Java convention)
 
 ### Why Reuse Trades Domain?
@@ -951,7 +951,7 @@ api/src/trades/
 
 - Use `include: { trades: true }` for eager loading (single query with join)
 - Avoid N+1 problem by fetching trades with group in one query
-- Database indexes on groupUuid and expiryDate
+- Database indexes on tradeGroupUuid and expiryDate
 
 **Calculation optimization:**
 
@@ -991,7 +991,7 @@ api/src/trades/
 1. **Added daysUntilClosingExpiry field:**
    - Mirrors TradeResponseDto.daysToExpiry pattern
    - Calculated using Math.floor (consistent with Trade API)
-   - Added to GroupResponseDto and business logic
+   - Added to TradeGroupResponseDto and business logic
 
 2. **Fixed DataResponseDto usage:**
    - Changed from object literal `{ data: ... }` to constructor `new DataResponseDto(...)`
@@ -1000,7 +1000,7 @@ api/src/trades/
 
 3. **Verified PATCH method:**
    - Confirmed PATCH (not PUT) for partial updates
-   - UpdateGroupDto uses PartialType (all fields optional)
+   - UpdateTradeGroupDto uses PartialType (all fields optional)
 
 4. **Updated service helpers:**
    - calculateMetrics() includes daysUntilClosingExpiry
