@@ -3,7 +3,7 @@ import { Expose, Type } from 'class-transformer';
 import { StrategyType, TradeStatus } from '@prisma/client';
 import { TradeResponseDto } from './trade-response.dto';
 
-export class GroupResponseDto {
+export class TradeGroupResponseDto {
   @ApiProperty({ example: 'b4cc290f-9cf0-4999-0023-bdf5f7654003' })
   @Expose()
   readonly uuid!: string;

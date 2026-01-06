@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateGroupDto, UpdateGroupDto } from '../dto/request';
-import { GroupWithMetricsInterface } from '../interfaces/group-with-metrics.interface';
-import { TradeStatus, Group, Trade } from '@prisma/client';
+import { CreateTradeGroupDto, UpdateTradeGroupDto } from '../dto/request';
+import { TradeGroupWithMetrics } from '../interfaces/trade-group-with-metrics.interface';
+import { TradeStatus, TradeGroup, Trade } from '@prisma/client';
 import { TradeEnrichmentUtil } from '../utils/trade-enrichment.util';
 
 @Injectable()
-export class GroupsService {
+export class TradeGroupsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createGroupDto: CreateGroupDto): Promise<GroupWithMetricsInterface> {
-    const { tradeUuids, ...groupData } = createGroupDto;
+  async create(createTradeGroupDto: CreateTradeGroupDto): Promise<TradeGroupWithMetrics> {
+    const { tradeUuids, ...tradeGroupData } = createTradeGroupDto;
 
     const trades = await this.prisma.trade.findMany({
       where: { uuid: { in: tradeUuids } },
@@ -20,81 +20,81 @@ export class GroupsService {
       throw new BadRequestException('One or more trade UUIDs not found');
     }
 
-    const newGroup = await this.prisma.group.create({ data: groupData });
+    const newTradeGroup = await this.prisma.tradeGroup.create({ data: tradeGroupData });
 
     await this.prisma.trade.updateMany({
       where: { uuid: { in: tradeUuids } },
-      data: { groupUuid: newGroup.uuid },
+      data: { tradeGroupUuid: newTradeGroup.uuid },
     });
 
-    const group = await this.prisma.group.findUnique({
-      where: { uuid: newGroup.uuid },
+    const tradeGroup = await this.prisma.tradeGroup.findUnique({
+      where: { uuid: newTradeGroup.uuid },
       include: { trades: true },
     });
 
-    if (!group) {
-      throw new Error('Failed to create group');
+    if (!tradeGroup) {
+      throw new Error('Failed to create trade group');
     }
 
-    return this.calculateMetrics(group);
+    return this.calculateMetrics(tradeGroup);
   }
 
-  async findMany(): Promise<GroupWithMetricsInterface[]> {
-    const groups = await this.prisma.group.findMany({
+  async findMany(): Promise<TradeGroupWithMetrics[]> {
+    const tradeGroups = await this.prisma.tradeGroup.findMany({
       include: { trades: true },
       orderBy: { createdAt: 'desc' },
     });
 
-    return groups.map((g) => this.calculateMetrics(g));
+    return tradeGroups.map((tg) => this.calculateMetrics(tg));
   }
 
-  async findByUuid(uuid: string): Promise<GroupWithMetricsInterface> {
-    const group = await this.prisma.group.findUnique({
+  async findByUuid(uuid: string): Promise<TradeGroupWithMetrics> {
+    const tradeGroup = await this.prisma.tradeGroup.findUnique({
       where: { uuid },
       include: { trades: true },
     });
 
-    if (!group) {
-      throw new NotFoundException(`Group with UUID '${uuid}' not found`);
+    if (!tradeGroup) {
+      throw new NotFoundException(`Trade group with UUID '${uuid}' not found`);
     }
 
-    return this.calculateMetrics(group);
+    return this.calculateMetrics(tradeGroup);
   }
 
-  async updateByUuid(uuid: string, updateGroupDto: UpdateGroupDto): Promise<GroupWithMetricsInterface> {
+  async updateByUuid(uuid: string, updateTradeGroupDto: UpdateTradeGroupDto): Promise<TradeGroupWithMetrics> {
     try {
-      const group = await this.prisma.group.update({
+      const tradeGroup = await this.prisma.tradeGroup.update({
         where: { uuid },
-        data: updateGroupDto,
+        data: updateTradeGroupDto,
         include: { trades: true },
       });
 
-      return this.calculateMetrics(group);
+      return this.calculateMetrics(tradeGroup);
     } catch (error) {
       if (error instanceof Error && 'code' in error && error.code === 'P2025') {
-        throw new NotFoundException(`Group with UUID '${uuid}' not found`);
+        throw new NotFoundException(`Trade group with UUID '${uuid}' not found`);
       }
       throw error;
     }
   }
 
   async deleteByUuid(uuid: string): Promise<void> {
-    const group = await this.prisma.group.findUnique({
+    const tradeGroup = await this.prisma.tradeGroup.findUnique({
       where: { uuid },
     });
 
-    if (!group) {
-      throw new NotFoundException(`Group with UUID '${uuid}' not found`);
+    if (!tradeGroup) {
+      throw new NotFoundException(`Trade group with UUID '${uuid}' not found`);
     }
 
-    await this.prisma.group.delete({ where: { uuid } });
+    await this.prisma.tradeGroup.delete({ where: { uuid } });
   }
 
-  private calculateMetrics(group: Group & { trades: Trade[] }): GroupWithMetricsInterface {
-    const { trades } = group;
+  private calculateMetrics(tradeGroup: TradeGroup & { trades: Trade[] }): TradeGroupWithMetrics {
+    const { trades } = tradeGroup;
 
     if (trades.length === 0) {
-      throw new Error('Group must have at least one trade');
+      throw new Error('Trade group must have at least one trade');
     }
 
     const enrichedTrades = trades.map((trade) => TradeEnrichmentUtil.enrichWithDerivedFields(trade));
@@ -112,7 +112,7 @@ export class GroupsService {
     const profitLoss = totalCurrentValue - totalCostBasis;
 
     return {
-      ...group,
+      ...tradeGroup,
       trades: enrichedTrades,
       closingExpiry,
       daysUntilClosingExpiry,

@@ -6,7 +6,7 @@ import { AppModule } from '../../src/app.module';
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { TradeType, OptionType, TradeStatus, StrategyType } from '@prisma/client';
 
-describe('Groups API (e2e)', () => {
+describe('Trade Groups API (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
 
@@ -47,11 +47,11 @@ describe('Groups API (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await prisma.group.deleteMany();
+    await prisma.tradeGroup.deleteMany();
     await prisma.trade.deleteMany();
   });
 
-  describe('POST /v1/groups', () => {
+  describe('POST /v1/trade-groups', () => {
     it('should create a new group successfully', async () => {
       const trade1 = await prisma.trade.create({
         data: {
@@ -88,7 +88,7 @@ describe('Groups API (e2e)', () => {
         notes: 'Selling Feb-15 $150 call, buying Mar-15 $150 call',
       };
 
-      const response = await request(app.getHttpServer()).post('/v1/groups').send(createGroupDto).expect(201);
+      const response = await request(app.getHttpServer()).post('/v1/trade-groups').send(createGroupDto).expect(201);
 
       expect(response.body).toHaveProperty('data');
       expect(response.body.data).toMatchObject({
@@ -132,7 +132,7 @@ describe('Groups API (e2e)', () => {
         tradeUuids: [trade.uuid],
       };
 
-      await request(app.getHttpServer()).post('/v1/groups').send(createGroupDto).expect(400);
+      await request(app.getHttpServer()).post('/v1/trade-groups').send(createGroupDto).expect(400);
     });
 
     it('should return 400 for non-existent trade UUIDs', async () => {
@@ -142,10 +142,10 @@ describe('Groups API (e2e)', () => {
         tradeUuids: ['123e4567-e89b-12d3-a456-426614174000', '123e4567-e89b-12d3-a456-426614174001'],
       };
 
-      await request(app.getHttpServer()).post('/v1/groups').send(createGroupDto).expect(400);
+      await request(app.getHttpServer()).post('/v1/trade-groups').send(createGroupDto).expect(400);
     });
 
-    it('should update trades with groupUuid in transaction', async () => {
+    it('should update trades with tradeGroupUuid in transaction', async () => {
       const trade1 = await prisma.trade.create({
         data: {
           symbol: 'SPY',
@@ -180,19 +180,19 @@ describe('Groups API (e2e)', () => {
         tradeUuids: [trade1.uuid, trade2.uuid],
       };
 
-      const response = await request(app.getHttpServer()).post('/v1/groups').send(createGroupDto).expect(201);
+      const response = await request(app.getHttpServer()).post('/v1/trade-groups').send(createGroupDto).expect(201);
 
       const updatedTrade1 = await prisma.trade.findUnique({ where: { uuid: trade1.uuid } });
       const updatedTrade2 = await prisma.trade.findUnique({ where: { uuid: trade2.uuid } });
 
-      expect(updatedTrade1?.groupUuid).toBe(response.body.data.uuid);
-      expect(updatedTrade2?.groupUuid).toBe(response.body.data.uuid);
+      expect(updatedTrade1?.tradeGroupUuid).toBe(response.body.data.uuid);
+      expect(updatedTrade2?.tradeGroupUuid).toBe(response.body.data.uuid);
     });
   });
 
-  describe('GET /v1/groups', () => {
+  describe('GET /v1/trade-groups', () => {
     it('should return empty array when no groups exist', async () => {
-      const response = await request(app.getHttpServer()).get('/v1/groups').expect(200);
+      const response = await request(app.getHttpServer()).get('/v1/trade-groups').expect(200);
 
       expect(response.body).toEqual({ data: [] });
     });
@@ -226,7 +226,7 @@ describe('Groups API (e2e)', () => {
         },
       });
 
-      const group = await prisma.group.create({
+      const group = await prisma.tradeGroup.create({
         data: {
           name: 'Test Group',
           strategyType: StrategyType.CALENDAR_SPREAD,
@@ -235,10 +235,10 @@ describe('Groups API (e2e)', () => {
 
       await prisma.trade.updateMany({
         where: { uuid: { in: [trade1.uuid, trade2.uuid] } },
-        data: { groupUuid: group.uuid },
+        data: { tradeGroupUuid: group.uuid },
       });
 
-      const response = await request(app.getHttpServer()).get('/v1/groups').expect(200);
+      const response = await request(app.getHttpServer()).get('/v1/trade-groups').expect(200);
 
       expect(response.body.data).toHaveLength(1);
       expect(response.body.data[0]).toHaveProperty('uuid', group.uuid);
@@ -255,7 +255,7 @@ describe('Groups API (e2e)', () => {
     });
   });
 
-  describe('GET /v1/groups/:uuid', () => {
+  describe('GET /v1/trade-groups/:uuid', () => {
     it('should return a single group by UUID', async () => {
       const trade1 = await prisma.trade.create({
         data: {
@@ -285,7 +285,7 @@ describe('Groups API (e2e)', () => {
         },
       });
 
-      const group = await prisma.group.create({
+      const group = await prisma.tradeGroup.create({
         data: {
           name: 'Calendar Spread',
           strategyType: StrategyType.CALENDAR_SPREAD,
@@ -294,10 +294,10 @@ describe('Groups API (e2e)', () => {
 
       await prisma.trade.updateMany({
         where: { uuid: { in: [trade1.uuid, trade2.uuid] } },
-        data: { groupUuid: group.uuid },
+        data: { tradeGroupUuid: group.uuid },
       });
 
-      const response = await request(app.getHttpServer()).get(`/v1/groups/${group.uuid}`).expect(200);
+      const response = await request(app.getHttpServer()).get(`/v1/trade-groups/${group.uuid}`).expect(200);
 
       expect(response.body.data).toMatchObject({
         uuid: group.uuid,
@@ -316,13 +316,13 @@ describe('Groups API (e2e)', () => {
     it('should return 404 when group not found', async () => {
       const fakeUuid = '123e4567-e89b-12d3-a456-426614174000';
 
-      const response = await request(app.getHttpServer()).get(`/v1/groups/${fakeUuid}`).expect(404);
+      const response = await request(app.getHttpServer()).get(`/v1/trade-groups/${fakeUuid}`).expect(404);
 
       expect(response.body.message).toContain('not found');
     });
   });
 
-  describe('PATCH /v1/groups/:uuid', () => {
+  describe('PATCH /v1/trade-groups/:uuid', () => {
     it('should update a group successfully', async () => {
       const trade1 = await prisma.trade.create({
         data: {
@@ -352,7 +352,7 @@ describe('Groups API (e2e)', () => {
         },
       });
 
-      const group = await prisma.group.create({
+      const group = await prisma.tradeGroup.create({
         data: {
           name: 'Original Name',
           strategyType: StrategyType.CALENDAR_SPREAD,
@@ -361,7 +361,7 @@ describe('Groups API (e2e)', () => {
 
       await prisma.trade.updateMany({
         where: { uuid: { in: [trade1.uuid, trade2.uuid] } },
-        data: { groupUuid: group.uuid },
+        data: { tradeGroupUuid: group.uuid },
       });
 
       const updateDto = {
@@ -369,7 +369,10 @@ describe('Groups API (e2e)', () => {
         notes: 'Updated notes',
       };
 
-      const response = await request(app.getHttpServer()).patch(`/v1/groups/${group.uuid}`).send(updateDto).expect(200);
+      const response = await request(app.getHttpServer())
+        .patch(`/v1/trade-groups/${group.uuid}`)
+        .send(updateDto)
+        .expect(200);
 
       expect(response.body.data).toMatchObject({
         uuid: group.uuid,
@@ -408,7 +411,7 @@ describe('Groups API (e2e)', () => {
         },
       });
 
-      const group = await prisma.group.create({
+      const group = await prisma.tradeGroup.create({
         data: {
           name: 'Original Name',
           strategyType: StrategyType.CALENDAR_SPREAD,
@@ -418,14 +421,17 @@ describe('Groups API (e2e)', () => {
 
       await prisma.trade.updateMany({
         where: { uuid: { in: [trade1.uuid, trade2.uuid] } },
-        data: { groupUuid: group.uuid },
+        data: { tradeGroupUuid: group.uuid },
       });
 
       const updateDto = {
         strategyType: StrategyType.CUSTOM,
       };
 
-      const response = await request(app.getHttpServer()).patch(`/v1/groups/${group.uuid}`).send(updateDto).expect(200);
+      const response = await request(app.getHttpServer())
+        .patch(`/v1/trade-groups/${group.uuid}`)
+        .send(updateDto)
+        .expect(200);
 
       expect(response.body.data.strategyType).toBe(StrategyType.CUSTOM);
       expect(response.body.data.name).toBe('Original Name');
@@ -435,11 +441,11 @@ describe('Groups API (e2e)', () => {
     it('should return 404 when updating non-existent group', async () => {
       const fakeUuid = '123e4567-e89b-12d3-a456-426614174000';
 
-      await request(app.getHttpServer()).patch(`/v1/groups/${fakeUuid}`).send({ name: 'New Name' }).expect(404);
+      await request(app.getHttpServer()).patch(`/v1/trade-groups/${fakeUuid}`).send({ name: 'New Name' }).expect(404);
     });
   });
 
-  describe('DELETE /v1/groups/:uuid', () => {
+  describe('DELETE /v1/trade-groups/:uuid', () => {
     it('should delete a group successfully', async () => {
       const trade1 = await prisma.trade.create({
         data: {
@@ -469,7 +475,7 @@ describe('Groups API (e2e)', () => {
         },
       });
 
-      const group = await prisma.group.create({
+      const group = await prisma.tradeGroup.create({
         data: {
           name: 'Test Group',
           strategyType: StrategyType.CALENDAR_SPREAD,
@@ -478,14 +484,14 @@ describe('Groups API (e2e)', () => {
 
       await prisma.trade.updateMany({
         where: { uuid: { in: [trade1.uuid, trade2.uuid] } },
-        data: { groupUuid: group.uuid },
+        data: { tradeGroupUuid: group.uuid },
       });
 
-      const response = await request(app.getHttpServer()).delete(`/v1/groups/${group.uuid}`).expect(200);
+      const response = await request(app.getHttpServer()).delete(`/v1/trade-groups/${group.uuid}`).expect(200);
 
       expect(response.body).toEqual({ data: null });
 
-      const deletedGroup = await prisma.group.findUnique({
+      const deletedGroup = await prisma.tradeGroup.findUnique({
         where: { uuid: group.uuid },
       });
       expect(deletedGroup).toBeNull();
@@ -494,14 +500,14 @@ describe('Groups API (e2e)', () => {
       const trade2AfterDelete = await prisma.trade.findUnique({ where: { uuid: trade2.uuid } });
       expect(trade1AfterDelete).not.toBeNull();
       expect(trade2AfterDelete).not.toBeNull();
-      expect(trade1AfterDelete?.groupUuid).toBeNull();
-      expect(trade2AfterDelete?.groupUuid).toBeNull();
+      expect(trade1AfterDelete?.tradeGroupUuid).toBeNull();
+      expect(trade2AfterDelete?.tradeGroupUuid).toBeNull();
     });
 
     it('should return 404 when deleting non-existent group', async () => {
       const fakeUuid = '123e4567-e89b-12d3-a456-426614174000';
 
-      await request(app.getHttpServer()).delete(`/v1/groups/${fakeUuid}`).expect(404);
+      await request(app.getHttpServer()).delete(`/v1/trade-groups/${fakeUuid}`).expect(404);
     });
   });
 
@@ -535,7 +541,7 @@ describe('Groups API (e2e)', () => {
         },
       });
 
-      const group = await prisma.group.create({
+      const group = await prisma.tradeGroup.create({
         data: {
           name: 'Test Group',
           strategyType: StrategyType.CALENDAR_SPREAD,
@@ -544,10 +550,10 @@ describe('Groups API (e2e)', () => {
 
       await prisma.trade.updateMany({
         where: { uuid: { in: [trade1.uuid, trade2.uuid] } },
-        data: { groupUuid: group.uuid },
+        data: { tradeGroupUuid: group.uuid },
       });
 
-      const response = await request(app.getHttpServer()).get(`/v1/groups/${group.uuid}`).expect(200);
+      const response = await request(app.getHttpServer()).get(`/v1/trade-groups/${group.uuid}`).expect(200);
 
       expect(new Date(response.body.data.closingExpiry)).toEqual(new Date('2026-02-15'));
     });
@@ -581,7 +587,7 @@ describe('Groups API (e2e)', () => {
         },
       });
 
-      const group = await prisma.group.create({
+      const group = await prisma.tradeGroup.create({
         data: {
           name: 'Test Group',
           strategyType: StrategyType.CALENDAR_SPREAD,
@@ -590,10 +596,10 @@ describe('Groups API (e2e)', () => {
 
       await prisma.trade.updateMany({
         where: { uuid: { in: [trade1.uuid, trade2.uuid] } },
-        data: { groupUuid: group.uuid },
+        data: { tradeGroupUuid: group.uuid },
       });
 
-      const response = await request(app.getHttpServer()).get(`/v1/groups/${group.uuid}`).expect(200);
+      const response = await request(app.getHttpServer()).get(`/v1/trade-groups/${group.uuid}`).expect(200);
 
       expect(response.body.data.totalCostBasis).toBe(1800.0);
       expect(response.body.data.totalCurrentValue).toBe(1900.0);
@@ -632,7 +638,7 @@ describe('Groups API (e2e)', () => {
         },
       });
 
-      const group = await prisma.group.create({
+      const group = await prisma.tradeGroup.create({
         data: {
           name: 'Test Group',
           strategyType: StrategyType.CALENDAR_SPREAD,
@@ -641,10 +647,10 @@ describe('Groups API (e2e)', () => {
 
       await prisma.trade.updateMany({
         where: { uuid: { in: [trade1.uuid, trade2.uuid] } },
-        data: { groupUuid: group.uuid },
+        data: { tradeGroupUuid: group.uuid },
       });
 
-      const response = await request(app.getHttpServer()).get(`/v1/groups/${group.uuid}`).expect(200);
+      const response = await request(app.getHttpServer()).get(`/v1/trade-groups/${group.uuid}`).expect(200);
 
       expect(response.body.data.daysUntilClosingExpiry).toBeGreaterThanOrEqual(29);
       expect(response.body.data.daysUntilClosingExpiry).toBeLessThanOrEqual(30);

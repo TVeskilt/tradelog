@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEnum, IsOptional } from 'class-validator';
 import { StrategyType } from '@prisma/client';
 
-export class UpdateGroupDto {
-  @ApiProperty({ example: 'Calendar Spread Feb-15-2026 (UPDATED)', description: 'Group name', required: false })
+export class UpdateTradeGroupDto {
+  @ApiProperty({ example: 'Calendar Spread Feb-15-2026 (UPDATED)', description: 'Trade group name', required: false })
   @IsOptional()
   @IsString()
   readonly name?: string;
@@ -11,7 +11,7 @@ export class UpdateGroupDto {
   @ApiProperty({
     enum: StrategyType,
     example: StrategyType.CUSTOM,
-    description: 'Strategy type for the group',
+    description: 'Strategy type for the trade group',
     required: false,
   })
   @IsOptional()
@@ -19,8 +19,8 @@ export class UpdateGroupDto {
   readonly strategyType?: StrategyType;
 
   @ApiProperty({
-    example: 'Updated notes for this group',
-    description: 'Optional notes about the group',
+    example: 'Updated notes for this trade group',
+    description: 'Optional notes about the trade group',
     required: false,
   })
   @IsOptional()

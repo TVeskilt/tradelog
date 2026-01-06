@@ -49,7 +49,7 @@ describe('Trades API (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await prisma.group.deleteMany();
+    await prisma.tradeGroup.deleteMany();
     await prisma.trade.deleteMany();
   });
 
@@ -111,7 +111,7 @@ describe('Trades API (e2e)', () => {
 
     it('should create trade with optional groupUuid', async () => {
       // First create a group
-      const group = await prisma.group.create({
+      const group = await prisma.tradeGroup.create({
         data: {
           name: 'Test Group',
           strategyType: 'CALENDAR_SPREAD',
@@ -127,12 +127,12 @@ describe('Trades API (e2e)', () => {
         quantity: 1,
         costBasis: 600.0,
         currentValue: 550.0,
-        groupUuid: group.uuid,
+        tradeGroupUuid: group.uuid,
       };
 
       const response = await request(app.getHttpServer()).post('/v1/trades').send(createTradeDto).expect(201);
 
-      expect(response.body.data.groupUuid).toBe(group.uuid);
+      expect(response.body.data.tradeGroupUuid).toBe(group.uuid);
     });
 
     it('should return 400 for invalid validation (missing required fields)', async () => {
@@ -401,7 +401,7 @@ describe('Trades API (e2e)', () => {
 
     it('should handle group integrity check when deleting trade in group', async () => {
       // Create a group
-      const group = await prisma.group.create({
+      const group = await prisma.tradeGroup.create({
         data: {
           name: 'Test Group',
           strategyType: 'CALENDAR_SPREAD',
@@ -420,7 +420,7 @@ describe('Trades API (e2e)', () => {
           costBasis: 500.0,
           currentValue: 520.0,
           status: TradeStatus.OPEN,
-          groupUuid: group.uuid,
+          tradeGroupUuid: group.uuid,
         },
       });
 
@@ -435,7 +435,7 @@ describe('Trades API (e2e)', () => {
           costBasis: 300.0,
           currentValue: 280.0,
           status: TradeStatus.OPEN,
-          groupUuid: group.uuid,
+          tradeGroupUuid: group.uuid,
         },
       });
 
@@ -443,7 +443,7 @@ describe('Trades API (e2e)', () => {
       await request(app.getHttpServer()).delete(`/v1/trades/${trade1.uuid}`).expect(200);
 
       // Verify group was deleted
-      const deletedGroup = await prisma.group.findUnique({
+      const deletedGroup = await prisma.tradeGroup.findUnique({
         where: { uuid: group.uuid },
       });
       expect(deletedGroup).toBeNull();
@@ -453,7 +453,7 @@ describe('Trades API (e2e)', () => {
         where: { uuid: trade2.uuid },
       });
       expect(remainingTrade).not.toBeNull();
-      expect(remainingTrade?.groupUuid).toBeNull(); // Should be ungrouped
+      expect(remainingTrade?.tradeGroupUuid).toBeNull(); // Should be ungrouped
     });
 
     it('should delete ungrouped trade without affecting other trades', async () => {

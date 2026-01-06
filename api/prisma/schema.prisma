@@ -33,7 +33,7 @@ enum StrategyType {
 }
 
 // Models
-model Group {
+model TradeGroup {
   uuid         String       @id @default(uuid())
   name         String
   strategyType StrategyType
@@ -41,6 +41,8 @@ model Group {
   trades       Trade[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+
+  @@map("trade_groups")
 }
 
 model Trade {
@@ -53,10 +55,10 @@ model Trade {
   quantity     Int
   costBasis    Decimal     @db.Decimal(10, 2)
   currentValue Decimal     @db.Decimal(10, 2)
-  status       TradeStatus @default(OPEN)
-  notes        String?
-  groupUuid    String?
-  group        Group?      @relation(fields: [groupUuid], references: [uuid], onDelete: SetNull)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  status         TradeStatus  @default(OPEN)
+  notes          String?
+  tradeGroupUuid String?
+  tradeGroup     TradeGroup?  @relation(fields: [tradeGroupUuid], references: [uuid], onDelete: SetNull)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
