@@ -3,7 +3,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import type { FC } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -63,10 +63,9 @@ export const ReactHookFormDatePicker: FC<ReactHookFormDatePickerProps> = ({
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={field.value ? new Date(field.value) : undefined}
+                selected={field.value ? parseISO(field.value) : undefined}
                 onSelect={(date) => {
-                  // Convert to ISO string for API
-                  field.onChange(date ? date.toISOString().split('T')[0] : '');
+                  field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
                 }}
                 disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                 initialFocus
