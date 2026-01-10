@@ -231,47 +231,81 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 
 ### Frontend Stack
 
-**React 18+**
+**React 18.2** ✅ Implemented (STORY-006)
 
 - Component-based architecture
 - Large ecosystem for trading UI components
 - Addresses: NFR-002 (usability), NFR-003 (responsive design)
+- Version: 18.2.0
 
-**TypeScript (strict mode)**
+**TypeScript (strict mode)** ✅ Implemented (STORY-006)
 
 - End-to-end type safety with backend
 - Compile-time error detection
 - Addresses: NFR-005 (code quality)
+- Zero `any` types, full strict mode enforcement
 
-**Vite**
+**Vite 5** ✅ Implemented (STORY-006)
 
 - Fast HMR and optimized builds
 - Better DX than Create React App
 - Addresses: NFR-007 (development reliability)
+- Version: 5.0.0
 
-**shadcn/ui**
+**shadcn/ui** ✅ Implemented (STORY-006)
 
 - Accessible, customizable components
 - TypeScript-first, no runtime dependency
 - Addresses: NFR-002 (intuitive UI), NFR-003 (responsive)
+- Components: Button, Input, Select, Calendar, Dialog, Form, Popover, Textarea
+- Built on Radix UI primitives
 
-**React Hook Form**
+**Tailwind CSS v4.1.18 (alpha)** ✅ Implemented (STORY-006)
+
+- Utility-first CSS framework
+- New @import and @theme syntax (v4 breaking changes)
+- Addresses: NFR-003 (responsive design)
+- Note: Using alpha version - replaced CSS custom properties with explicit classes for calendar component
+
+**React Hook Form 7.70** ✅ Implemented (STORY-006)
 
 - Minimal re-renders for better performance
 - Great TypeScript integration
 - Addresses: NFR-001 (performance)
+- Created reusable wrapper components (ReactHookFormField, ReactHookFormSelect, ReactHookFormDatePicker)
 
-**Zod**
+**Zod 4.3.5** ✅ Implemented (STORY-006)
 
 - Runtime validation with type inference
 - Integrates with React Hook Form
 - Addresses: NFR-004 (data integrity), NFR-005 (type safety)
+- Note: v4 uses new error message format: {message: 'text'}
 
-**TanStack Query (React Query)**
+**TanStack Query 5.90.16 (React Query)** ✅ Implemented (STORY-006)
 
 - Built-in caching, automatic refetching
 - Optimistic updates support
 - Addresses: NFR-001 (performance via caching)
+
+**openapi-fetch 0.15.0 + openapi-react-query 0.5.1** ✅ Implemented (STORY-006)
+
+- Type-safe API client generated from OpenAPI spec
+- Automatic type inference from backend schema
+- Replaces traditional Axios/fetch approaches
+- Addresses: NFR-005 (type safety), NFR-001 (performance)
+- QueryKey structure: [method, path, params]
+
+**date-fns 4.1.0** ✅ Implemented (STORY-006)
+
+- Lightweight date utility library
+- Used for date formatting and parsing
+- Addresses timezone issues with parseISO() and format()
+
+**Sonner 2.0.7** ✅ Implemented (STORY-006)
+
+- Toast notification library
+- Clean, accessible notifications
+- Used for success/error feedback
 
 ### Backend Stack
 
@@ -302,12 +336,14 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 - Enables `@Expose()` pattern for response serialization
 - Addresses: NFR-004 (data integrity), NFR-008 (security - prevents data leaks)
 
-**@nestjs/swagger**
+**@nestjs/swagger** ✅ Enhanced (STORY-006)
 
 - Auto-generates OpenAPI spec
 - Provides Swagger UI at `/api/docs`
 - **Generates TypeScript types for frontend** via `openapi-typescript`
 - Addresses: NFR-005 (API documentation), FR-000 (Swagger requirement)
+- Custom decorators: @ApiOkDataResponse, @ApiCreatedDataResponse (following DocAid pattern)
+- Properly documents response content types for frontend type generation
 
 **compression**
 
@@ -361,12 +397,13 @@ Based on the PRD's Non-Functional Requirements, the following factors heavily in
 - Build-time type checking
 - Addresses: NFR-005 (code quality)
 
-**openapi-typescript**
+**openapi-typescript 7.10.1** ✅ Implemented (STORY-006)
 
 - Generate frontend types from Swagger spec
 - Single source of truth (backend schema)
 - Auto-sync on build
 - Addresses: NFR-005 (type safety)
+- Command: `pnpm type:gen` generates src/types/api.schema.ts from OpenAPI spec
 
 ### Type Flow Architecture
 
