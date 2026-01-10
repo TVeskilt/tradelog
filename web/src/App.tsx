@@ -14,9 +14,7 @@ function App() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold">TradeLog</h1>
-              <p className="text-muted-foreground mt-2">
-                Track and manage your options trades
-              </p>
+              <p className="text-muted-foreground mt-2">Track and manage your options trades</p>
             </div>
             <Button onClick={() => setIsModalOpen(true)}>Add Trade</Button>
           </div>

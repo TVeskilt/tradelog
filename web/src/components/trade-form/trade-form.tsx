@@ -16,12 +16,26 @@ type TradeFormProps = {
   readonly onSuccess?: () => void;
 };
 
+interface ApiError extends Error {
+  response?: {
+    status: number;
+    data?: {
+      message?: string | string[];
+    };
+  };
+}
+
 export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
   const { getTradeGroups } = useTradeGroupApi();
   const { createTrade } = useTradeApi();
 
   const { data: tradeGroupsResponse, isLoading: isLoadingGroups } = getTradeGroups();
-  const tradeGroups = tradeGroupsResponse?.data ?? [];
+  const tradeGroups =
+    (
+      tradeGroupsResponse as unknown as {
+        data: Array<{ uuid: string; name: string; strategyType: string }>;
+      }
+    )?.data ?? [];
 
   const form = useForm<CreateTradeSchema>({
     resolver: zodResolver(CREATE_TRADE_SCHEMA),
@@ -66,8 +80,9 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
       console.error('Failed to create trade:', error);
 
       // Handle backend validation errors
-      if (error instanceof Error && 'response' in error) {
-        const response = (error as any).response;
+      const apiError = error as ApiError;
+      if (apiError.response) {
+        const response = apiError.response;
         if (response?.status === 400 && response?.data?.message) {
           const messages = Array.isArray(response.data.message)
             ? response.data.message
@@ -109,125 +124,122 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
 
   return (
     <ReactHookForm form={form} onSubmit={onSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Column */}
-          <div className="space-y-6">
-            <ReactHookFormField
-              name="symbol"
-              label="Symbol"
-              placeholder="e.g., AAPL"
-              type="text"
-              required
-              disabled={createTrade.isPending}
-            />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left Column */}
+        <div className="space-y-6">
+          <ReactHookFormField
+            name="symbol"
+            label="Symbol"
+            placeholder="e.g., AAPL"
+            type="text"
+            required
+            disabled={createTrade.isPending}
+          />
 
-            <ReactHookFormField
-              name="strikePrice"
-              label="Strike Price"
-              placeholder="e.g., 450.00"
-              type="number"
-              step="0.01"
-              required
-              disabled={createTrade.isPending}
-            />
+          <ReactHookFormField
+            name="strikePrice"
+            label="Strike Price"
+            placeholder="e.g., 450.00"
+            type="number"
+            step="0.01"
+            required
+            disabled={createTrade.isPending}
+          />
 
-            <ReactHookFormDatePicker
-              name="expiryDate"
-              label="Expiry Date"
-              placeholder="Select expiry date"
-              required
-              disabled={createTrade.isPending}
-            />
+          <ReactHookFormDatePicker
+            name="expiryDate"
+            label="Expiry Date"
+            placeholder="Select expiry date"
+            required
+            disabled={createTrade.isPending}
+          />
 
-            <ReactHookFormSelect
-              name="tradeType"
-              label="Trade Type"
-              placeholder="Select type"
-              required
-              options={[
-                { value: 'BUY', label: 'Buy' },
-                { value: 'SELL', label: 'Sell' },
-              ]}
-              isDisabled={createTrade.isPending}
-            />
+          <ReactHookFormSelect
+            name="tradeType"
+            label="Trade Type"
+            placeholder="Select type"
+            required
+            options={[
+              { value: 'BUY', label: 'Buy' },
+              { value: 'SELL', label: 'Sell' },
+            ]}
+            isDisabled={createTrade.isPending}
+          />
 
-            <ReactHookFormSelect
-              name="optionType"
-              label="Option Type"
-              placeholder="Select option type"
-              required
-              options={[
-                { value: 'CALL', label: 'Call' },
-                { value: 'PUT', label: 'Put' },
-              ]}
-              isDisabled={createTrade.isPending}
-            />
-          </div>
-
-          {/* Right Column */}
-          <div className="space-y-6">
-            <ReactHookFormField
-              name="quantity"
-              label="Quantity"
-              placeholder="e.g., 10"
-              type="number"
-              step="1"
-              required
-              disabled={createTrade.isPending}
-            />
-
-            <ReactHookFormField
-              name="costBasis"
-              label="Cost Basis"
-              placeholder="e.g., -500.00"
-              type="number"
-              step="0.01"
-              required
-              disabled={createTrade.isPending}
-            />
-
-            <ReactHookFormField
-              name="currentValue"
-              label="Current Value"
-              placeholder="e.g., -480.00"
-              type="number"
-              step="0.01"
-              required
-              disabled={createTrade.isPending}
-            />
-
-            <ReactHookFormSelect
-              name="tradeGroupUuid"
-              label="Trade Group"
-              placeholder={isLoadingGroups ? 'Loading groups...' : 'Select group (optional)'}
-              options={groupOptions}
-              isDisabled={createTrade.isPending || isLoadingGroups}
-            />
-
-            <ReactHookFormField
-              name="notes"
-              label="Notes"
-              placeholder="Trade reasoning or notes..."
-              as="textarea"
-              rows={3}
-              disabled={createTrade.isPending}
-            />
-          </div>
+          <ReactHookFormSelect
+            name="optionType"
+            label="Option Type"
+            placeholder="Select option type"
+            required
+            options={[
+              { value: 'CALL', label: 'Call' },
+              { value: 'PUT', label: 'Put' },
+            ]}
+            isDisabled={createTrade.isPending}
+          />
         </div>
 
-        <div className="flex gap-4 pt-4">
-          <Button
-            type="submit"
+        {/* Right Column */}
+        <div className="space-y-6">
+          <ReactHookFormField
+            name="quantity"
+            label="Quantity"
+            placeholder="e.g., 10"
+            type="number"
+            step="1"
+            required
             disabled={createTrade.isPending}
-            className="flex-1"
-          >
-            {createTrade.isPending ? 'Creating...' : 'Create Trade'}
-          </Button>
+          />
 
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => form.reset({
+          <ReactHookFormField
+            name="costBasis"
+            label="Cost Basis"
+            placeholder="e.g., -500.00"
+            type="number"
+            step="0.01"
+            required
+            disabled={createTrade.isPending}
+          />
+
+          <ReactHookFormField
+            name="currentValue"
+            label="Current Value"
+            placeholder="e.g., -480.00"
+            type="number"
+            step="0.01"
+            required
+            disabled={createTrade.isPending}
+          />
+
+          <ReactHookFormSelect
+            name="tradeGroupUuid"
+            label="Trade Group"
+            placeholder={isLoadingGroups ? 'Loading groups...' : 'Select group (optional)'}
+            options={groupOptions}
+            isDisabled={createTrade.isPending || isLoadingGroups}
+          />
+
+          <ReactHookFormField
+            name="notes"
+            label="Notes"
+            placeholder="Trade reasoning or notes..."
+            as="textarea"
+            rows={3}
+            disabled={createTrade.isPending}
+          />
+        </div>
+      </div>
+
+      <div className="flex gap-4 pt-4">
+        <Button type="submit" disabled={createTrade.isPending} className="flex-1">
+          {createTrade.isPending ? 'Creating...' : 'Create Trade'}
+        </Button>
+
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() =>
+            form.reset({
               symbol: '',
               strikePrice: undefined,
               expiryDate: '',
@@ -238,12 +250,13 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
               currentValue: undefined,
               notes: '',
               tradeGroupUuid: undefined,
-            })}
-            disabled={createTrade.isPending}
-          >
-            Reset
-          </Button>
-        </div>
-      </ReactHookForm>
+            })
+          }
+          disabled={createTrade.isPending}
+        >
+          Reset
+        </Button>
+      </div>
+    </ReactHookForm>
   );
 };

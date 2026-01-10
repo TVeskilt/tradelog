@@ -23,7 +23,7 @@ export const useTradeApi = () => {
     });
   };
 
-  const updateTrade = apiClient.useMutation('patch', '/v1/trades/{uuid}', {
+  const updateTrade = apiClient.useMutation('put', '/v1/trades/{uuid}', {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: [

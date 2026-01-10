@@ -1,10 +1,4 @@
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import {
   Select,
   SelectContent,
@@ -22,7 +16,9 @@ type ReactHookFormSelectProps = {
   readonly placeholder?: string;
   readonly required?: boolean;
   readonly className?: string;
-  readonly options: (Pick<ComponentProps<typeof SelectItem>, 'value'> & { readonly label: string })[];
+  readonly options: (Pick<ComponentProps<typeof SelectItem>, 'value'> & {
+    readonly label: string;
+  })[];
   readonly isDisabled?: boolean;
 };
 
@@ -71,7 +67,11 @@ export const ReactHookFormSelect: FC<ReactHookFormSelectProps> = ({
               </FormControl>
               <SelectContent>
                 {options.map((option, i) => (
-                  <SelectItem key={`${i}_${option.label}`} value={option.value} className="cursor-pointer">
+                  <SelectItem
+                    key={`${i}_${option.label}`}
+                    value={option.value}
+                    className="cursor-pointer"
+                  >
                     {option.label}
                   </SelectItem>
                 ))}

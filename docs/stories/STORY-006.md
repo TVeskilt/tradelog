@@ -299,7 +299,7 @@ This form is critical for **FR-001 (Create Individual Trade)** and enables the F
 
 ### Zod Validation Schema
 
-**File Location:** `web/src/lib/schemas/tradeSchema.ts`
+**File Location:** `web/src/lib/schemas/trade-schema.ts`
 
 ```typescript
 import { z } from 'zod';

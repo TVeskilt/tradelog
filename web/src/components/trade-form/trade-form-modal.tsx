@@ -19,9 +19,7 @@ export const TradeFormModal: FC<TradeFormModalProps> = ({ open, onOpenChange }) 
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Trade</DialogTitle>
-          <DialogDescription>
-            Enter options trade details for portfolio tracking
-          </DialogDescription>
+          <DialogDescription>Enter options trade details for portfolio tracking</DialogDescription>
         </DialogHeader>
         <TradeForm onSuccess={() => onOpenChange(false)} />
       </DialogContent>
