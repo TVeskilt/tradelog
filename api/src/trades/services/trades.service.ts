@@ -3,13 +3,13 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTradeDto, UpdateTradeDto } from '../dto/request';
 import { TradeStatus } from '@prisma/client';
 import { TradeEnrichmentUtil } from '../utils/trade-enrichment.util';
-import { EnrichedTradeInterface } from '../interfaces';
+import { EnrichedTrade } from '../interfaces';
 
 @Injectable()
 export class TradesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createTradeDto: CreateTradeDto): Promise<EnrichedTradeInterface> {
+  async create(createTradeDto: CreateTradeDto): Promise<EnrichedTrade> {
     const trade = await this.prisma.trade.create({
       data: {
         ...createTradeDto,
@@ -20,7 +20,7 @@ export class TradesService {
     return TradeEnrichmentUtil.enrichWithDerivedFields(trade);
   }
 
-  async findMany(): Promise<EnrichedTradeInterface[]> {
+  async findMany(): Promise<EnrichedTrade[]> {
     const trades = await this.prisma.trade.findMany({
       orderBy: { createdAt: 'desc' },
     });
@@ -28,7 +28,7 @@ export class TradesService {
     return trades.map((trade) => TradeEnrichmentUtil.enrichWithDerivedFields(trade));
   }
 
-  async findByUuid(uuid: string): Promise<EnrichedTradeInterface> {
+  async findByUuid(uuid: string): Promise<EnrichedTrade> {
     const trade = await this.prisma.trade.findUnique({
       where: { uuid },
     });
@@ -40,7 +40,7 @@ export class TradesService {
     return TradeEnrichmentUtil.enrichWithDerivedFields(trade);
   }
 
-  async updateByUuid(uuid: string, updateTradeDto: UpdateTradeDto): Promise<EnrichedTradeInterface> {
+  async updateByUuid(uuid: string, updateTradeDto: UpdateTradeDto): Promise<EnrichedTrade> {
     try {
       const trade = await this.prisma.trade.update({
         where: { uuid },
@@ -65,23 +65,23 @@ export class TradesService {
       throw new NotFoundException(`Trade with UUID '${uuid}' not found`);
     }
 
-    if (trade.groupUuid) {
+    if (trade.tradeGroupUuid) {
       await this.prisma.$transaction(async (tx) => {
         const remainingTrades = await tx.trade.count({
           where: {
-            groupUuid: trade.groupUuid,
+            tradeGroupUuid: trade.tradeGroupUuid,
             uuid: { not: uuid },
           },
         });
 
-        if (remainingTrades < 2 && trade.groupUuid) {
+        if (remainingTrades < 2 && trade.tradeGroupUuid) {
           await tx.trade.updateMany({
-            where: { groupUuid: trade.groupUuid },
-            data: { groupUuid: null },
+            where: { tradeGroupUuid: trade.tradeGroupUuid },
+            data: { tradeGroupUuid: null },
           });
 
-          await tx.group.delete({
-            where: { uuid: trade.groupUuid },
+          await tx.tradeGroup.delete({
+            where: { uuid: trade.tradeGroupUuid },
           });
         }
 

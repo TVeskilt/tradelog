@@ -47,8 +47,12 @@ export class CreateTradeDto {
   @IsString()
   notes?: string;
 
-  @ApiProperty({ example: 'a3bb189e-8bf9-3888-9912-ace4e6543002', description: 'Optional group UUID', required: false })
+  @ApiProperty({
+    example: 'a3bb189e-8bf9-3888-9912-ace4e6543002',
+    description: 'Optional trade group UUID',
+    required: false,
+  })
   @IsOptional()
   @IsUUID()
-  groupUuid?: string;
+  tradeGroupUuid?: string;
 }

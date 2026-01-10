@@ -1,8 +1,8 @@
 import { Trade } from '@prisma/client';
-import { EnrichedTradeInterface } from '../interfaces';
+import { EnrichedTrade } from '../interfaces';
 
 export class TradeEnrichmentUtil {
-  static enrichWithDerivedFields(trade: Trade): EnrichedTradeInterface {
+  static enrichWithDerivedFields(trade: Trade): EnrichedTrade {
     const costBasis = Number(trade.costBasis);
     const currentValue = Number(trade.currentValue);
 

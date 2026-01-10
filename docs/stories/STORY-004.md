@@ -29,7 +29,7 @@ The Trade API must support:
 - Manual trade entry from the frontend
 - Full CRUD operations with validation
 - Calculated derived fields (P&L)
-- Integration with groups (optional groupUuid)
+- Integration with groups (optional tradeGroupUuid)
 - Type-safe DTOs with Swagger documentation
 
 ### Scope
@@ -50,7 +50,7 @@ The Trade API must support:
 
 - Bulk operations (create/update/delete multiple trades) - can be added later if needed
 - Backend pagination - client-side filtering is sufficient for MVP (<1000 trades)
-- Backend query filtering (status, symbol, groupUuid) - deferred to Phase 2
+- Backend query filtering (status, symbol, tradeGroupUuid) - deferred to Phase 2
 - Authentication/authorization (single-user localhost MVP)
 - Real-time market data integration (manual currentValue entry for MVP)
 
@@ -98,7 +98,7 @@ The Trade API must support:
 - [ ] **POST /v1/trades** - Create trade
   - Accepts CreateTradeDto in request body
   - status field defaults to OPEN (not in CreateTradeDto)
-  - groupUuid is optional
+  - tradeGroupUuid is optional
   - Returns 201 Created with DataResponseDto<TradeResponseDto>
   - Returns 400 Bad Request if validation fails
 
@@ -127,7 +127,7 @@ The Trade API must support:
 ### DTOs
 
 - [ ] **CreateTradeDto** - Request DTO for creating trades
-  - Fields: symbol, strikePrice, expiryDate, tradeType, optionType, quantity, costBasis, currentValue, notes (optional), groupUuid (optional)
+  - Fields: symbol, strikePrice, expiryDate, tradeType, optionType, quantity, costBasis, currentValue, notes (optional), tradeGroupUuid (optional)
   - NO status field (defaults to OPEN in service)
   - Uses class-validator decorators (@IsString, @IsNumber, @IsEnum, @Min, @IsDateString, @IsOptional)
   - Uses @ApiProperty decorators for Swagger
@@ -140,7 +140,7 @@ The Trade API must support:
 
 - [ ] **TradeResponseDto** - Response DTO
   - Uses @Expose() decorators on all fields to be exposed
-  - Fields: uuid, symbol, strikePrice, expiryDate, tradeType, optionType, quantity, costBasis, currentValue, status, notes, groupUuid
+  - Fields: uuid, symbol, strikePrice, expiryDate, tradeType, optionType, quantity, costBasis, currentValue, status, notes, tradeGroupUuid
   - Derived fields: pnl (calculated as currentValue - costBasis), daysToExpiry (calculated from expiryDate - now)
   - Does NOT expose createdAt, updatedAt (per architecture requirements)
   - Uses @ApiProperty decorators for Swagger
@@ -171,7 +171,7 @@ The Trade API must support:
   - costBasis: required, number, ≥0
   - currentValue: required, number, ≥0
   - notes: optional, string
-  - groupUuid: optional, string (UUID format)
+  - tradeGroupUuid: optional, string (UUID format)
 
 ### Business Logic
 
@@ -184,7 +184,7 @@ The Trade API must support:
 - [ ] **plainToInstance transformation** used in controller to transform Prisma entity → TradeResponseDto
 
 - [ ] **Group integrity check** on trade deletion:
-  - If trade.groupUuid exists, count remaining trades in that group
+  - If trade.tradeGroupUuid exists, count remaining trades in that group
   - If count would be <2 after deletion, ungroup remaining trades and delete group
   - Use Prisma transaction to ensure atomicity
 
@@ -263,7 +263,7 @@ The Trade API must support:
   "costBasis": 1500.0,
   "currentValue": 1750.0,
   "notes": "Long call position on AAPL",
-  "groupUuid": "a3bb189e-8bf9-3888-9912-ace4e6543002"
+  "tradeGroupUuid": "a3bb189e-8bf9-3888-9912-ace4e6543002"
 }
 ```
 
@@ -283,7 +283,7 @@ The Trade API must support:
     "currentValue": 1750.0,
     "status": "OPEN",
     "notes": "Long call position on AAPL",
-    "groupUuid": "a3bb189e-8bf9-3888-9912-ace4e6543002",
+    "tradeGroupUuid": "a3bb189e-8bf9-3888-9912-ace4e6543002",
     "pnl": 250.0,
     "daysToExpiry": 42
   }
@@ -309,7 +309,7 @@ The Trade API must support:
       "currentValue": 1750.0,
       "status": "OPEN",
       "notes": "Long call position on AAPL",
-      "groupUuid": "a3bb189e-8bf9-3888-9912-ace4e6543002",
+      "tradeGroupUuid": "a3bb189e-8bf9-3888-9912-ace4e6543002",
       "pnl": 250.0,
       "daysToExpiry": 42
     }
@@ -363,7 +363,7 @@ Same structure as POST response with updated fields
 **Indexes used:**
 
 - `uuid` (primary key) - for GET/PUT/DELETE by UUID
-- `groupUuid` - for group integrity checks on deletion
+- `tradeGroupUuid` - for group integrity checks on deletion
 - `expiryDate` - for daysToExpiry calculation (optional optimization)
 
 ### Derived Fields Calculation
@@ -654,7 +654,7 @@ This story builds directly on STORY-003:
 
 Per architecture document:
 
-- Interfaces: NO "I" prefix (e.g., GroupWithMetricsInterface, not IGroupWithMetrics)
+- Interfaces: NO "I" prefix (e.g., TradeGroupWithMetrics, not IGroupWithMetrics)
 - Response DTOs: Use `@Expose()` pattern with excludeExtraneousValues
 - Request DTOs: Use class-validator decorators
 - Services: Singular name (TradesService, not TradeService)

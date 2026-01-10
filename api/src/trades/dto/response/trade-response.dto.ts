@@ -49,7 +49,7 @@ export class TradeResponseDto {
 
   @ApiProperty({ example: 'a3bb189e-8bf9-3888-9912-ace4e6543002', required: false })
   @Expose()
-  groupUuid!: string | null;
+  tradeGroupUuid!: string | null;
 
   @ApiProperty({ example: 250.0, description: 'Calculated P&L (currentValue - costBasis)' })
   @Expose()

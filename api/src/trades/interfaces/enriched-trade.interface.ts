@@ -1,6 +1,6 @@
 import { Trade } from '@prisma/client';
 
-export interface EnrichedTradeInterface extends Omit<Trade, 'strikePrice' | 'costBasis' | 'currentValue'> {
+export interface EnrichedTrade extends Omit<Trade, 'strikePrice' | 'costBasis' | 'currentValue'> {
   readonly strikePrice: number;
   readonly costBasis: number;
   readonly currentValue: number;
