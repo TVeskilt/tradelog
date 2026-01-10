@@ -1,4 +1,4 @@
-import { apiClient } from '@/lib';
+import { apiClient, type GetPathParams } from '@/lib';
 import { useQueryClient } from '@tanstack/react-query';
 
 export const useTradeApi = () => {
@@ -6,8 +6,8 @@ export const useTradeApi = () => {
 
   const createTrade = apiClient.useMutation('post', '/v1/trades', {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trades'] });
-      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trade-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trades', {}] });
+      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trade-groups', {}] });
     },
   });
 
@@ -15,15 +15,13 @@ export const useTradeApi = () => {
     return apiClient.useQuery('get', '/v1/trades');
   };
 
-  const getTrade = (uuid: string) => {
+  const getTradeByUuid = (path: GetPathParams<'/v1/trades/{uuid}'>) => {
     return apiClient.useQuery('get', '/v1/trades/{uuid}', {
-      params: {
-        path: { uuid },
-      },
+      params: { path },
     });
   };
 
-  const updateTrade = apiClient.useMutation('put', '/v1/trades/{uuid}', {
+  const updateTradeByUuid = apiClient.useMutation('put', '/v1/trades/{uuid}', {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: [
@@ -38,22 +36,22 @@ export const useTradeApi = () => {
           },
         ],
       });
-      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trades'] });
+      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trades', {}] });
     },
   });
 
-  const deleteTrade = apiClient.useMutation('delete', '/v1/trades/{uuid}', {
+  const deleteTradeByUuid = apiClient.useMutation('delete', '/v1/trades/{uuid}', {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trades'] });
-      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trade-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trades', {}] });
+      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trade-groups', {}] });
     },
   });
 
   return {
     createTrade,
     getTrades,
-    getTrade,
-    updateTrade,
-    deleteTrade,
+    getTradeByUuid,
+    updateTradeByUuid,
+    deleteTradeByUuid,
   };
 };

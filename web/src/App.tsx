@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Toaster } from 'sonner';
 
 function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   return (
     <AppProvider>

@@ -1,4 +1,4 @@
-import { apiClient } from '@/lib';
+import { apiClient, type GetPathParams } from '@/lib';
 import { useQueryClient } from '@tanstack/react-query';
 
 export const useTradeGroupApi = () => {
@@ -8,21 +8,19 @@ export const useTradeGroupApi = () => {
     return apiClient.useQuery('get', '/v1/trade-groups');
   };
 
-  const getTradeGroup = (uuid: string) => {
+  const getTradeGroupByUuid = (path: GetPathParams<'/v1/trade-groups/{uuid}'>) => {
     return apiClient.useQuery('get', '/v1/trade-groups/{uuid}', {
-      params: {
-        path: { uuid },
-      },
+      params: { path },
     });
   };
 
   const createTradeGroup = apiClient.useMutation('post', '/v1/trade-groups', {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trade-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trade-groups', {}] });
     },
   });
 
-  const updateTradeGroup = apiClient.useMutation('patch', '/v1/trade-groups/{uuid}', {
+  const updateTradeGroupByUuid = apiClient.useMutation('patch', '/v1/trade-groups/{uuid}', {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: [
@@ -37,21 +35,21 @@ export const useTradeGroupApi = () => {
           },
         ],
       });
-      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trade-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trade-groups', {}] });
     },
   });
 
-  const deleteTradeGroup = apiClient.useMutation('delete', '/v1/trade-groups/{uuid}', {
+  const deleteTradeGroupByUuid = apiClient.useMutation('delete', '/v1/trade-groups/{uuid}', {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trade-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trade-groups', {}] });
     },
   });
 
   return {
     getTradeGroups,
-    getTradeGroup,
+    getTradeGroupByUuid,
     createTradeGroup,
-    updateTradeGroup,
-    deleteTradeGroup,
+    updateTradeGroupByUuid,
+    deleteTradeGroupByUuid,
   };
 };

@@ -7,6 +7,7 @@ import {
 } from '@/components/react-hook-form';
 import { useTradeApi, useTradeGroupApi } from '@/hooks';
 import { CREATE_TRADE_SCHEMA, type CreateTradeSchema } from '@/schemas';
+import type { ApiError } from '@/types/api-error';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { FC } from 'react';
 import { useForm } from 'react-hook-form';
@@ -16,42 +17,24 @@ type TradeFormProps = {
   readonly onSuccess?: () => void;
 };
 
-interface ApiError extends Error {
-  response?: {
-    status: number;
-    data?: {
-      message?: string | string[];
-    };
-  };
-}
+const DEFAULT_TRADE_VALUES: Partial<CreateTradeSchema> = {
+  symbol: '',
+  expiryDate: '',
+  quantity: 1,
+  notes: '',
+};
 
 export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
   const { getTradeGroups } = useTradeGroupApi();
   const { createTrade } = useTradeApi();
 
   const { data: tradeGroupsResponse, isLoading: isLoadingGroups } = getTradeGroups();
-  const tradeGroups =
-    (
-      tradeGroupsResponse as unknown as {
-        data: Array<{ uuid: string; name: string; strategyType: string }>;
-      }
-    )?.data ?? [];
+  const tradeGroups = tradeGroupsResponse?.data ?? [];
 
   const form = useForm<CreateTradeSchema>({
     resolver: zodResolver(CREATE_TRADE_SCHEMA),
     mode: 'onChange',
-    defaultValues: {
-      symbol: '',
-      strikePrice: undefined,
-      expiryDate: '',
-      tradeType: undefined,
-      optionType: undefined,
-      quantity: 1,
-      costBasis: undefined,
-      currentValue: undefined,
-      notes: '',
-      tradeGroupUuid: undefined,
-    },
+    defaultValues: DEFAULT_TRADE_VALUES,
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
@@ -63,23 +46,11 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
       };
       await createTrade.mutateAsync({ body: cleanedData });
       toast.success('Trade created successfully');
-      form.reset({
-        symbol: '',
-        strikePrice: undefined,
-        expiryDate: '',
-        tradeType: undefined,
-        optionType: undefined,
-        quantity: 1,
-        costBasis: undefined,
-        currentValue: undefined,
-        notes: '',
-        tradeGroupUuid: undefined,
-      });
+      form.reset(DEFAULT_TRADE_VALUES);
       onSuccess?.();
     } catch (error) {
       console.error('Failed to create trade:', error);
 
-      // Handle backend validation errors
       const apiError = error as ApiError;
       if (apiError.response) {
         const response = apiError.response;
@@ -88,25 +59,34 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
             ? response.data.message
             : [response.data.message];
 
-          // Map backend errors to form fields
+          const fieldMap: Record<string, keyof CreateTradeSchema> = {
+            symbol: 'symbol',
+            strike: 'strikePrice',
+            expiry: 'expiryDate',
+            quantity: 'quantity',
+            cost: 'costBasis',
+            value: 'currentValue',
+            notes: 'notes',
+          };
+
           messages.forEach((msg: string) => {
             const lowerMsg = msg.toLowerCase();
-            if (lowerMsg.includes('symbol')) {
-              form.setError('symbol', { message: msg });
-            } else if (lowerMsg.includes('strike')) {
-              form.setError('strikePrice', { message: msg });
-            } else if (lowerMsg.includes('expiry')) {
-              form.setError('expiryDate', { message: msg });
-            } else if (lowerMsg.includes('type') && lowerMsg.includes('trade')) {
+
+            if (lowerMsg.includes('type') && lowerMsg.includes('trade')) {
               form.setError('tradeType', { message: msg });
-            } else if (lowerMsg.includes('type') && lowerMsg.includes('option')) {
+              return;
+            }
+
+            if (lowerMsg.includes('type') && lowerMsg.includes('option')) {
               form.setError('optionType', { message: msg });
-            } else if (lowerMsg.includes('quantity')) {
-              form.setError('quantity', { message: msg });
-            } else if (lowerMsg.includes('cost')) {
-              form.setError('costBasis', { message: msg });
-            } else if (lowerMsg.includes('value')) {
-              form.setError('currentValue', { message: msg });
+              return;
+            }
+
+            for (const [keyword, field] of Object.entries(fieldMap)) {
+              if (lowerMsg.includes(keyword)) {
+                form.setError(field, { message: msg });
+                return;
+              }
             }
           });
         }
@@ -125,7 +105,6 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
   return (
     <ReactHookForm form={form} onSubmit={onSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Left Column */}
         <div className="space-y-6">
           <ReactHookFormField
             name="symbol"
@@ -179,7 +158,6 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
           />
         </div>
 
-        {/* Right Column */}
         <div className="space-y-6">
           <ReactHookFormField
             name="quantity"
@@ -238,20 +216,7 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
         <Button
           type="button"
           variant="secondary"
-          onClick={() =>
-            form.reset({
-              symbol: '',
-              strikePrice: undefined,
-              expiryDate: '',
-              tradeType: undefined,
-              optionType: undefined,
-              quantity: 1,
-              costBasis: undefined,
-              currentValue: undefined,
-              notes: '',
-              tradeGroupUuid: undefined,
-            })
-          }
+          onClick={() => form.reset(DEFAULT_TRADE_VALUES)}
           disabled={createTrade.isPending}
         >
           Reset

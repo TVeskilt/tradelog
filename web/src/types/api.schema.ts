@@ -114,6 +114,51 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    TradeResponseDto: {
+      /** @example 123e4567-e89b-12d3-a456-426614174000 */
+      uuid: string;
+      /** @example AAPL */
+      symbol: string;
+      /** @example 150 */
+      strikePrice: number;
+      /** @example 2026-02-15 */
+      expiryDate: string;
+      /**
+       * @example BUY
+       * @enum {string}
+       */
+      tradeType: 'BUY' | 'SELL';
+      /**
+       * @example CALL
+       * @enum {string}
+       */
+      optionType: 'CALL' | 'PUT';
+      /** @example 10 */
+      quantity: number;
+      /** @example 1500 */
+      costBasis: number;
+      /** @example 1750 */
+      currentValue: number;
+      /**
+       * @example OPEN
+       * @enum {string}
+       */
+      status: 'OPEN' | 'CLOSING_SOON' | 'CLOSED';
+      /** @example Long call position on AAPL */
+      notes?: Record<string, never>;
+      /** @example a3bb189e-8bf9-3888-9912-ace4e6543002 */
+      tradeGroupUuid?: Record<string, never>;
+      /**
+       * @description Calculated P&L (currentValue - costBasis)
+       * @example 250
+       */
+      pnl: number;
+      /**
+       * @description Days until expiry
+       * @example 42
+       */
+      daysToExpiry: number;
+    };
     CreateTradeDto: {
       /**
        * @description Stock symbol
@@ -176,6 +221,53 @@ export interface components {
        * @enum {string}
        */
       status?: 'OPEN' | 'CLOSING_SOON' | 'CLOSED';
+    };
+    TradeGroupResponseDto: {
+      /** @example b4cc290f-9cf0-4999-0023-bdf5f7654003 */
+      uuid: string;
+      /** @example Calendar Spread Feb-15-2026 */
+      name: string;
+      /**
+       * @example CALENDAR_SPREAD
+       * @enum {string}
+       */
+      strategyType: 'CALENDAR_SPREAD' | 'RATIO_CALENDAR_SPREAD' | 'CUSTOM';
+      /** @example Selling Feb-15 $150 call, buying Mar-15 $150 call */
+      notes?: Record<string, never>;
+      /**
+       * Format: date-time
+       * @description Earliest expiry date among child trades
+       * @example 2026-02-15T00:00:00.000Z
+       */
+      closingExpiry: string;
+      /**
+       * @description Days until closingExpiry
+       * @example 41
+       */
+      daysUntilClosingExpiry: number;
+      /**
+       * @description Derived from closingExpiry
+       * @example OPEN
+       * @enum {string}
+       */
+      status: 'OPEN' | 'CLOSING_SOON' | 'CLOSED';
+      /**
+       * @description Sum of all child trade costBasis values
+       * @example 1500
+       */
+      totalCostBasis: number;
+      /**
+       * @description Sum of all child trade currentValue values
+       * @example 1750
+       */
+      totalCurrentValue: number;
+      /**
+       * @description Calculated P&L (totalCurrentValue - totalCostBasis)
+       * @example 250
+       */
+      profitLoss: number;
+      /** @description Child trades in this group */
+      trades: components['schemas']['TradeResponseDto'][];
     };
     CreateTradeGroupDto: {
       /**
@@ -273,12 +365,15 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description List of all trades */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': {
+            data: components['schemas']['TradeResponseDto'][];
+          };
+        };
       };
     };
   };
@@ -295,12 +390,15 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Trade created successfully */
       201: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': {
+            data: components['schemas']['TradeResponseDto'];
+          };
+        };
       };
     };
   };
@@ -316,12 +414,15 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Trade found */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': {
+            data: components['schemas']['TradeResponseDto'];
+          };
+        };
       };
     };
   };
@@ -341,12 +442,15 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Trade updated successfully */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': {
+            data: components['schemas']['TradeResponseDto'];
+          };
+        };
       };
     };
   };
@@ -362,12 +466,15 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Trade deleted successfully */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': {
+            data: components['schemas']['TradeResponseDto'];
+          };
+        };
       };
     };
   };
@@ -380,12 +487,15 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description List of all trade groups */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': {
+            data: components['schemas']['TradeGroupResponseDto'][];
+          };
+        };
       };
     };
   };
@@ -402,12 +512,15 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Trade group created successfully */
       201: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': {
+            data: components['schemas']['TradeGroupResponseDto'];
+          };
+        };
       };
     };
   };
@@ -423,12 +536,15 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Trade group found */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': {
+            data: components['schemas']['TradeGroupResponseDto'];
+          };
+        };
       };
     };
   };
@@ -444,12 +560,15 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Trade group deleted successfully */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': {
+            data: components['schemas']['TradeGroupResponseDto'];
+          };
+        };
       };
     };
   };
@@ -469,12 +588,15 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Trade group updated successfully */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': {
+            data: components['schemas']['TradeGroupResponseDto'];
+          };
+        };
       };
     };
   };
