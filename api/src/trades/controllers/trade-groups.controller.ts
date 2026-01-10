@@ -1,10 +1,11 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { TradeGroupsService } from '../services/trade-groups.service';
 import { CreateTradeGroupDto, UpdateTradeGroupDto } from '../dto/request';
 import { TradeGroupResponseDto } from '../dto/response';
 import { DataResponseDto } from '../../common/dto';
+import { ApiCreatedDataResponse, ApiOkDataResponse } from '../../common/decorators';
 
 @ApiTags('Trade Groups')
 @Controller({ path: 'trade-groups', version: '1' })
@@ -14,7 +15,7 @@ export class TradeGroupsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new trade group' })
-  @ApiResponse({ status: 201, description: 'Trade group created successfully' })
+  @ApiCreatedDataResponse({ data: { type: TradeGroupResponseDto } })
   async create(@Body() createTradeGroupDto: CreateTradeGroupDto): Promise<DataResponseDto<TradeGroupResponseDto>> {
     const tradeGroup = await this.tradeGroupsService.create(createTradeGroupDto);
     return new DataResponseDto(plainToInstance(TradeGroupResponseDto, tradeGroup));
@@ -22,7 +23,7 @@ export class TradeGroupsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all trade groups with metrics' })
-  @ApiResponse({ status: 200, description: 'List of all trade groups' })
+  @ApiOkDataResponse({ data: { type: TradeGroupResponseDto, isArray: true } })
   async findMany(): Promise<DataResponseDto<TradeGroupResponseDto[]>> {
     const tradeGroups = await this.tradeGroupsService.findMany();
     return new DataResponseDto(tradeGroups.map((tradeGroup) => plainToInstance(TradeGroupResponseDto, tradeGroup)));
@@ -31,7 +32,7 @@ export class TradeGroupsController {
   @Get(':uuid')
   @ApiOperation({ summary: 'Get a trade group by UUID' })
   @ApiParam({ name: 'uuid', description: 'Trade group UUID' })
-  @ApiResponse({ status: 200, description: 'Trade group found' })
+  @ApiOkDataResponse({ data: { type: TradeGroupResponseDto } })
   async findByUuid(@Param('uuid') uuid: string): Promise<DataResponseDto<TradeGroupResponseDto>> {
     const tradeGroup = await this.tradeGroupsService.findByUuid(uuid);
     return new DataResponseDto(plainToInstance(TradeGroupResponseDto, tradeGroup));
@@ -40,7 +41,7 @@ export class TradeGroupsController {
   @Patch(':uuid')
   @ApiOperation({ summary: 'Partially update a trade group by UUID' })
   @ApiParam({ name: 'uuid', description: 'Trade group UUID' })
-  @ApiResponse({ status: 200, description: 'Trade group updated successfully' })
+  @ApiOkDataResponse({ data: { type: TradeGroupResponseDto } })
   async updateByUuid(
     @Param('uuid') uuid: string,
     @Body() updateTradeGroupDto: UpdateTradeGroupDto,
@@ -53,7 +54,7 @@ export class TradeGroupsController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete a trade group by UUID' })
   @ApiParam({ name: 'uuid', description: 'Trade group UUID' })
-  @ApiResponse({ status: 200, description: 'Trade group deleted successfully' })
+  @ApiOkDataResponse({ data: { type: TradeGroupResponseDto } })
   async deleteByUuid(@Param('uuid') uuid: string): Promise<DataResponseDto<null>> {
     await this.tradeGroupsService.deleteByUuid(uuid);
     return new DataResponseDto(null);

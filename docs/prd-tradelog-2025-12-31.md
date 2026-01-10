@@ -86,26 +86,36 @@ Set up monorepo project structure with React frontend, NestJS backend, PostgreSQ
 
 ---
 
-### FR-001: Create Individual Trade
+### FR-001: Create Individual Trade ✅ COMPLETED
 
 **Priority:** Must Have
+**Status:** ✅ Completed (2026-01-10 - STORY-006)
 
 **Description:**
 User can manually create a new individual options trade by entering: strike price, option type (PUT/CALL), trade action (BUY/SELL), cost, current value (for P&L), expiry date, and optional notes.
 
 **Acceptance Criteria:**
 
-- [ ] Form accepts all required fields (strike, type, action, cost, current value, expiry)
-- [ ] Form uses React Hook Form for state management
-- [ ] Form validates with Zod schema (client-side)
-- [ ] API validates with NestJS DTOs (server-side)
-- [ ] Form accepts optional notes field (multi-line text)
-- [ ] Trade is saved to database with timestamp
-- [ ] User sees confirmation of successful creation
-- [ ] Invalid data shows clear error messages
-- [ ] Current value field enables manual P&L tracking
+- [x] Form accepts all required fields (strike, type, action, cost, current value, expiry)
+- [x] Form uses React Hook Form for state management
+- [x] Form validates with Zod schema (client-side)
+- [x] API validates with NestJS DTOs (server-side)
+- [x] Form accepts optional notes field (multi-line text)
+- [x] Trade is saved to database with timestamp
+- [x] User sees confirmation of successful creation
+- [x] Invalid data shows clear error messages
+- [x] Current value field enables manual P&L tracking
 
-**Dependencies:** FR-000
+**Implementation Notes (STORY-006):**
+- Implemented as modal-based form using shadcn/ui Dialog component
+- Form includes 10 fields: symbol, strikePrice, expiryDate, tradeType, optionType, quantity, costBasis, currentValue, notes (optional), tradeGroupUuid (optional)
+- Uses React Hook Form v7.70.0 + Zod v4.3.5 for validation
+- API integration via openapi-fetch + openapi-react-query v0.5.1
+- Toast notifications via Sonner for success/error feedback
+- Backend validation errors automatically mapped to form fields
+- Created reusable React Hook Form wrapper components for consistency
+
+**Dependencies:** FR-000 ✅
 
 ---
 
