@@ -20,6 +20,13 @@ export const useTradeGroupApi = () => {
     },
   });
 
+  const createStrategy = apiClient.useMutation('post', '/v1/strategies', {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trades', {}] });
+      queryClient.invalidateQueries({ queryKey: ['get', '/v1/trade-groups', {}] });
+    },
+  });
+
   const updateTradeGroupByUuid = apiClient.useMutation('patch', '/v1/trade-groups/{uuid}', {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -49,6 +56,7 @@ export const useTradeGroupApi = () => {
     getTradeGroups,
     getTradeGroupByUuid,
     createTradeGroup,
+    createStrategy,
     updateTradeGroupByUuid,
     deleteTradeGroupByUuid,
   };

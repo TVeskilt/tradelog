@@ -119,48 +119,78 @@ User can manually create a new individual options trade by entering: strike pric
 
 ---
 
-### FR-002: Create Trade Group/Combination
+### FR-002: Create Trade Group/Combination (Strategy Builder)
 
 **Priority:** Must Have
 
 **Description:**
-User can create a trade group (combination) with unlimited legs, allowing grouping of related options positions (e.g., calendar spread, ratio spread, hedges). Group names are suggested based on strategy type and closest expiry date, with option for custom names.
+User can create multi-leg strategies (groups) atomically using an integrated strategy builder within the trade creation modal. By toggling "Build Multi-Leg Strategy," users add multiple trades together with group metadata in a single workflow. All trades and the group are created in one transaction, eliminating the need to create empty groups and manage trades separately.
+
+**Updated Implementation (2026-01-11):**
+Replaced separate group management page with integrated Strategy Builder in trade modal:
+- Toggle "Build Multi-Leg Strategy" to enable multi-leg mode
+- Add multiple trades (2+ required) with visual preview
+- Group metadata (name, strategy type, notes) inline with trade entry
+- Atomic creation via POST /v1/strategies endpoint
+- Single transaction ensures consistency (all-or-nothing)
 
 **Acceptance Criteria:**
 
-- [ ] User can create empty group with name/label
-- [ ] Suggested group name format: "{Strategy Type} {Closest Expiry Date}"
-  - Format: "MMM-DD-YYYY"
-  - Example: "Calendar Spread Feb-15-2026"
-  - Example: "Ratio Spread Mar-20-2025"
-- [ ] User can accept suggested name or type custom name (freeform text)
-- [ ] User can add unlimited individual trades to a group
-- [ ] No arbitrary leg limits (must support 5+ leg strategies)
-- [ ] Group displays aggregate P&L of all constituent trades
-- [ ] Group can be created before or after individual trades exist
-- [ ] Group accepts optional notes field
+- [x] User can toggle "Build Multi-Leg Strategy" switch in trade modal
+- [x] Strategy section appears with group metadata fields when toggle ON:
+  - Name (required, freeform text)
+  - Strategy Type dropdown (Calendar Spread, Ratio Calendar Spread, Custom)
+  - Notes (optional, textarea)
+- [x] User can add unlimited individual trades to strategy (min 2 required)
+- [x] No arbitrary leg limits (must support 5+ leg strategies)
+- [x] Trade list shows simplified line items: "AAPL $150 Call 2/15/26 - BUY 10 @ $500"
+- [x] User can remove trades from strategy list before creation
+- [x] Validation enforces minimum 2 trades per strategy
+- [x] Group + all trades created atomically in single transaction
+- [x] Backend rolls back entire transaction if any trade fails
+- [x] Group displays aggregate P&L of all constituent trades
 
-**Dependencies:** FR-001
+**Implementation Notes:**
+- Old approach (create empty group → assign trades) was counterintuitive
+- New approach aligns with trader mental model: "Build a strategy" not "Manage containers"
+- Implemented in STORY-007 with pivot documented
+- Separate group management UI removed (no longer needed)
+
+**Dependencies:** FR-001 ✅
 
 ---
 
 ### FR-003: Modify Trade Groups
 
-**Priority:** Must Have
+**Priority:** Should Have (Deferred Post-MVP)
 
 **Description:**
-User can add trades to existing groups or remove trades from groups, enabling dynamic regrouping as strategies evolve (e.g., adding hedges to existing positions).
+User can modify existing groups by adding/removing trades or editing group metadata, enabling dynamic regrouping as strategies evolve (e.g., adding hedges to existing positions).
 
-**Acceptance Criteria:**
+**Current Status (2026-01-11):**
+- ✅ Groups created atomically via Strategy Builder (FR-002)
+- ⏸️ Post-creation modification deferred to future story
+- Rationale: MVP focuses on creating correct strategies upfront
+- Future enhancement: Edit group metadata, reassign trades via trade list
 
-- [ ] User can add existing trades to any group
-- [ ] User can remove trades from groups
-- [ ] User can move trades between groups
+**Acceptance Criteria (Future):**
+
+- [ ] User can add existing ungrouped trades to any group
+- [ ] User can remove trades from groups (ungroup)
+- [ ] User can move trades between groups (reassign)
+- [ ] User can edit group name, strategy type, notes
 - [ ] Changes update group P&L immediately
-- [ ] Ungrouped trades remain accessible
+- [ ] Ungrouped trades remain accessible in main trade list
 - [ ] Group status updates automatically based on children (per FR-007)
+- [ ] Validation enforces minimum 2 trades per group after modifications
 
-**Dependencies:** FR-002
+**Implementation Considerations:**
+- Use PUT /v1/trades/{uuid} endpoint to update tradeGroupUuid (assign/ungroup)
+- Backend automatically deletes groups with <2 trades when ungrouping
+- Edit group metadata via PUT /v1/trade-groups/{uuid}
+- Trade reassignment via trade list context menu (right-click → "Assign to Group")
+
+**Dependencies:** FR-002 ✅
 
 ---
 

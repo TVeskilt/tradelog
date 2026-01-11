@@ -16,7 +16,12 @@ export class TradeGroupResponseDto {
   @Expose()
   readonly strategyType!: StrategyType;
 
-  @ApiProperty({ example: 'Selling Feb-15 $150 call, buying Mar-15 $150 call', required: false })
+  @ApiProperty({
+    type: String,
+    example: 'Selling Feb-15 $150 call, buying Mar-15 $150 call',
+    required: false,
+    nullable: true,
+  })
   @Expose()
   readonly notes!: string | null;
 

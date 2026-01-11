@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTradeDto, UpdateTradeDto } from '../dto/request';
 import { TradeStatus } from '@prisma/client';
 import { TradeEnrichmentUtil } from '../utils/trade-enrichment.util';
+import { PrismaErrorUtil } from '../../common/utils/prisma-error.util';
 import { EnrichedTrade } from '../interfaces';
 
 @Injectable()
@@ -49,10 +50,7 @@ export class TradesService {
 
       return TradeEnrichmentUtil.enrichWithDerivedFields(trade);
     } catch (error) {
-      if (error instanceof Error && 'code' in error && error.code === 'P2025') {
-        throw new NotFoundException(`Trade with UUID '${uuid}' not found`);
-      }
-      throw error;
+      PrismaErrorUtil.handleNotFoundError(error, 'Trade', uuid);
     }
   }
 
@@ -66,33 +64,35 @@ export class TradesService {
     }
 
     if (trade.tradeGroupUuid) {
-      await this.prisma.$transaction(async (tx) => {
-        const remainingTrades = await tx.trade.count({
-          where: {
-            tradeGroupUuid: trade.tradeGroupUuid,
-            uuid: { not: uuid },
-          },
-        });
-
-        if (remainingTrades < 2 && trade.tradeGroupUuid) {
-          await tx.trade.updateMany({
-            where: { tradeGroupUuid: trade.tradeGroupUuid },
-            data: { tradeGroupUuid: null },
-          });
-
-          await tx.tradeGroup.delete({
-            where: { uuid: trade.tradeGroupUuid },
-          });
-        }
-
-        await tx.trade.delete({
-          where: { uuid },
-        });
-      });
+      await this.handleGroupedTradeDelete(uuid, trade.tradeGroupUuid);
     } else {
-      await this.prisma.trade.delete({
-        where: { uuid },
-      });
+      await this.prisma.trade.delete({ where: { uuid } });
     }
+  }
+
+  private async handleGroupedTradeDelete(tradeUuid: string, groupUuid: string): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const remainingTrades = await tx.trade.count({
+        where: {
+          tradeGroupUuid: groupUuid,
+          uuid: { not: tradeUuid },
+        },
+      });
+
+      if (remainingTrades < 2) {
+        await tx.trade.updateMany({
+          where: { tradeGroupUuid: groupUuid },
+          data: { tradeGroupUuid: null },
+        });
+
+        await tx.tradeGroup.delete({
+          where: { uuid: groupUuid },
+        });
+      }
+
+      await tx.trade.delete({
+        where: { uuid: tradeUuid },
+      });
+    });
   }
 }
