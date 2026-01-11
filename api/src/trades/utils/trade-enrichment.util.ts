@@ -1,4 +1,5 @@
 import { Trade } from '@prisma/client';
+import { differenceInDays } from 'date-fns';
 import { EnrichedTrade } from '../interfaces';
 
 export class TradeEnrichmentUtil {
@@ -21,9 +22,6 @@ export class TradeEnrichmentUtil {
   }
 
   private static calculateDaysToExpiry(expiryDate: Date): number {
-    const now = new Date();
-    const expiry = new Date(expiryDate);
-    const diffMs = expiry.getTime() - now.getTime();
-    return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    return differenceInDays(expiryDate, new Date());
   }
 }

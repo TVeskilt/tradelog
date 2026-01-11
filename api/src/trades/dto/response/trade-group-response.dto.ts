@@ -20,7 +20,7 @@ export class TradeGroupResponseDto {
     type: String,
     example: 'Selling Feb-15 $150 call, buying Mar-15 $150 call',
     required: false,
-    nullable: true
+    nullable: true,
   })
   @Expose()
   readonly notes!: string | null;

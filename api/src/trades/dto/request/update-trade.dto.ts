@@ -8,5 +8,5 @@ export class UpdateTradeDto extends PartialType(CreateTradeDto) {
   @ApiProperty({ enum: TradeStatus, example: TradeStatus.CLOSING_SOON, description: 'Trade status', required: false })
   @IsOptional()
   @IsEnum(TradeStatus)
-  status?: TradeStatus;
+  readonly status?: TradeStatus;
 }

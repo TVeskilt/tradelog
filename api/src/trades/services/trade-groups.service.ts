@@ -4,6 +4,9 @@ import { CreateTradeGroupDto, UpdateTradeGroupDto, CreateStrategyDto } from '../
 import { TradeGroupWithMetrics } from '../interfaces/trade-group-with-metrics.interface';
 import { TradeStatus, TradeGroup, Trade } from '@prisma/client';
 import { TradeEnrichmentUtil } from '../utils/trade-enrichment.util';
+import { TradeGroupMetricsUtil } from '../utils/trade-group-metrics.util';
+import { TradeStatusUtil } from '../utils/trade-status.util';
+import { PrismaErrorUtil } from '../../common/utils/prisma-error.util';
 
 @Injectable()
 export class TradeGroupsService {
@@ -71,10 +74,7 @@ export class TradeGroupsService {
 
       return this.calculateMetrics(tradeGroup);
     } catch (error) {
-      if (error instanceof Error && 'code' in error && error.code === 'P2025') {
-        throw new NotFoundException(`Trade group with UUID '${uuid}' not found`);
-      }
-      throw error;
+      PrismaErrorUtil.handleNotFoundError(error, 'Trade group', uuid);
     }
   }
 
@@ -96,7 +96,7 @@ export class TradeGroupsService {
             data: {
               ...tradeData,
               tradeGroupUuid: newTradeGroup.uuid,
-              status: 'OPEN',
+              status: TradeStatus.OPEN,
             },
           }),
         ),
@@ -131,18 +131,12 @@ export class TradeGroupsService {
     }
 
     const enrichedTrades = trades.map((trade) => TradeEnrichmentUtil.enrichWithDerivedFields(trade));
-
-    const closingExpiry = new Date(Math.min(...trades.map((t) => new Date(t.expiryDate).getTime())));
-
-    const daysUntilClosingExpiry = this.calculateDaysUntilExpiry(closingExpiry);
-
-    const status = this.deriveStatus(daysUntilClosingExpiry);
-
-    const totalCostBasis = trades.reduce((sum, t) => sum + Number(t.costBasis), 0);
-
-    const totalCurrentValue = trades.reduce((sum, t) => sum + Number(t.currentValue), 0);
-
-    const profitLoss = totalCurrentValue - totalCostBasis;
+    const closingExpiry = TradeGroupMetricsUtil.calculateClosingExpiry(trades);
+    const daysUntilClosingExpiry = TradeStatusUtil.calculateDaysUntilExpiry(closingExpiry);
+    const status = TradeStatusUtil.deriveStatusFromDays(daysUntilClosingExpiry);
+    const totalCostBasis = TradeGroupMetricsUtil.calculateTotalCostBasis(trades);
+    const totalCurrentValue = TradeGroupMetricsUtil.calculateTotalCurrentValue(trades);
+    const profitLoss = TradeGroupMetricsUtil.calculateProfitLoss(totalCurrentValue, totalCostBasis);
 
     return {
       ...tradeGroup,
@@ -154,23 +148,5 @@ export class TradeGroupsService {
       totalCurrentValue,
       profitLoss,
     };
-  }
-
-  private calculateDaysUntilExpiry(closingExpiry: Date): number {
-    const now = new Date();
-    const diffMs = closingExpiry.getTime() - now.getTime();
-    return Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  }
-
-  private deriveStatus(daysUntilClosingExpiry: number): TradeStatus {
-    if (daysUntilClosingExpiry < 0) {
-      return TradeStatus.CLOSED;
-    }
-
-    if (daysUntilClosingExpiry <= 7) {
-      return TradeStatus.CLOSING_SOON;
-    }
-
-    return TradeStatus.OPEN;
   }
 }
