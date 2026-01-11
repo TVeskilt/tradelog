@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import {
   ReactHookForm,
   ReactHookFormDatePicker,
@@ -9,23 +8,26 @@ import {
   ReactHookFormSelect,
 } from '@/components/react-hook-form';
 import { useTradeApi, useTradeGroupApi } from '@/hooks';
+import {
+  applyValidationErrorsToForm,
+  cleanTradeData,
+  extractApiErrorMessages,
+  isApiValidationError,
+  prepareStrategyPayload,
+  validateStrategyCreation,
+} from '@/lib';
 import { CREATE_TRADE_SCHEMA, type CreateTradeSchema } from '@/schemas';
-import type { ApiError } from '@/types/api-error';
+import type { StrategyGroup } from '@/types/trade-form.types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { X } from 'lucide-react';
 import type { FC } from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { StrategySection } from './strategy-section';
+import { TradeListItem } from './trade-list-item';
 
 type TradeFormProps = {
   readonly onSuccess?: () => void;
-};
-
-type StrategyGroup = {
-  name: string;
-  strategyType: 'CALENDAR_SPREAD' | 'RATIO_CALENDAR_SPREAD' | 'CUSTOM';
-  notes: string;
 };
 
 const DEFAULT_TRADE_VALUES: Partial<CreateTradeSchema> = {
@@ -66,52 +68,24 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
     toast.success('Trade removed from strategy');
   };
 
+  const resetAllState = () => {
+    setTradesList([]);
+    setStrategyGroup(DEFAULT_STRATEGY_GROUP);
+    form.reset(DEFAULT_TRADE_VALUES);
+  };
+
   const handleCreateSingleTrade = form.handleSubmit(async (data) => {
     try {
-      const cleanedData = {
-        ...data,
-        notes: data.notes || undefined,
-        tradeGroupUuid: undefined,
-      };
-      await createTrade.mutateAsync({ body: cleanedData });
+      await createTrade.mutateAsync({ body: cleanTradeData(data) });
       toast.success('Trade created successfully');
       form.reset(DEFAULT_TRADE_VALUES);
       onSuccess?.();
     } catch (error) {
       console.error('Failed to create trade:', error);
-      const apiError = error as ApiError;
-      if (apiError.response?.status === 400 && apiError.response?.data?.message) {
-        const messages = Array.isArray(apiError.response.data.message)
-          ? apiError.response.data.message
-          : [apiError.response.data.message];
 
-        const fieldMap: Record<string, keyof CreateTradeSchema> = {
-          symbol: 'symbol',
-          strike: 'strikePrice',
-          expiry: 'expiryDate',
-          quantity: 'quantity',
-          cost: 'costBasis',
-          value: 'currentValue',
-          notes: 'notes',
-        };
-
-        messages.forEach((msg: string) => {
-          const lowerMsg = msg.toLowerCase();
-          if (lowerMsg.includes('type') && lowerMsg.includes('trade')) {
-            form.setError('tradeType', { message: msg });
-            return;
-          }
-          if (lowerMsg.includes('type') && lowerMsg.includes('option')) {
-            form.setError('optionType', { message: msg });
-            return;
-          }
-          for (const [keyword, field] of Object.entries(fieldMap)) {
-            if (lowerMsg.includes(keyword)) {
-              form.setError(field, { message: msg });
-              return;
-            }
-          }
-        });
+      if (isApiValidationError(error)) {
+        const messages = extractApiErrorMessages(error);
+        applyValidationErrorsToForm(messages, form.setError);
         toast.error('Failed to create trade. Please check the form for errors.');
       } else {
         toast.error('Failed to create trade. Please try again.');
@@ -120,31 +94,17 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
   });
 
   const handleCreateStrategy = async () => {
-    if (tradesList.length < 2) {
-      toast.error('Strategy must have at least 2 trades');
-      return;
-    }
-
-    if (!strategyGroup.name.trim()) {
-      toast.error('Strategy name is required');
+    const validationError = validateStrategyCreation(strategyGroup, tradesList);
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
 
     try {
-      await createStrategy.mutateAsync({
-        body: {
-          group: {
-            name: strategyGroup.name,
-            strategyType: strategyGroup.strategyType,
-            notes: strategyGroup.notes || undefined,
-          },
-          trades: tradesList,
-        },
-      });
+      const payload = prepareStrategyPayload(strategyGroup, tradesList);
+      await createStrategy.mutateAsync({ body: payload });
       toast.success(`Strategy '${strategyGroup.name}' created with ${tradesList.length} trades`);
-      setTradesList([]);
-      setStrategyGroup(DEFAULT_STRATEGY_GROUP);
-      form.reset(DEFAULT_TRADE_VALUES);
+      resetAllState();
       onSuccess?.();
     } catch (error) {
       console.error('Failed to create strategy:', error);
@@ -153,15 +113,6 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
   };
 
   const isSubmitting = createTrade.isPending || createStrategy.isPending;
-
-  const formatTradeLineItem = (trade: CreateTradeSchema): string => {
-    const formattedDate = new Date(trade.expiryDate).toLocaleDateString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: '2-digit',
-    });
-    return `${trade.symbol} $${trade.strikePrice} ${trade.optionType} ${formattedDate} - ${trade.tradeType} ${trade.quantity} @ $${trade.costBasis}`;
-  };
 
   return (
     <div className="space-y-6">
@@ -279,58 +230,11 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
         </div>
 
         {isStrategyMode && (
-          <div className="space-y-4 p-4 border rounded-lg bg-blue-50">
-            <h3 className="font-semibold text-lg">Strategy Details</h3>
-
-            <div className="space-y-2">
-              <Label htmlFor="strategy-name">
-                Strategy Name <span className="text-red-500">*</span>
-              </Label>
-              <input
-                id="strategy-name"
-                type="text"
-                placeholder="e.g., AAPL Calendar Spread Feb-15"
-                className="w-full px-3 py-2 border rounded-md"
-                value={strategyGroup.name}
-                onChange={(e) => setStrategyGroup((prev) => ({ ...prev, name: e.target.value }))}
-                disabled={isSubmitting}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="strategy-type">
-                Strategy Type <span className="text-red-500">*</span>
-              </Label>
-              <select
-                id="strategy-type"
-                className="w-full px-3 py-2 border rounded-md"
-                value={strategyGroup.strategyType}
-                onChange={(e) =>
-                  setStrategyGroup((prev) => ({
-                    ...prev,
-                    strategyType: e.target.value as StrategyGroup['strategyType'],
-                  }))
-                }
-                disabled={isSubmitting}
-              >
-                <option value="CUSTOM">Custom</option>
-                <option value="CALENDAR_SPREAD">Calendar Spread</option>
-                <option value="RATIO_CALENDAR_SPREAD">Ratio Calendar Spread</option>
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="strategy-notes">Notes (optional)</Label>
-              <Textarea
-                id="strategy-notes"
-                placeholder="Strategy notes..."
-                rows={2}
-                value={strategyGroup.notes}
-                onChange={(e) => setStrategyGroup((prev) => ({ ...prev, notes: e.target.value }))}
-                disabled={isSubmitting}
-              />
-            </div>
-          </div>
+          <StrategySection
+            strategyGroup={strategyGroup}
+            disabled={isSubmitting}
+            onChange={(updates) => setStrategyGroup((prev) => ({ ...prev, ...updates }))}
+          />
         )}
 
         {isStrategyMode && tradesList.length > 0 && (
@@ -338,21 +242,12 @@ export const TradeForm: FC<TradeFormProps> = ({ onSuccess }) => {
             <Label>Trades in strategy: {tradesList.length}</Label>
             <div className="space-y-2">
               {tradesList.map((trade, index) => (
-                <div
+                <TradeListItem
                   key={index}
-                  className="flex items-center justify-between p-3 bg-gray-50 border rounded-md"
-                >
-                  <span className="text-sm font-mono">{formatTradeLineItem(trade)}</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveTrade(index)}
-                    disabled={isSubmitting}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
+                  trade={trade}
+                  onRemove={() => handleRemoveTrade(index)}
+                  disabled={isSubmitting}
+                />
               ))}
             </div>
           </div>
