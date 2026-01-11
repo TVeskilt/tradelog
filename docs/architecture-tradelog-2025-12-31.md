@@ -446,38 +446,40 @@ React components + TanStack Query
 web/src/
 ├── pages/                      # Route components
 │   ├── Dashboard.tsx
-│   ├── TradesList.tsx
-│   ├── TradeForm.tsx
-│   └── TradeGroupForm.tsx
+│   └── TradesList.tsx
 ├── components/                 # Reusable UI (shadcn-based)
 │   ├── ui/                     # shadcn components
+│   ├── trade-form/             # Trade & strategy creation
+│   │   ├── trade-form.tsx      # Main form (includes Strategy Builder)
+│   │   ├── strategy-section.tsx
+│   │   └── trade-list-item.tsx
 │   ├── TradeCard.tsx
-│   ├── TradeGroupCard.tsx
 │   └── index.ts                # Barrel export
 ├── lib/
 │   ├── api/                    # API client layer
-│   │   ├── client.ts           # Axios/fetch instance
+│   │   ├── client.ts           # openapi-fetch instance
 │   │   ├── trades.ts           # Trade queries/mutations
-│   │   ├── trade-groups.ts           # Group queries/mutations
+│   │   ├── trade-groups.ts     # Group queries/mutations
 │   │   └── index.ts
-│   └── validation/             # Zod schemas
-│       ├── trade.schema.ts
-│       ├── trade-group.schema.ts
-│       └── index.ts
+│   ├── validation/             # Zod schemas
+│   │   ├── trade.schema.ts
+│   │   └── index.ts
+│   ├── form-error-handler.ts   # API error handling utilities
+│   └── trade-form-utils.ts     # Trade form business logic
 ├── types/
-│   └── api.types.ts            # Generated from Swagger via openapi-typescript
-├── hooks/                      # Custom React hooks
-│   ├── useTrades.ts
-│   ├── useTradeGroups.ts
-│   └── index.ts
+│   ├── api.schema.ts           # Generated from Swagger via openapi-typescript
+│   └── trade-form.types.ts     # Shared form types
+├── hooks/                      # Custom React hooks (TanStack Query)
+│   ├── use-trades.ts
+│   └── use-trade-groups.ts
 └── main.tsx
 ```
 
 **Interfaces:**
 
-- Consumes: `GET/POST/PATCH/DELETE /v1/trades`, `/v1/trade-groups`
+- Consumes: `GET/POST/PATCH/DELETE /v1/trades`, `/v1/trade-groups`, `POST /v1/strategies`
 - Receives: `DataResponseDto<T>` wrapped responses
-- Uses types from: `types/api.types.ts` (Swagger-generated)
+- Uses types from: `types/api.schema.ts` (Swagger-generated)
 
 **Dependencies:**
 
@@ -982,7 +984,7 @@ Frontend form → Validation (Zod)
               → Frontend cache invalidation (TanStack Query)
 ```
 
-**Create Group:**
+**Create Group (from existing trades):**
 
 ```
 Frontend (select trades + name) → Validation
@@ -998,6 +1000,25 @@ Frontend (select trades + name) → Validation
                                 → Return DataResponseDto<TradeGroupResponseDto>
                                 → Frontend cache invalidation
 ```
+
+**Create Strategy (atomic group + trades via Strategy Builder):**
+
+```
+Frontend (Trade Form strategy mode) → Validation (Zod)
+                                    → POST /v1/strategies
+                                    → DTO validation (CreateStrategyDto)
+                                    → TradeGroupsService.createStrategy()
+                                    → Prisma transaction BEGIN
+                                    → INSERT INTO groups (with metadata)
+                                    → INSERT INTO trades (with tradeGroupUuid, status = OPEN)
+                                    → Prisma transaction COMMIT
+                                    → Calculate derived fields (closingExpiry, status, metrics)
+                                    → Transform to TradeGroupResponseDto
+                                    → Return DataResponseDto<TradeGroupResponseDto>
+                                    → Frontend cache invalidation
+```
+
+**Key Difference:** Strategy Builder creates both group and trades atomically, while the traditional flow groups existing trades.
 
 **Fetch Group with Metrics (Read Path):**
 
@@ -1208,11 +1229,29 @@ export enum ItemType {
 | ------ | ------------------------------------ | ----------------------- | -------------------------- | ------------------------------------- |
 | GET    | `/v1/trade-groups`                         | List all groups         | -                          | `DataResponseDto<TradeGroupResponseDto[]>` |
 | GET    | `/v1/trade-groups/:uuid`                   | Get single group        | -                          | `DataResponseDto<TradeGroupResponseDto>`   |
-| POST   | `/v1/trade-groups`                         | Create group            | `CreateTradeGroupDto`           | `DataResponseDto<TradeGroupResponseDto>`   |
-| PATCH  | `/v1/trade-groups/:uuid`                   | Update group            | `UpdateTradeGroupDto`           | `DataResponseDto<TradeGroupResponseDto>`   |
+| POST   | `/v1/trade-groups`                         | Create group from existing trades | `CreateTradeGroupDto`           | `DataResponseDto<TradeGroupResponseDto>`   |
+| PATCH  | `/v1/trade-groups/:uuid`                   | Update group metadata   | `UpdateTradeGroupDto`           | `DataResponseDto<TradeGroupResponseDto>`   |
 | DELETE | `/v1/trade-groups/:uuid`                   | Delete group            | -                          | `DataResponseDto<void>`               |
 | POST   | `/v1/trade-groups/:uuid/trades`            | Add trades to group     | `{ tradeUuids: string[] }` | `DataResponseDto<TradeGroupResponseDto>`   |
 | DELETE | `/v1/trade-groups/:uuid/trades/:tradeUuid` | Remove trade from group | -                          | `DataResponseDto<TradeGroupResponseDto>`   |
+
+#### Strategy Builder Endpoint
+
+**Base:** `/v1/strategies`
+
+**Updated Implementation (2026-01-11):**
+
+The Strategy Builder provides atomic creation of a trade group and all its child trades in a single transaction. This is the primary method for creating multi-leg strategies in the UI via the Trade Form's strategy mode.
+
+| Method | Endpoint         | Description                                      | Request Body         | Response                            |
+| ------ | ---------------- | ------------------------------------------------ | -------------------- | ----------------------------------- |
+| POST   | `/v1/strategies` | Atomically create group + trades (Strategy Builder) | `CreateStrategyDto` | `DataResponseDto<TradeGroupResponseDto>` |
+
+**Key Characteristics:**
+- **Atomic Transaction:** Creates both the trade group and all child trades in a single database transaction
+- **Frontend Integration:** Used by the Trade Form's strategy toggle mode
+- **Single Source:** Replaces the need for separate group creation flow
+- **Data Validation:** Ensures all trades have consistent data before creation
 
 ### DTO Definitions
 
@@ -1303,6 +1342,54 @@ export class CreateTradeGroupDto {
   readonly notes?: string;
 }
 ```
+
+**CreateStrategyDto (Strategy Builder):**
+
+```typescript
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsEnum, IsOptional, IsArray, ArrayMinSize, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { StrategyType } from '@prisma/client';
+import { CreateTradeDto } from './create-trade.dto';
+
+class StrategyGroupDto {
+  @ApiProperty({ example: 'Calendar Spread Feb-15-2026' })
+  @IsString()
+  readonly name!: string;
+
+  @ApiProperty({ enum: StrategyType })
+  @IsEnum(StrategyType)
+  readonly strategyType!: StrategyType;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  readonly notes?: string;
+}
+
+export class CreateStrategyDto {
+  @ApiProperty({ type: StrategyGroupDto, description: 'Group metadata' })
+  @ValidateNested()
+  @Type(() => StrategyGroupDto)
+  readonly group!: StrategyGroupDto;
+
+  @ApiProperty({
+    type: [CreateTradeDto],
+    description: 'Array of trades to create (min 2)',
+    example: [
+      { symbol: 'AAPL', strikePrice: 150, expiryDate: '2026-02-15', ... },
+      { symbol: 'AAPL', strikePrice: 150, expiryDate: '2026-03-15', ... }
+    ]
+  })
+  @IsArray()
+  @ArrayMinSize(2)
+  @ValidateNested({ each: true })
+  @Type(() => CreateTradeDto)
+  readonly trades!: CreateTradeDto[];
+}
+```
+
+**Note:** CreateStrategyDto enables atomic creation of a trade group and all its child trades in a single transaction. This is used by the Trade Form's Strategy Builder mode (STORY-007).
 
 #### Response DTOs (Output Transformation)
 
