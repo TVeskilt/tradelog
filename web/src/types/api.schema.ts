@@ -4,600 +4,666 @@
  */
 
 export interface paths {
-  '/v1': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/v1": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AppController_getRoot_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations['AppController_getRoot_v1'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/health': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/v1/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AppController_getHealth_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations['AppController_getHealth_v1'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/trades': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/v1/trades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all trades */
+        get: operations["TradesController_findMany_v1"];
+        put?: never;
+        /** Create a new trade */
+        post: operations["TradesController_create_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get all trades */
-    get: operations['TradesController_findMany_v1'];
-    put?: never;
-    /** Create a new trade */
-    post: operations['TradesController_create_v1'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/trades/{uuid}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/v1/trades/{uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a trade by UUID */
+        get: operations["TradesController_findByUuid_v1"];
+        /** Update a trade by UUID */
+        put: operations["TradesController_updateByUuid_v1"];
+        post?: never;
+        /** Delete a trade by UUID */
+        delete: operations["TradesController_deleteByUuid_v1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get a trade by UUID */
-    get: operations['TradesController_findByUuid_v1'];
-    /** Update a trade by UUID */
-    put: operations['TradesController_updateByUuid_v1'];
-    post?: never;
-    /** Delete a trade by UUID */
-    delete: operations['TradesController_deleteByUuid_v1'];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/trade-groups': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/v1/trade-groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all trade groups with metrics */
+        get: operations["TradeGroupsController_findMany_v1"];
+        put?: never;
+        /** Create a new trade group */
+        post: operations["TradeGroupsController_create_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get all trade groups with metrics */
-    get: operations['TradeGroupsController_findMany_v1'];
-    put?: never;
-    /** Create a new trade group */
-    post: operations['TradeGroupsController_create_v1'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/trade-groups/{uuid}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/v1/trade-groups/{uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a trade group by UUID */
+        get: operations["TradeGroupsController_findByUuid_v1"];
+        put?: never;
+        post?: never;
+        /** Delete a trade group by UUID */
+        delete: operations["TradeGroupsController_deleteByUuid_v1"];
+        options?: never;
+        head?: never;
+        /** Partially update a trade group by UUID */
+        patch: operations["TradeGroupsController_updateByUuid_v1"];
+        trace?: never;
     };
-    /** Get a trade group by UUID */
-    get: operations['TradeGroupsController_findByUuid_v1'];
-    put?: never;
-    post?: never;
-    /** Delete a trade group by UUID */
-    delete: operations['TradeGroupsController_deleteByUuid_v1'];
-    options?: never;
-    head?: never;
-    /** Partially update a trade group by UUID */
-    patch: operations['TradeGroupsController_updateByUuid_v1'];
-    trace?: never;
-  };
+    "/v1/strategies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a multi-leg strategy (group + trades atomically) */
+        post: operations["StrategiesController_createStrategy_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    TradeResponseDto: {
-      /** @example 123e4567-e89b-12d3-a456-426614174000 */
-      uuid: string;
-      /** @example AAPL */
-      symbol: string;
-      /** @example 150 */
-      strikePrice: number;
-      /** @example 2026-02-15 */
-      expiryDate: string;
-      /**
-       * @example BUY
-       * @enum {string}
-       */
-      tradeType: 'BUY' | 'SELL';
-      /**
-       * @example CALL
-       * @enum {string}
-       */
-      optionType: 'CALL' | 'PUT';
-      /** @example 10 */
-      quantity: number;
-      /** @example 1500 */
-      costBasis: number;
-      /** @example 1750 */
-      currentValue: number;
-      /**
-       * @example OPEN
-       * @enum {string}
-       */
-      status: 'OPEN' | 'CLOSING_SOON' | 'CLOSED';
-      /** @example Long call position on AAPL */
-      notes?: Record<string, never>;
-      /** @example a3bb189e-8bf9-3888-9912-ace4e6543002 */
-      tradeGroupUuid?: Record<string, never>;
-      /**
-       * @description Calculated P&L (currentValue - costBasis)
-       * @example 250
-       */
-      pnl: number;
-      /**
-       * @description Days until expiry
-       * @example 42
-       */
-      daysToExpiry: number;
+    schemas: {
+        TradeResponseDto: {
+            /** @example 123e4567-e89b-12d3-a456-426614174000 */
+            uuid: string;
+            /** @example AAPL */
+            symbol: string;
+            /** @example 150 */
+            strikePrice: number;
+            /** @example 2026-02-15 */
+            expiryDate: string;
+            /**
+             * @example BUY
+             * @enum {string}
+             */
+            tradeType: "BUY" | "SELL";
+            /**
+             * @example CALL
+             * @enum {string}
+             */
+            optionType: "CALL" | "PUT";
+            /** @example 10 */
+            quantity: number;
+            /** @example 1500 */
+            costBasis: number;
+            /** @example 1750 */
+            currentValue: number;
+            /**
+             * @example OPEN
+             * @enum {string}
+             */
+            status: "OPEN" | "CLOSING_SOON" | "CLOSED";
+            /** @example Long call position on AAPL */
+            notes?: string | null;
+            /** @example a3bb189e-8bf9-3888-9912-ace4e6543002 */
+            tradeGroupUuid?: string | null;
+            /**
+             * @description Calculated P&L (currentValue - costBasis)
+             * @example 250
+             */
+            pnl: number;
+            /**
+             * @description Days until expiry
+             * @example 42
+             */
+            daysToExpiry: number;
+        };
+        CreateTradeDto: {
+            /**
+             * @description Stock symbol
+             * @example AAPL
+             */
+            symbol: string;
+            /**
+             * @description Strike price of the option
+             * @example 150
+             */
+            strikePrice: number;
+            /**
+             * Format: date-time
+             * @description Expiry date (ISO 8601 DateTime format)
+             * @example 2026-02-15T00:00:00.000Z
+             */
+            expiryDate: string;
+            /**
+             * @description Trade type (BUY or SELL)
+             * @example BUY
+             * @enum {string}
+             */
+            tradeType: "BUY" | "SELL";
+            /**
+             * @description Option type (CALL or PUT)
+             * @example CALL
+             * @enum {string}
+             */
+            optionType: "CALL" | "PUT";
+            /**
+             * @description Number of contracts
+             * @example 10
+             */
+            quantity: number;
+            /**
+             * @description Total cost basis
+             * @example 1500
+             */
+            costBasis: number;
+            /**
+             * @description Current value of the position
+             * @example 1750
+             */
+            currentValue: number;
+            /**
+             * @description Optional notes
+             * @example Long call position on AAPL
+             */
+            notes?: string;
+            /**
+             * @description Optional trade group UUID
+             * @example a3bb189e-8bf9-3888-9912-ace4e6543002
+             */
+            tradeGroupUuid?: string;
+        };
+        UpdateTradeDto: {
+            /**
+             * @description Trade status
+             * @example CLOSING_SOON
+             * @enum {string}
+             */
+            status?: "OPEN" | "CLOSING_SOON" | "CLOSED";
+        };
+        TradeGroupResponseDto: {
+            /** @example b4cc290f-9cf0-4999-0023-bdf5f7654003 */
+            uuid: string;
+            /** @example Calendar Spread Feb-15-2026 */
+            name: string;
+            /**
+             * @example CALENDAR_SPREAD
+             * @enum {string}
+             */
+            strategyType: "CALENDAR_SPREAD" | "RATIO_CALENDAR_SPREAD" | "CUSTOM";
+            /** @example Selling Feb-15 $150 call, buying Mar-15 $150 call */
+            notes?: string | null;
+            /**
+             * Format: date-time
+             * @description Earliest expiry date among child trades
+             * @example 2026-02-15T00:00:00.000Z
+             */
+            closingExpiry: string;
+            /**
+             * @description Days until closingExpiry
+             * @example 41
+             */
+            daysUntilClosingExpiry: number;
+            /**
+             * @description Derived from closingExpiry
+             * @example OPEN
+             * @enum {string}
+             */
+            status: "OPEN" | "CLOSING_SOON" | "CLOSED";
+            /**
+             * @description Sum of all child trade costBasis values
+             * @example 1500
+             */
+            totalCostBasis: number;
+            /**
+             * @description Sum of all child trade currentValue values
+             * @example 1750
+             */
+            totalCurrentValue: number;
+            /**
+             * @description Calculated P&L (totalCurrentValue - totalCostBasis)
+             * @example 250
+             */
+            profitLoss: number;
+            /** @description Child trades in this group */
+            trades: components["schemas"]["TradeResponseDto"][];
+        };
+        CreateTradeGroupDto: {
+            /**
+             * @description Trade group name
+             * @example Calendar Spread Feb-15-2026
+             */
+            name: string;
+            /**
+             * @description Strategy type for the trade group
+             * @example CALENDAR_SPREAD
+             * @enum {string}
+             */
+            strategyType: "CALENDAR_SPREAD" | "RATIO_CALENDAR_SPREAD" | "CUSTOM";
+            /**
+             * @description Array of trade UUIDs to include in the trade group (minimum 2 required)
+             * @example [
+             *       "a3bb189e-8bf9-3888-9912-ace4e6543001",
+             *       "a3bb189e-8bf9-3888-9912-ace4e6543002"
+             *     ]
+             */
+            tradeUuids: string[];
+            /**
+             * @description Optional notes about the trade group
+             * @example Selling Feb-15 $150 call, buying Mar-15 $150 call
+             */
+            notes?: string;
+        };
+        UpdateTradeGroupDto: {
+            /**
+             * @description Trade group name
+             * @example Calendar Spread Feb-15-2026 (UPDATED)
+             */
+            name?: string;
+            /**
+             * @description Strategy type for the trade group
+             * @example CUSTOM
+             * @enum {string}
+             */
+            strategyType?: "CALENDAR_SPREAD" | "RATIO_CALENDAR_SPREAD" | "CUSTOM";
+            /**
+             * @description Optional notes about the trade group
+             * @example Updated notes for this trade group
+             */
+            notes?: string;
+        };
+        GroupDataDto: {
+            /**
+             * @description Strategy group name
+             * @example AAPL Calendar Spread Feb-15
+             */
+            name: string;
+            /**
+             * @description Strategy type
+             * @example CALENDAR_SPREAD
+             * @enum {string}
+             */
+            strategyType: "CALENDAR_SPREAD" | "RATIO_CALENDAR_SPREAD" | "CUSTOM";
+            /**
+             * @description Optional notes about the strategy
+             * @example Selling Feb-15 $150 call, buying Mar-15 $150 call
+             */
+            notes?: string;
+        };
+        CreateStrategyDto: {
+            /** @description Strategy group metadata */
+            group: components["schemas"]["GroupDataDto"];
+            /** @description Array of trades to include in the strategy (minimum 2 required) */
+            trades: components["schemas"]["CreateTradeDto"][];
+        };
     };
-    CreateTradeDto: {
-      /**
-       * @description Stock symbol
-       * @example AAPL
-       */
-      symbol: string;
-      /**
-       * @description Strike price of the option
-       * @example 150
-       */
-      strikePrice: number;
-      /**
-       * Format: date-time
-       * @description Expiry date (ISO 8601 DateTime format)
-       * @example 2026-02-15T00:00:00.000Z
-       */
-      expiryDate: string;
-      /**
-       * @description Trade type (BUY or SELL)
-       * @example BUY
-       * @enum {string}
-       */
-      tradeType: 'BUY' | 'SELL';
-      /**
-       * @description Option type (CALL or PUT)
-       * @example CALL
-       * @enum {string}
-       */
-      optionType: 'CALL' | 'PUT';
-      /**
-       * @description Number of contracts
-       * @example 10
-       */
-      quantity: number;
-      /**
-       * @description Total cost basis
-       * @example 1500
-       */
-      costBasis: number;
-      /**
-       * @description Current value of the position
-       * @example 1750
-       */
-      currentValue: number;
-      /**
-       * @description Optional notes
-       * @example Long call position on AAPL
-       */
-      notes?: string;
-      /**
-       * @description Optional trade group UUID
-       * @example a3bb189e-8bf9-3888-9912-ace4e6543002
-       */
-      tradeGroupUuid?: string;
-    };
-    UpdateTradeDto: {
-      /**
-       * @description Trade status
-       * @example CLOSING_SOON
-       * @enum {string}
-       */
-      status?: 'OPEN' | 'CLOSING_SOON' | 'CLOSED';
-    };
-    TradeGroupResponseDto: {
-      /** @example b4cc290f-9cf0-4999-0023-bdf5f7654003 */
-      uuid: string;
-      /** @example Calendar Spread Feb-15-2026 */
-      name: string;
-      /**
-       * @example CALENDAR_SPREAD
-       * @enum {string}
-       */
-      strategyType: 'CALENDAR_SPREAD' | 'RATIO_CALENDAR_SPREAD' | 'CUSTOM';
-      /** @example Selling Feb-15 $150 call, buying Mar-15 $150 call */
-      notes?: Record<string, never>;
-      /**
-       * Format: date-time
-       * @description Earliest expiry date among child trades
-       * @example 2026-02-15T00:00:00.000Z
-       */
-      closingExpiry: string;
-      /**
-       * @description Days until closingExpiry
-       * @example 41
-       */
-      daysUntilClosingExpiry: number;
-      /**
-       * @description Derived from closingExpiry
-       * @example OPEN
-       * @enum {string}
-       */
-      status: 'OPEN' | 'CLOSING_SOON' | 'CLOSED';
-      /**
-       * @description Sum of all child trade costBasis values
-       * @example 1500
-       */
-      totalCostBasis: number;
-      /**
-       * @description Sum of all child trade currentValue values
-       * @example 1750
-       */
-      totalCurrentValue: number;
-      /**
-       * @description Calculated P&L (totalCurrentValue - totalCostBasis)
-       * @example 250
-       */
-      profitLoss: number;
-      /** @description Child trades in this group */
-      trades: components['schemas']['TradeResponseDto'][];
-    };
-    CreateTradeGroupDto: {
-      /**
-       * @description Trade group name
-       * @example Calendar Spread Feb-15-2026
-       */
-      name: string;
-      /**
-       * @description Strategy type for the trade group
-       * @example CALENDAR_SPREAD
-       * @enum {string}
-       */
-      strategyType: 'CALENDAR_SPREAD' | 'RATIO_CALENDAR_SPREAD' | 'CUSTOM';
-      /**
-       * @description Array of trade UUIDs to include in the trade group (minimum 2 required)
-       * @example [
-       *       "a3bb189e-8bf9-3888-9912-ace4e6543001",
-       *       "a3bb189e-8bf9-3888-9912-ace4e6543002"
-       *     ]
-       */
-      tradeUuids: string[];
-      /**
-       * @description Optional notes about the trade group
-       * @example Selling Feb-15 $150 call, buying Mar-15 $150 call
-       */
-      notes?: string;
-    };
-    UpdateTradeGroupDto: {
-      /**
-       * @description Trade group name
-       * @example Calendar Spread Feb-15-2026 (UPDATED)
-       */
-      name?: string;
-      /**
-       * @description Strategy type for the trade group
-       * @example CUSTOM
-       * @enum {string}
-       */
-      strategyType?: 'CALENDAR_SPREAD' | 'RATIO_CALENDAR_SPREAD' | 'CUSTOM';
-      /**
-       * @description Optional notes about the trade group
-       * @example Updated notes for this trade group
-       */
-      notes?: string;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  AppController_getRoot_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    AppController_getRoot_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content?: never;
-      };
-    };
-  };
-  AppController_getHealth_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
-        content?: never;
-      };
     };
-  };
-  TradesController_findMany_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    AppController_getHealth_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          'application/json': {
-            data: components['schemas']['TradeResponseDto'][];
-          };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
-      };
     };
-  };
-  TradesController_create_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['CreateTradeDto'];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
+    TradesController_findMany_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          'application/json': {
-            data: components['schemas']['TradeResponseDto'];
-          };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TradeResponseDto"][];
+                    };
+                };
+            };
         };
-      };
     };
-  };
-  TradesController_findByUuid_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Trade UUID */
-        uuid: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    TradesController_create_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          'application/json': {
-            data: components['schemas']['TradeResponseDto'];
-          };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTradeDto"];
+            };
         };
-      };
-    };
-  };
-  TradesController_updateByUuid_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Trade UUID */
-        uuid: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateTradeDto'];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TradeResponseDto"];
+                    };
+                };
+            };
         };
-        content: {
-          'application/json': {
-            data: components['schemas']['TradeResponseDto'];
-          };
+    };
+    TradesController_findByUuid_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Trade UUID */
+                uuid: string;
+            };
+            cookie?: never;
         };
-      };
-    };
-  };
-  TradesController_deleteByUuid_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Trade UUID */
-        uuid: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TradeResponseDto"];
+                    };
+                };
+            };
         };
-        content: {
-          'application/json': {
-            data: components['schemas']['TradeResponseDto'];
-          };
+    };
+    TradesController_updateByUuid_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Trade UUID */
+                uuid: string;
+            };
+            cookie?: never;
         };
-      };
-    };
-  };
-  TradeGroupsController_findMany_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTradeDto"];
+            };
         };
-        content: {
-          'application/json': {
-            data: components['schemas']['TradeGroupResponseDto'][];
-          };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TradeResponseDto"];
+                    };
+                };
+            };
         };
-      };
     };
-  };
-  TradeGroupsController_create_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['CreateTradeGroupDto'];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
+    TradesController_deleteByUuid_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Trade UUID */
+                uuid: string;
+            };
+            cookie?: never;
         };
-        content: {
-          'application/json': {
-            data: components['schemas']['TradeGroupResponseDto'];
-          };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TradeResponseDto"];
+                    };
+                };
+            };
         };
-      };
     };
-  };
-  TradeGroupsController_findByUuid_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Trade group UUID */
-        uuid: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    TradeGroupsController_findMany_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          'application/json': {
-            data: components['schemas']['TradeGroupResponseDto'];
-          };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TradeGroupResponseDto"][];
+                    };
+                };
+            };
         };
-      };
     };
-  };
-  TradeGroupsController_deleteByUuid_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Trade group UUID */
-        uuid: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    TradeGroupsController_create_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          'application/json': {
-            data: components['schemas']['TradeGroupResponseDto'];
-          };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTradeGroupDto"];
+            };
         };
-      };
-    };
-  };
-  TradeGroupsController_updateByUuid_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Trade group UUID */
-        uuid: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateTradeGroupDto'];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TradeGroupResponseDto"];
+                    };
+                };
+            };
         };
-        content: {
-          'application/json': {
-            data: components['schemas']['TradeGroupResponseDto'];
-          };
-        };
-      };
     };
-  };
+    TradeGroupsController_findByUuid_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Trade group UUID */
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TradeGroupResponseDto"];
+                    };
+                };
+            };
+        };
+    };
+    TradeGroupsController_deleteByUuid_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Trade group UUID */
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TradeGroupResponseDto"];
+                    };
+                };
+            };
+        };
+    };
+    TradeGroupsController_updateByUuid_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Trade group UUID */
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTradeGroupDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TradeGroupResponseDto"];
+                    };
+                };
+            };
+        };
+    };
+    StrategiesController_createStrategy_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStrategyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TradeGroupResponseDto"];
+                    };
+                };
+            };
+        };
+    };
 }

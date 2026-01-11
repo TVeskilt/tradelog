@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateTradeGroupDto, UpdateTradeGroupDto } from '../dto/request';
+import { CreateTradeGroupDto, UpdateTradeGroupDto, CreateStrategyDto } from '../dto/request';
 import { TradeGroupWithMetrics } from '../interfaces/trade-group-with-metrics.interface';
 import { TradeStatus, TradeGroup, Trade } from '@prisma/client';
 import { TradeEnrichmentUtil } from '../utils/trade-enrichment.util';
@@ -76,6 +76,39 @@ export class TradeGroupsService {
       }
       throw error;
     }
+  }
+
+  async createStrategy(createStrategyDto: CreateStrategyDto): Promise<TradeGroupWithMetrics> {
+    const { group, trades } = createStrategyDto;
+
+    const result = await this.prisma.$transaction(async (prisma) => {
+      const newTradeGroup = await prisma.tradeGroup.create({
+        data: {
+          name: group.name,
+          strategyType: group.strategyType,
+          notes: group.notes,
+        },
+      });
+
+      const createdTrades = await Promise.all(
+        trades.map((tradeData) =>
+          prisma.trade.create({
+            data: {
+              ...tradeData,
+              tradeGroupUuid: newTradeGroup.uuid,
+              status: 'OPEN',
+            },
+          }),
+        ),
+      );
+
+      return {
+        ...newTradeGroup,
+        trades: createdTrades,
+      };
+    });
+
+    return this.calculateMetrics(result);
   }
 
   async deleteByUuid(uuid: string): Promise<void> {

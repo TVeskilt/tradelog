@@ -43,11 +43,21 @@ export class TradeResponseDto {
   @Expose()
   status!: TradeStatus;
 
-  @ApiProperty({ example: 'Long call position on AAPL', required: false })
+  @ApiProperty({
+    type: String,
+    example: 'Long call position on AAPL',
+    required: false,
+    nullable: true
+  })
   @Expose()
   notes!: string | null;
 
-  @ApiProperty({ example: 'a3bb189e-8bf9-3888-9912-ace4e6543002', required: false })
+  @ApiProperty({
+    type: String,
+    example: 'a3bb189e-8bf9-3888-9912-ace4e6543002',
+    required: false,
+    nullable: true
+  })
   @Expose()
   tradeGroupUuid!: string | null;
 
