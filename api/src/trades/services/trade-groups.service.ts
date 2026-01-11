@@ -4,9 +4,9 @@ import { CreateTradeGroupDto, UpdateTradeGroupDto, CreateStrategyDto } from '../
 import { TradeGroupWithMetrics } from '../interfaces/trade-group-with-metrics.interface';
 import { TradeStatus, TradeGroup, Trade } from '@prisma/client';
 import { TradeEnrichmentUtil } from '../utils/trade-enrichment.util';
-import { TradeGroupMetricsUtil } from '../utils/trade-group-metrics.util';
 import { TradeStatusUtil } from '../utils/trade-status.util';
 import { PrismaErrorUtil } from '../../common/utils/prisma-error.util';
+import { min } from 'date-fns';
 
 @Injectable()
 export class TradeGroupsService {
@@ -131,12 +131,12 @@ export class TradeGroupsService {
     }
 
     const enrichedTrades = trades.map((trade) => TradeEnrichmentUtil.enrichWithDerivedFields(trade));
-    const closingExpiry = TradeGroupMetricsUtil.calculateClosingExpiry(trades);
+    const closingExpiry = min(trades.map((trade) => new Date(trade.expiryDate)));
     const daysUntilClosingExpiry = TradeStatusUtil.calculateDaysUntilExpiry(closingExpiry);
     const status = TradeStatusUtil.deriveStatusFromDays(daysUntilClosingExpiry);
-    const totalCostBasis = TradeGroupMetricsUtil.calculateTotalCostBasis(trades);
-    const totalCurrentValue = TradeGroupMetricsUtil.calculateTotalCurrentValue(trades);
-    const profitLoss = TradeGroupMetricsUtil.calculateProfitLoss(totalCurrentValue, totalCostBasis);
+    const totalCostBasis = trades.reduce((sum, trade) => sum + Number(trade.costBasis), 0);
+    const totalCurrentValue = trades.reduce((sum, trade) => sum + Number(trade.currentValue), 0);
+    const profitLoss = totalCurrentValue - totalCostBasis;
 
     return {
       ...tradeGroup,
